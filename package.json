@@ -1,0 +1,7 @@
+{
+  "name": "mini-habits",
+  "version": "0.1.0",
+  "description": "Mini-Habits 游戏化引擎 — 儿童原子习惯工具",
+  "type": "module",
+  "private": true
+}

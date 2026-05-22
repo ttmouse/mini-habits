@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Mini-Habits · 养成好习惯</title>
+<style>
+  /* ===== Reset & Base ===== */
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans SC',sans-serif;
+    background:#1a1a2e;
+    min-height:100vh;
+    color:#fff;
+    overflow-x:hidden;
+  }
+
+  /* ===== Stars background ===== */
+  .stars{
+    position:fixed;top:0;left:0;right:0;bottom:0;
+    background: radial-gradient(ellipse at 20% 50%, #16213e 0%, #1a1a2e 70%);
+    z-index:-1;
+  }
+  .stars::after{
+    content:'';position:absolute;top:0;left:0;right:0;bottom:0;
+    background-image:
+      radial-gradient(2px 2px at 20px 30px, #eee, transparent),
+      radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+      radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+      radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.6), transparent),
+      radial-gradient(2px 2px at 160px 30px, #ddd, transparent);
+    background-size:200px 100px;
+    background-repeat:repeat;
+  }
+
+  /* ===== App Container ===== */
+  .app{max-width:480px;margin:0 auto;padding:12px;position:relative}
+
+  /* ===== Character Area ===== */
+  .character-area{
+    text-align:center;
+    padding:24px 16px 16px;
+    position:relative;
+  }
+  .character-box{
+    position:relative;
+    display:inline-block;
+    width:120px;height:120px;
+    margin-bottom:8px;
+  }
+  .character{
+    width:120px;height:120px;
+    border-radius:50%;
+    background:linear-gradient(145deg,#f5af19,#f12711);
+    display:flex;align-items:center;justify-content:center;
+    font-size:56px;
+    transition:all 0.3s ease;
+    box-shadow:0 8px 32px rgba(241,39,17,0.3);
+    position:relative;
+    cursor:pointer;
+    user-select:none;
+  }
+  .character:active{transform:scale(0.95)}
+  .character.happy{animation:bounce 0.4s ease}
+  @keyframes bounce{0%,100%{transform:translateY(0)}30%{transform:translateY(-12px)}60%{transform:translateY(-6px)}}
+
+  /* Level ring */
+  .level-ring{
+    position:absolute;top:-4px;left:-4px;right:-4px;bottom:-4px;
+    border-radius:50%;
+    border:3px solid transparent;
+    transition:border-color 0.5s;
+  }
+
+  /* Character accessories */
+  .char-accessory{
+    position:absolute;
+    font-size:24px;
+    transition:all 0.3s;
+  }
+  .char-hat{top:-18px;right:-10px;font-size:30px}
+  .char-pet{position:absolute;bottom:-8px;right:-12px;font-size:22px;animation:float 3s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+  /* Name & Title */
+  .char-name{font-size:20px;font-weight:700;margin-bottom:2px}
+  .char-title{font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:10px}
+  .char-lvl{font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:4px}
+
+  /* ===== EXP Bar ===== */
+  .exp-section{margin:0 4px 14px;position:relative}
+  .exp-bar-bg{
+    background:rgba(255,255,255,0.1);
+    border-radius:20px;height:12px;overflow:hidden;
+    position:relative;
+  }
+  .exp-bar-fill{
+    height:100%;width:0%;
+    background:linear-gradient(90deg,#4facfe,#00f2fe);
+    border-radius:20px;
+    transition:width 0.6s cubic-bezier(0.34,1.56,0.64,1);
+    position:relative;
+  }
+  .exp-bar-fill::after{
+    content:'';position:absolute;top:0;left:0;right:0;bottom:0;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3));
+    border-radius:20px;
+  }
+  .exp-label{
+    display:flex;justify-content:space-between;
+    font-size:11px;color:rgba(255,255,255,0.5);margin-top:4px;padding:0 4px;
+  }
+
+  /* ===== Stats Row ===== */
+  .stats-row{
+    display:flex;justify-content:center;gap:24px;
+    padding:10px 16px;
+    background:rgba(255,255,255,0.05);
+    border-radius:16px;
+    margin:0 4px 12px;
+  }
+  .stat-item{text-align:center;min-width:60px}
+  .stat-icon{font-size:20px;margin-bottom:2px}
+  .stat-value{font-size:18px;font-weight:700}
+  .stat-label{font-size:10px;color:rgba(255,255,255,0.4);margin-top:-1px}
+
+  /* ===== Tabs ===== */
+  .tabs{
+    display:flex;gap:4px;margin-bottom:10px;
+    background:rgba(255,255,255,0.06);
+    border-radius:14px;padding:3px;
+  }
+  .tab{
+    flex:1;padding:9px 8px;border:none;border-radius:11px;
+    font-size:12px;font-weight:600;cursor:pointer;
+    background:transparent;color:rgba(255,255,255,0.5);
+    transition:all 0.25s;white-space:nowrap;
+    display:flex;align-items:center;justify-content:center;gap:4px;
+  }
+  .tab:hover{color:rgba(255,255,255,0.8)}
+  .tab.active{
+    background:rgba(255,255,255,0.12);
+    color:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.2);
+  }
+  .tab .badge{
+    background:#f5576c;color:#fff;font-size:9px;
+    padding:1px 6px;border-radius:8px;font-weight:700;
+  }
+
+  /* ===== Task List ===== */
+  .task-list{display:flex;flex-direction:column;gap:6px;padding-bottom:60px}
+  .task-list.hidden{display:none}
+
+  /* ===== Task Card ===== */
+  .task-card{
+    background:rgba(255,255,255,0.06);
+    backdrop-filter:blur(10px);
+    border-radius:14px;padding:12px 14px;
+    display:flex;align-items:center;gap:12px;
+    cursor:pointer;transition:all 0.2s;
+    border:1px solid rgba(255,255,255,0.04);
+    user-select:none;position:relative;overflow:hidden;
+  }
+  .task-card::before{
+    content:'';position:absolute;top:0;left:0;width:3px;height:100%;
+    background:transparent;transition:background 0.3s;
+    border-radius:0 3px 3px 0;
+  }
+  .task-card:active{transform:scale(0.98)}
+  .task-card:hover{border-color:rgba(255,255,255,0.1)}
+
+  /* Habit color accent */
+  .task-card[data-type="habit"]::before{background:#4facfe}
+  .task-card[data-type="daily"]::before{background:#43e97b}
+  .task-card[data-type="todo"]::before{background:#f5a623}
+  .task-card[data-type="reward"]::before{background:#f093fb}
+
+  .task-card.completed{opacity:0.5}
+  .task-card.completed .task-text{text-decoration:line-through;color:rgba(255,255,255,0.4)}
+
+  /* Check button */
+  .task-check{
+    width:30px;height:30px;border-radius:50%;
+    border:2px solid rgba(255,255,255,0.2);
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;font-size:13px;transition:all 0.25s;
+    background:transparent;color:transparent;
+  }
+  .task-card.completed .task-check{
+    background:#43e97b;border-color:#43e97b;color:#fff;
+    box-shadow:0 0 12px rgba(67,233,123,0.4);
+  }
+  .task-card[data-type="reward"] .task-check{border-color:rgba(245,163,35,0.5)}
+  .task-card[data-type="reward"].completed .task-check{background:#f5a623;border-color:#f5a623;color:#fff}
+
+  .task-body{flex:1;min-width:0}
+  .task-text{font-size:14px;font-weight:600;line-height:1.3}
+  .task-meta{display:flex;gap:6px;margin-top:4px;flex-wrap:wrap}
+  .tag{
+    font-size:10px;padding:1px 7px;border-radius:6px;font-weight:600;
+  }
+  .tag-easy{background:rgba(76,175,80,0.2);color:#81c784}
+  .tag-medium{background:rgba(255,193,7,0.2);color:#ffd54f}
+  .tag-hard{background:rgba(244,67,54,0.2);color:#ef9a9a}
+  .tag-value{
+    font-size:10px;font-weight:700;padding:1px 7px;border-radius:6px;
+  }
+  .tag-hot{background:rgba(244,67,54,0.2);color:#ef9a9a}
+  .tag-cold{background:rgba(79,172,254,0.2);color:#81d4fa}
+  .tag-neutral{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5)}
+  .streak-badge{
+    background:rgba(255,193,7,0.2);color:#ffd54f;
+    font-size:10px;padding:1px 7px;border-radius:6px;font-weight:700;
+  }
+  .price-tag{background:rgba(245,163,35,0.2);color:#ffd54f;font-size:10px;padding:1px 7px;border-radius:6px;font-weight:700}
+
+  /* ===== Floating Score ===== */
+  .float-score{
+    position:absolute;right:-8px;top:4px;
+    font-weight:700;font-size:13px;
+    pointer-events:none;z-index:10;
+    animation:floatUp 1s ease forwards;
+  }
+  .float-score.exp{color:#4facfe}
+  .float-score.gp{color:#f5a623}
+  @keyframes floatUp{
+    0%{opacity:1;transform:translateY(0) scale(1)}
+    100%{opacity:0;transform:translateY(-30px) scale(1.2)}
+  }
+
+  /* ===== Reward Shop special ===== */
+  .reward-detail{font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px}
+
+  /* ===== Add Button ===== */
+  .add-btn-wrap{
+    position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+    z-index:100;
+  }
+  .btn-add{
+    width:56px;height:56px;border-radius:50%;
+    border:none;background:linear-gradient(135deg,#f5af19,#f12711);
+    color:#fff;font-size:28px;font-weight:300;
+    cursor:pointer;box-shadow:0 4px 20px rgba(241,39,17,0.4);
+    transition:all 0.25s;display:flex;align-items:center;justify-content:center;
+  }
+  .btn-add:hover{transform:scale(1.05);box-shadow:0 6px 28px rgba(241,39,17,0.5)}
+  .btn-add:active{transform:scale(0.95)}
+
+  /* ===== Add Form ===== */
+  .add-overlay{
+    position:fixed;top:0;left:0;right:0;bottom:0;
+    background:rgba(0,0,0,0.6);
+    z-index:200;display:none;
+    align-items:flex-end;justify-content:center;
+  }
+  .add-overlay.show{display:flex}
+  .add-sheet{
+    background:#1e1e3a;
+    border-radius:24px 24px 0 0;
+    padding:24px 20px 32px;
+    width:100%;max-width:480px;
+    animation:slideUp 0.3s ease;
+  }
+  @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  .add-sheet h3{font-size:16px;margin-bottom:12px;text-align:center}
+  .add-sheet input,.add-sheet select{
+    width:100%;padding:12px 14px;
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.1);
+    border-radius:12px;font-size:14px;color:#fff;
+    outline:none;transition:border-color 0.2s;margin-bottom:10px;
+    font-family:inherit;
+  }
+  .add-sheet input:focus,.add-sheet select:focus{border-color:#4facfe}
+  .add-sheet input::placeholder{color:rgba(255,255,255,0.3)}
+  .add-sheet select option{background:#1e1e3a;color:#fff}
+  .add-sheet .row{display:flex;gap:8px}
+  .add-sheet .row select{flex:1}
+  .btn{
+    padding:12px 20px;border:none;border-radius:12px;
+    font-size:14px;font-weight:600;cursor:pointer;
+    font-family:inherit;transition:all 0.2s;
+  }
+  .btn-primary{
+    background:linear-gradient(135deg,#4facfe,#00f2fe);color:#fff;
+    width:100%;
+  }
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(79,172,254,0.4)}
+  .btn-ghost{background:transparent;color:rgba(255,255,255,0.5);width:100%;margin-top:4px}
+
+  /* ===== Level Up Modal ===== */
+  .modal-overlay{
+    position:fixed;top:0;left:0;right:0;bottom:0;
+    background:rgba(0,0,0,0.7);
+    z-index:300;display:none;
+    align-items:center;justify-content:center;
+  }
+  .modal-overlay.show{display:flex}
+  .modal{
+    background:linear-gradient(145deg,#1e1e3a,#2a2a5e);
+    border-radius:28px;padding:32px 24px;max-width:340px;width:88%;
+    text-align:center;animation:popIn 0.4s ease;
+    border:1px solid rgba(255,255,255,0.1);
+  }
+  @keyframes popIn{
+    from{transform:scale(0.5) translateY(40px);opacity:0}
+    to{transform:scale(1) translateY(0);opacity:1}
+  }
+  .modal .big{font-size:72px;display:block;margin-bottom:8px}
+  .modal h2{font-size:22px;margin-bottom:4px}
+  .modal p{color:rgba(255,255,255,0.5);font-size:13px;margin-bottom:20px}
+  .btn-gold{
+    background:linear-gradient(135deg,#f5af19,#f12711);color:#fff;
+    width:100%;
+  }
+
+  /* ===== Toast ===== */
+  .toast-container{
+    position:fixed;top:16px;left:50%;transform:translateX(-50%);
+    z-index:400;display:flex;flex-direction:column;gap:6px;
+    pointer-events:none;align-items:center;
+  }
+  .toast{
+    background:rgba(0,0,0,0.85);
+    backdrop-filter:blur(10px);
+    color:#fff;padding:10px 20px;border-radius:12px;
+    font-weight:600;font-size:13px;white-space:nowrap;
+    animation:toastIn 0.3s ease,toastOut 0.3s ease 2.2s forwards;
+    pointer-events:auto;box-shadow:0 4px 16px rgba(0,0,0,0.3);
+  }
+  @keyframes toastIn{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes toastOut{from{opacity:1}to{opacity:0;transform:translateY(-10px)}}
+
+  /* ===== Confetti ===== */
+  .confetti-container{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:500;overflow:hidden}
+  .confetti-piece{
+    position:absolute;width:8px;height:8px;top:-10px;
+    animation:confettiFall linear forwards;
+  }
+  @keyframes confettiFall{
+    0%{transform:translateY(0) rotate(0deg);opacity:1}
+    100%{transform:translateY(100vh) rotate(720deg);opacity:0}
+  }
+
+  /* ===== Empty State ===== */
+  .empty-state{text-align:center;padding:32px 16px;color:rgba(255,255,255,0.3)}
+  .empty-state .icon{font-size:36px;margin-bottom:8px}
+  .empty-state p{font-size:13px}
+
+  /* ===== Responsive ===== */
+  @media(max-width:400px){
+    .character-box{width:100px;height:100px}
+    .character{width:100px;height:100px;font-size:46px}
+    .stats-row{gap:12px}
+    .stat-item{min-width:50px}
+    .task-card{padding:10px 12px}
+  }
+
+  /* ===== Screen Shake ===== */
+  @keyframes shake{
+    0%,100%{transform:translateX(0)}
+    20%{transform:translateX(-3px)}
+    40%{transform:translateX(3px)}
+    60%{transform:translateX(-2px)}
+    80%{transform:translateX(2px)}
+  }
+</style>
+</head>
+<body>
+<div class="stars"></div>
+<div class="app" id="app">
+
+  <!-- ===== Character ===== -->
+  <div class="character-area">
+    <div class="character-box">
+      <div class="level-ring" id="levelRing"></div>
+      <div class="character" id="character" onclick="pokeCharacter()">🌱</div>
+      <div class="char-accessory char-hat" id="charHat"></div>
+      <div class="char-pet" id="charPet">⭐</div>
+    </div>
+    <div class="char-name" id="charName">小勇士</div>
+    <div class="char-title" id="charTitle">🌱 萌芽新手</div>
+    <div class="char-lvl" id="charLvl">Lv.1</div>
+  </div>
+
+  <!-- ===== EXP Bar ===== -->
+  <div class="exp-section">
+    <div class="exp-bar-bg">
+      <div class="exp-bar-fill" id="expBarFill"></div>
+    </div>
+    <div class="exp-label">
+      <span>⭐ 经验值</span>
+      <span id="expLabel">0 / 25</span>
+    </div>
+  </div>
+
+  <!-- ===== Stats ===== -->
+  <div class="stats-row">
+    <div class="stat-item">
+      <div class="stat-icon">⭐</div>
+      <div class="stat-value" id="statExp">0</div>
+      <div class="stat-label">经验</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-icon">🪙</div>
+      <div class="stat-value" id="statGp">0</div>
+      <div class="stat-label">金币</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-icon">🔥</div>
+      <div class="stat-value" id="statStreak">0</div>
+      <div class="stat-label">最高连击</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-icon">✅</div>
+      <div class="stat-value" id="statDone">0</div>
+      <div class="stat-label">今日完成</div>
+    </div>
+  </div>
+
+  <!-- ===== Tabs ===== -->
+  <div class="tabs">
+    <button class="tab active" data-tab="habits" onclick="switchTab('habits')">✅ 习惯</button>
+    <button class="tab" data-tab="dailies" onclick="switchTab('dailies')">📅 每日 <span class="badge" id="dailyBadge">0</span></button>
+    <button class="tab" data-tab="todos" onclick="switchTab('todos')">📋 待办</button>
+    <button class="tab" data-tab="rewards" onclick="switchTab('rewards')">🎁 商店</button>
+  </div>
+
+  <!-- ===== Task Lists ===== -->
+  <div id="habitsList" class="task-list"></div>
+  <div id="dailiesList" class="task-list hidden"></div>
+  <div id="todosList" class="task-list hidden"></div>
+  <div id="rewardsList" class="task-list hidden"></div>
+
+  <!-- ===== Add Button (Floating) ===== -->
+  <div class="add-btn-wrap">
+    <button class="btn-add" onclick="showAddSheet()" id="addBtn">＋</button>
+  </div>
+</div>
+
+<!-- ===== Add Sheet ===== -->
+<div class="add-overlay" id="addOverlay" onclick="hideAddSheet(event)">
+  <div class="add-sheet" onclick="event.stopPropagation()">
+    <h3>✨ 新任务</h3>
+    <input type="text" id="newText" placeholder="任务名称…" maxlength="40" autocomplete="off">
+    <div class="row">
+      <select id="newType">
+        <option value="habit">✅ 习惯</option>
+        <option value="daily" selected>📅 每日</option>
+        <option value="todo">📋 待办</option>
+        <option value="reward">🎁 奖励</option>
+      </select>
+      <select id="newPriority">
+        <option value="easy">🟢 普通</option>
+        <option value="medium">🟡 重要</option>
+        <option value="hard">🔴 超重要</option>
+      </select>
+    </div>
+    <div class="row" id="rewardPriceRow" style="display:none">
+      <input type="number" id="newPrice" placeholder="金币价格" min="1" value="20">
+    </div>
+    <button class="btn btn-primary" onclick="addTask()">＋ 添加</button>
+    <button class="btn btn-ghost" onclick="hideAddSheet()">取消</button>
+  </div>
+</div>
+
+<!-- ===== Level Up Modal ===== -->
+<div class="modal-overlay" id="lvlModal">
+  <div class="modal">
+    <span class="big" id="lvlEmoji">🎉</span>
+    <h2 id="lvlTitle">升级了！</h2>
+    <p id="lvlDesc">太棒了，继续加油！</p>
+    <button class="btn btn-gold" onclick="closeLvlModal()">太好啦！🎉</button>
+  </div>
+</div>
+
+<!-- ===== Toast Container ===== -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ============================================================
+// Mini-Habits Engine
+// ============================================================
+const MAX_LEVEL=50,MAX_LEVEL_HARD_CAP=9999;
+const BEXP=6,BGP=1;
+const MAX_TV=21.27,MIN_TV=-47.27,DECAY=0.9747,CLOSE=0.00001;
+const PMUL={easy:1,medium:1.5,hard:2};
+const STREAK_BONUS=0.01,STREAK_MS=7;
+const TITLES=[
+  {l:1,t:'🌱 萌芽新手'},{l:5,t:'🌿 坚持学徒'},{l:10,t:'🌳 习惯小树'},
+  {l:15,t:'⭐ 一星达人'},{l:21,t:'🔥 连击勇士'},{l:30,t:'🌟 二星达人'},
+  {l:42,t:'⚡ 连击大师'},{l:50,t:'👑 习惯之王'},
+];
+const CHAR_EVOLVE=[
+  {min:1,emoji:'🌱',hat:'',pet:'⭐',ring:'#4facfe'},
+  {min:5,emoji:'🌿',hat:'🌻',pet:'🐣',ring:'#43e97b'},
+  {min:10,emoji:'🌳',hat:'🎩',pet:'🐥',ring:'#f5a623'},
+  {min:15,emoji:'⭐',hat:'👑',pet:'🐰',ring:'#f093fb'},
+  {min:21,emoji:'🔥',hat:'🏮',pet:'🦊',ring:'#f5576c'},
+  {min:30,emoji:'🌟',hat:'🌈',pet:'🦄',ring:'#a29bfe'},
+  {min:42,emoji:'⚡',hat:'⚡',pet:'🐉',ring:'#00f2fe'},
+  {min:50,emoji:'👑',hat:'👑',pet:'🦅',ring:'#f5af19'},
+];
+
+function clampV(v){return Math.max(MIN_TV,Math.min(MAX_TV,v))}
+function calcDelta(v,d){return DECAY**clampV(v)*(d==='down'?-1:1)}
+function calcRevDelta(v,d){
+  let c=clampV(v),t=c+DECAY**c*(d==='down'?-1:1);
+  while(true){let x=t+DECAY**t,d2=c-x;if(Math.abs(d2)<CLOSE)break;t+=d2>0?-d2:d2}
+  return t-c;
+}
+function pmul(p){return PMUL[p]??1}
+function expToLv(l){if(l<5)return 25*l;if(l===5)return 150;return Math.round(((l**2)*0.25+10*l+139.75)/10)*10}
+function getTitle(l){let t='';for(const e of TITLES){if(l>=e.l)t=e.t;else break}return t}
+function streakMs(s){return s>0&&s%STREAK_MS===0}
+function streakMul(s){return 1+s*STREAK_BONUS}
+function rd(v,d=1){return Math.round(v*(10**d))/(10**d)}
+function gid(){return't_'+Date.now()+'_'+Math.random().toString(36).slice(2,8)}
+function sameDay(ts){const d=new Date(ts),n=new Date();return d.getFullYear()===n.getFullYear()&&d.getMonth()===n.getMonth()&&d.getDate()===n.getDate()}
+
+function taskDef(b){
+  const t={_id:gid(),type:b.type||'habit',text:b.text||'新任务',notes:'',value:b.value??0,priority:b.priority||'easy',createdAt:new Date()};
+  if(t.type==='habit'){t.up=true;t.down=true;t.counterUp=0;t.counterDown=0;t.history=[]}
+  if(t.type==='daily'){t.completed=false;t.streak=0;t.frequency='weekly';t.repeat={m:true,t:true,w:true,th:true,f:true,s:true,su:true};t.startDate=new Date();t.history=[]}
+  if(t.type==='todo'){t.completed=false;t.dateCompleted=null;t.checklist=[]}
+  if(t.type==='reward'){t.value=b.value??20}
+  return t
+}
+
+function scoreTask(user,task,dir='up',times=1,cron=false){
+  const st={exp:user.stats.exp,gp:user.stats.gp};
+  if(task.type==='reward'&&task.value>user.stats.gp)throw Error('no_gp');
+  const oldLvl=user._tmp?.leveledUp;user._tmp={};if(oldLvl)user._tmp.leveledUp=oldLvl;
+  if(task.type==='habit')_sHabit(user,task,dir,times,cron,st);
+  else if(task.type==='daily')_sDaily(user,task,dir,times,cron,st);
+  else if(task.type==='todo')_sTodo(user,task,dir,times,cron,st);
+  else if(task.type==='reward')st.gp-=task.value;
+  _upStats(user,st);
+  user._tmp.delta = st.gp - (user._tmp._prevGp??user.stats.gp) + (user.stats.gp); // track
+}
+
+function _chgVal(user,task,dir,times,cron){
+  let t=0;
+  for(let i=0;i<times;i++){const d=!cron&&dir==='down'?calcRevDelta(task.value,dir):calcDelta(task.value,dir);if(task.type!=='reward')task.value+=d;t+=d}
+  return t
+}
+function _addExp(st,task,delta,dir){st.exp+=Math.max(0,rd(delta*pmul(task.priority)*(dir==='up'&&task.streak?streakMul(task.streak):1)*BEXP))}
+function _addGP(st,task,delta,dir){st.gp+=Math.max(0,rd(delta*pmul(task.priority)*(dir==='up'&&task.streak?streakMul(task.streak):1)*BGP))}
+function _sHabit(u,t,dir,times,cron,st){
+  const d=_chgVal(u,t,dir,times,cron);if(d>0){_addExp(st,t,d,dir);_addGP(st,t,d,dir)}
+  if(dir==='up')t.counterUp=(t.counterUp||0)+times;else t.counterDown=(t.counterDown||0)+times;
+  t.history=t.history||[];const l=t.history[t.history.length-1];
+  if(l&&sameDay(l.date)){l.value=t.value;l.scoredUp=(l.scoredUp||0)+(dir==='up'?times:0);l.scoredDown=(l.scoredDown||0)+(dir==='down'?times:0)}
+  else t.history.push({date:Date.now(),value:t.value,scoredUp:dir==='up'?times:0,scoredDown:dir==='down'?times:0})
+}
+function _sDaily(u,t,dir,times,cron,st){
+  if(cron){_chgVal(u,t,dir,times,cron);t.streak=0;t.completed=false}
+  else{
+    const d=_chgVal(u,t,dir,times,cron);
+    if(dir==='up'){_addExp(st,t,d,dir);_addGP(st,t,d,dir);t.streak=(t.streak||0)+1;t.completed=true;t.history=t.history||[];t.history.push({date:Date.now(),value:t.value,completed:true});if(streakMs(t.streak))u._tmp.streakMs=t.streak}
+    else{t.streak=Math.max(0,(t.streak||0)-1);t.completed=false;if(t.history&&t.history.length>0)t.history.pop()}
+  }
+}
+function _sTodo(u,t,dir,times,cron,st){
+  if(dir==='up'){t.completed=true;t.dateCompleted=new Date();const d=_chgVal(u,t,dir,1,cron);_addExp(st,t,d,dir);_addGP(st,t,d,dir)}
+  else{t.completed=false;t.dateCompleted=null;_chgVal(u,t,dir,1,cron)}
+}
+function _upStats(user,st){
+  user.stats.gp=Math.max(0,rd(st.gp));user.stats.exp=Math.max(0,st.exp);
+  let e=st.exp,en=expToLv(user.stats.lvl);if(e<en)return;
+  const il=user.stats.lvl;let lv=false;
+  while(e>=en){e-=en;if(user.stats.lvl>=MAX_LEVEL_HARD_CAP){user.stats.lvl=MAX_LEVEL_HARD_CAP;break}user.stats.lvl+=1;lv=true;const nt=getTitle(user.stats.lvl);if(nt&&user.stats.title!==nt)user.stats.title=nt;en=expToLv(user.stats.lvl)}
+  user.stats.exp=rd(e);
+  if(lv){if(!user._tmp)user._tmp={};if(!user._tmp.leveledUp)user._tmp.leveledUp=[];user._tmp.leveledUp.push({il,nl:user.stats.lvl,title:user.stats.title})}
+}
+
+// ============================================================
+// App State
+// ============================================================
+const state={
+  user:{_id:'hero',stats:{lvl:1,exp:0,gp:0,title:'🌱 萌芽新手'},_tmp:{}},
+  tasks:[],
+  tab:'habits',
+  todayDone:0,
+  lastPoke:0,
+};
+
+const SAMPLES=[
+  {type:'habit',text:'🚶 走 5000 步',priority:'easy'},
+  {type:'habit',text:'🥤 喝 6 杯水',priority:'easy'},
+  {type:'habit',text:'📱 少刷手机',priority:'medium'},
+  {type:'daily',text:'📖 读 20 分钟书',priority:'easy'},
+  {type:'daily',text:'🧹 整理书桌',priority:'easy'},
+  {type:'daily',text:'✏️ 写日记',priority:'medium'},
+  {type:'todo',text:'🏫 科学课手工作业',priority:'hard'},
+  {type:'todo',text:'🎨 画一幅画',priority:'medium'},
+  {type:'reward',text:'🎮 多玩 30 分钟',priority:'easy',value:50},
+  {type:'reward',text:'🍦 吃冰淇淋',priority:'easy',value:30},
+  {type:'reward',text:'📺 看一集动画片',priority:'easy',value:20},
+];
+SAMPLES.forEach(t=>state.tasks.push(taskDef(t)));
+
+// ============================================================
+// UI
+// ============================================================
+function render(){
+  renderChar();
+  renderExp();
+  renderStats();
+  renderTasks();
+  renderBadge();
+}
+function renderChar(){
+  const lv=state.user.stats.lvl;
+  let cfg=CHAR_EVOLVE[0];
+  for(const c of CHAR_EVOLVE){if(lv>=c.min)cfg=c;else break}
+  document.getElementById('character').textContent=cfg.emoji;
+  document.getElementById('charHat').textContent=cfg.hat;
+  document.getElementById('charPet').textContent=cfg.pet;
+  document.getElementById('levelRing').style.borderColor=cfg.ring;
+  document.getElementById('charLvl').textContent=`Lv.${lv}`;
+  document.getElementById('charTitle').textContent=state.user.stats.title||'无头衔';
+}
+function renderExp(){
+  const lv=state.user.stats.lvl,exp=state.user.stats.exp,en=expToLv(lv);
+  document.getElementById('expBarFill').style.width=Math.min(100,(exp/en)*100)+'%';
+  document.getElementById('expLabel').textContent=`${Math.floor(exp)} / ${en}`;
+}
+function renderStats(){
+  const s=state.user.stats;
+  document.getElementById('statExp').textContent=Math.floor(s.exp);
+  document.getElementById('statGp').textContent=Math.floor(s.gp);
+  const ms=state.tasks.filter(t=>t.type==='daily').reduce((m,t)=>Math.max(m,t.streak||0),0);
+  document.getElementById('statStreak').textContent=ms;
+  document.getElementById('statDone').textContent=state.todayDone;
+}
+function renderTasks(){
+  const tab=state.tab;
+  const map={habits:'habitsList',dailies:'dailiesList',todos:'todosList',rewards:'rewardsList'};
+  for(const [k,id] of Object.entries(map)){
+    const el=document.getElementById(id);
+    const tasks=state.tasks.filter(t=>{
+      if(k==='habits')return t.type==='habit';
+      if(k==='dailies')return t.type==='daily';
+      if(k==='todos')return t.type==='todo';
+      if(k==='rewards')return t.type==='reward';
+      return false;
+    });
+    if(tasks.length===0){
+      const emojis={habits:'🏃',dailies:'📅',todos:'📋',rewards:'🎁'};
+      el.innerHTML=`<div class="empty-state"><div class="icon">${emojis[k]||'✨'}</div><p>还没有任务，点 + 添加吧！</p></div>`;
+    }else{
+      el.innerHTML=tasks.map(t=>cardHTML(t,k==='rewards')).join('');
+    }
+  }
+}
+function cardHTML(task,isReward){
+  const done=task.completed||false;
+  const v=rd(task.value,2);
+  let vc='tag-neutral',vl='−';
+  if(v>1){vc='tag-cold';vl=`+${v}`}
+  else if(v<-1){vc='tag-hot';vl=v}
+  else{vl=v.toFixed(1)}
+  let meta=``;
+  meta+=`<span class="tag tag-${task.priority}">${task.priority==='hard'?'🔴':task.priority==='medium'?'🟡':'🟢'}</span>`;
+  meta+=` <span class="tag-value ${vc}">${vl}</span>`;
+  if(task.type==='daily'&&task.streak>0)meta+=` <span class="streak-badge">🔥×${task.streak}</span>`;
+  if(isReward)meta+=` <span class="price-tag">🪙${task.value}</span>`;
+  let check='';
+  if(done)check='✓';
+  else if(isReward)check='🛒';
+  return `<div class="task-card ${done?'completed':''}" data-type="${task.type}" data-id="${task._id}" onclick="clickTask('${task._id}')">
+    <div class="task-check">${check}</div>
+    <div class="task-body">
+      <div class="task-text">${esc(task.text)}</div>
+      <div class="task-meta">${meta}</div>
+      ${isReward?`<div class="reward-detail">做完任务赚金币来换奖励吧！</div>`:''}
+    </div>
+  </div>`;
+}
+function renderBadge(){
+  const c=state.tasks.filter(t=>t.type==='daily'&&!t.completed).length;
+  const b=document.getElementById('dailyBadge');b.textContent=c;b.style.display=c>0?'inline':'none';
+}
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+
+// ============================================================
+// Interactions
+// ============================================================
+function switchTab(tab){
+  state.tab=tab;
+  document.querySelectorAll('.tab').forEach(el=>el.classList.toggle('active',el.dataset.tab===tab));
+  ['habitsList','dailiesList','todosList','rewardsList'].forEach(id=>document.getElementById(id).classList.toggle('hidden',id.replace('List','')!==tab));
+  renderTasks();
+}
+
+function clickTask(id){
+  const task=state.tasks.find(t=>t._id===id);
+  if(!task)return;
+
+  if(task.type==='reward'){
+    try{
+      const before=state.user.stats.gp;
+      scoreTask(state.user,task,'up');
+      render();
+      spawnFloat(task,'gp',before);
+      showToast(`🎉 兑换了「${task.text}」！`);
+      happyChar();
+    }catch(e){
+      showToast(`😅 金币不够，多做任务攒钱吧！`);
+      shakeChar();
+    }
+    return;
+  }
+
+  if(task.type==='todo'&&task.completed){scoreTask(state.user,task,'down');render();return}
+  if(task.type==='todo'&&!task.completed){_doComplete(task);return}
+  if(task.type==='daily'){if(task.completed){scoreTask(state.user,task,'down')}else{_doComplete(task)}render();checkUp();return}
+  if(task.type==='habit'){_doComplete(task);render();checkUp()}
+}
+
+function _doComplete(task){
+  const beforeGP=state.user.stats.gp;
+  const beforeExp=state.user.stats.exp;
+  scoreTask(state.user,task,'up');
+  state.todayDone++;
+  const gpGain=rd(state.user.stats.gp-beforeGP);
+  const expGain=rd(state.user.stats.exp-beforeExp);
+  if(expGain>0)spawnFloat(task,'exp',beforeExp);
+  if(gpGain>0)spawnFloat(task,'gp',beforeGP);
+  happyChar();
+}
+
+function spawnFloat(task,type,before){
+  const cards=document.querySelectorAll(`.task-card[data-id="${task._id}"]`);
+  if(cards.length===0)return;
+  const card=cards[0];
+  const el=document.createElement('div');
+  el.className=`float-score ${type}`;
+  const val=type==='exp'?rd(state.user.stats.exp-before):rd(state.user.stats.gp-before);
+  el.textContent=type==='exp'?`+${val}⭐`:`+${val}🪙`;
+  card.querySelector('.task-body')?.appendChild(el);
+  setTimeout(()=>el.remove(),1000);
+}
+
+function checkUp(){
+  const info=state.user._tmp?.leveledUp;
+  if(info&&info.length>0){
+    const last=info[info.length-1];
+    document.getElementById('lvlEmoji').textContent='🎉';
+    document.getElementById('lvlTitle').textContent=`Lv.${last.nl}！${last.title||''}`;
+    document.getElementById('lvlDesc').textContent=`太棒了！你已经养成了好习惯，继续加油！`;
+    document.getElementById('lvlModal').classList.add('show');
+    confetti();
+    if(state.user._tmp.streakMs){
+      setTimeout(()=>showToast(`🔥🔥🔥 连击 ${state.user._tmp.streakMs} 天！太厉害了！`),600);
+    }
+  }
+}
+function closeLvlModal(){document.getElementById('lvlModal').classList.remove('show')}
+
+function pokeCharacter(){
+  const now=Date.now();
+  if(now-state.lastPoke<2000)return;
+  state.lastPoke=now;
+  const emojis=['😊','😄','😆','🥰','😎','🤗','🌟','✨'];
+  const e=emojis[Math.floor(Math.random()*emojis.length)];
+  const ch=document.getElementById('character');
+  ch.textContent=e;
+  ch.classList.remove('happy');void ch.offsetWidth;ch.classList.add('happy');
+  setTimeout(()=>renderChar(),1200);
+  showToast('😄 摸摸头~继续加油！');
+}
+
+function happyChar(){
+  const ch=document.getElementById('character');
+  ch.classList.remove('happy');void ch.offsetWidth;ch.classList.add('happy');
+}
+
+function shakeChar(){
+  const ch=document.getElementById('character');
+  ch.style.animation='shake 0.4s ease';
+  setTimeout(()=>ch.style.animation='',500);
+}
+
+// ===== Add Sheet =====
+function showAddSheet(){
+  document.getElementById('addOverlay').classList.add('show');
+  setTimeout(()=>document.getElementById('newText').focus(),100);
+  document.getElementById('rewardPriceRow').style.display='none';
+}
+function hideAddSheet(e){if(e&&e.target!==e.currentTarget)return;document.getElementById('addOverlay').classList.remove('show')}
+function addTask(){
+  const text=document.getElementById('newText').value.trim();
+  if(!text){showToast('请输入任务名称');return}
+  const type=document.getElementById('newType').value;
+  const priority=document.getElementById('newPriority').value;
+  const value=type==='reward'?parseInt(document.getElementById('newPrice').value)||20:undefined;
+  const task=taskDef({type,text,priority,value});
+  state.tasks.push(task);
+  document.getElementById('newText').value='';
+  hideAddSheet();
+  const tabMap={habit:'habits',daily:'dailies',todo:'todos',reward:'rewards'};
+  switchTab(tabMap[type]);
+  showToast(`✅ 添加了「${text}」`);
+  render();
+}
+
+// ===== Type selector toggle price =====
+document.getElementById('newType').addEventListener('change',function(){
+  document.getElementById('rewardPriceRow').style.display=this.value==='reward'?'flex':'none';
+});
+
+// ===== Toast =====
+function showToast(msg){
+  const c=document.getElementById('toastContainer');
+  const el=document.createElement('div');el.className='toast';el.textContent=msg;
+  c.appendChild(el);setTimeout(()=>el.remove(),2500);
+}
+
+// ===== Confetti =====
+function confetti(){
+  const c=document.createElement('div');c.className='confetti-container';
+  document.body.appendChild(c);
+  const colors=['#f5576c','#4facfe','#43e97b','#f5a623','#f093fb','#00f2fe','#a29bfe','#ff7675','#ffd54f','#81c784'];
+  for(let i=0;i<50;i++){
+    const p=document.createElement('div');p.className='confetti-piece';
+    p.style.left=Math.random()*100+'%';
+    p.style.background=colors[Math.floor(Math.random()*colors.length)];
+    p.style.width=(Math.random()*8+4)+'px';
+    p.style.height=(Math.random()*8+4)+'px';
+    p.style.borderRadius=Math.random()>0.5?'50%':'2px';
+    p.style.animationDuration=(Math.random()*2+1.5)+'s';
+    p.style.animationDelay=(Math.random()*0.8)+'s';
+    if(Math.random()>0.5){p.style.boxShadow=`0 0 6px ${p.style.background}`}
+    c.appendChild(p);
+  }
+  setTimeout(()=>c.remove(),4000);
+}
+
+// ===== Init =====
+render();
+</script>
+</body>
+</html>
