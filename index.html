@@ -31,22 +31,26 @@ button:disabled{opacity:.4!important;pointer-events:none}
   position:sticky;top:0;z-index:100;
 }
 .app-title{
-  font-size:20px;font-weight:800;
+  font-size:22px;font-weight:800;
   color:#3c3c3c;
+  display:flex;align-items:center;gap:6px;
 }
+.app-title .title-icon{font-size:24px}
 .top-center{display:flex;align-items:center;gap:10px}
 .hearts-display{
-  display:flex;gap:2px;font-size:20px;
+  display:flex;gap:3px;font-size:26px;
+  line-height:1;
 }
 .stat-pill{
   font-size:12px;font-weight:700;
-  display:flex;align-items:center;gap:3px;
+  display:flex;align-items:center;gap:4px;
   background:#f0f0f0;
   padding:4px 10px;border-radius:20px;
   color:#777;
 }
-.stat-pill .gem{color:#58CC02}
-.sound-btn{font-size:20px;padding:4px 8px;background:#f0f0f0;border-radius:20px}
+.stat-pill .gem{font-size:18px;color:#58CC02;line-height:1}
+.stat-pill .exp-icon{font-size:18px;color:#A150F7;line-height:1}
+.sound-btn{font-size:22px;padding:4px 8px;background:#f0f0f0;border-radius:20px;line-height:1}
 
 /* ===== App Container ===== */
 .app{max-width:480px;margin:0 auto;padding:0 12px 100px}
@@ -115,29 +119,29 @@ button:disabled{opacity:.4!important;pointer-events:none}
 /* ===== STATS ROW (Duolingo card style) ===== */
 .stats-row{
   display:flex;justify-content:center;gap:12px;
-  padding:12px 16px;
+  padding:14px 16px;
   background:#fff;
   border-radius:16px;
   margin:0 4px 14px;
   box-shadow:0 2px 12px rgba(0,0,0,.06);
 }
-.stat-item{text-align:center;min-width:52px}
-.stat-icon{font-size:18px;margin-bottom:2px}
-.stat-value{font-size:18px;font-weight:800;color:#3c3c3c}
-.stat-label{font-size:10px;color:#aaa;margin-top:1px}
+.stat-item{text-align:center;min-width:56px}
+.stat-icon{font-size:32px;margin-bottom:4px;line-height:1}
+.stat-value{font-size:20px;font-weight:800;color:#3c3c3c;margin-bottom:2px}
+.stat-label{font-size:10px;color:#aaa}
 
-/* ===== TABS (Duolingo pill style) ===== */
+/* ===== TABS (Duolingo pill style - text only, no emoji) ===== */
 .tabs{
   display:flex;gap:4px;margin-bottom:12px;
   background:#e8e8e8;
   border-radius:14px;padding:4px;
 }
 .tab{
-  flex:1;padding:9px 4px;border:none;border-radius:11px;
-  font-size:12px;font-weight:700;cursor:pointer;
+  flex:1;padding:10px 4px;border:none;border-radius:11px;
+  font-size:13px;font-weight:700;cursor:pointer;
   background:transparent;color:#888;
   transition:all .25s;white-space:nowrap;
-  display:flex;align-items:center;justify-content:center;gap:3px;
+  display:flex;align-items:center;justify-content:center;gap:4px;
 }
 .tab:hover{color:#555}
 .tab.active{
@@ -146,7 +150,7 @@ button:disabled{opacity:.4!important;pointer-events:none}
   box-shadow:0 2px 8px rgba(0,0,0,.1);
 }
 .tab .badge{
-  background:#FF4B4B;color:#fff;font-size:9px;
+  background:#FF4B4B;color:#fff;font-size:10px;
   padding:2px 6px;border-radius:8px;font-weight:700;
 }
 
@@ -157,7 +161,7 @@ button:disabled{opacity:.4!important;pointer-events:none}
 .task-card{
   background:#fff;
   border-radius:14px;padding:14px 16px;
-  display:flex;align-items:center;gap:12px;
+  display:flex;align-items:center;gap:14px;
   cursor:pointer;transition:all .2s;
   border:2px solid transparent;
   box-shadow:0 2px 8px rgba(0,0,0,.05);
@@ -185,10 +189,10 @@ button:disabled{opacity:.4!important;pointer-events:none}
 
 /* Check button */
 .task-check{
-  width:30px;height:30px;border-radius:50%;
+  width:32px;height:32px;border-radius:50%;
   border:2.5px solid #dcdcdc;
   display:flex;align-items:center;justify-content:center;
-  flex-shrink:0;font-size:13px;font-weight:700;
+  flex-shrink:0;font-size:14px;font-weight:700;
   background:transparent;color:transparent;
   transition:all .25s;
 }
@@ -199,13 +203,19 @@ button:disabled{opacity:.4!important;pointer-events:none}
 .task-card[data-type="reward"] .task-check{border-color:#c054f7}
 .task-card[data-type="reward"].completed .task-check{background:#c054f7;border-color:#c054f7;color:#fff}
 
+/* Big emoji type icon on card */
+.task-type-icon{
+  font-size:32px;line-height:1;flex-shrink:0;
+  width:36px;text-align:center;
+}
+
 .task-body{flex:1;min-width:0}
 .task-text{font-size:15px;font-weight:700;line-height:1.3;color:#3c3c3c}
 .task-meta{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap;align-items:center}
 
-/* Tags */
+/* Tags - BIG emoji version */
 .tag{
-  font-size:10px;padding:2px 7px;border-radius:6px;font-weight:700;
+  font-size:11px;padding:2px 7px;border-radius:6px;font-weight:700;
 }
 .tag-easy{background:#e8f5e9;color:#4caf50}
 .tag-medium{background:#fff8e1;color:#f57f17}
@@ -214,13 +224,14 @@ button:disabled{opacity:.4!important;pointer-events:none}
   font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;
   background:#f5f5f5;color:#888;
 }
+.tag-icon{font-size:16px;padding:0;border-radius:4px}
 .streak-badge{
   background:#fff3e0;color:#e65100;
-  font-size:10px;padding:2px 7px;border-radius:6px;font-weight:700;
+  font-size:11px;padding:2px 7px;border-radius:6px;font-weight:700;
 }
 .price-tag{
   background:#f3e5f5;color:#7b1fa2;
-  font-size:10px;padding:2px 7px;border-radius:6px;font-weight:700;
+  font-size:11px;padding:2px 7px;border-radius:6px;font-weight:700;
 }
 
 /* Floating score */
@@ -393,11 +404,11 @@ button:disabled{opacity:.4!important;pointer-events:none}
 
   <!-- ===== TOP BAR ===== -->
   <div class="top-bar">
-    <span class="app-title">🏰 习惯大陆</span>
+    <span class="app-title"><span class="title-icon">🏰</span> 习惯大陆</span>
     <div class="top-center">
       <div class="hearts-display" id="heartsDisplay"></div>
       <div class="stat-pill"><span class="gem">💎</span> <span id="statGp">0</span></div>
-      <div class="stat-pill">✨ <span id="statExp">0</span></div>
+      <div class="stat-pill"><span class="exp-icon">✨</span> <span id="statExp">0</span></div>
     </div>
     <button class="sound-btn" id="soundBtn">🔊</button>
   </div>
@@ -421,7 +432,7 @@ button:disabled{opacity:.4!important;pointer-events:none}
       <div class="exp-bar-fill" id="expBarFill"></div>
     </div>
     <div class="exp-label">
-      <span>⭐ 经验值</span>
+      <span>经验值</span>
       <span id="expLabel">0 / 25</span>
     </div>
   </div>
@@ -436,10 +447,10 @@ button:disabled{opacity:.4!important;pointer-events:none}
 
   <!-- ===== TABS ===== -->
   <div class="tabs">
-    <button class="tab active" data-tab="habits" onclick="switchTab('habits')">✅ 习惯</button>
-    <button class="tab" data-tab="dailies" onclick="switchTab('dailies')">📅 每日 <span class="badge" id="dailyBadge">0</span></button>
-    <button class="tab" data-tab="todos" onclick="switchTab('todos')">📋 待办</button>
-    <button class="tab" data-tab="rewards" onclick="switchTab('rewards')">🎁 商店</button>
+    <button class="tab active" data-tab="habits" onclick="switchTab('habits')">习惯</button>
+    <button class="tab" data-tab="dailies" onclick="switchTab('dailies')">每日 <span class="badge" id="dailyBadge">0</span></button>
+    <button class="tab" data-tab="todos" onclick="switchTab('todos')">待办</button>
+    <button class="tab" data-tab="rewards" onclick="switchTab('rewards')">商店</button>
   </div>
 
   <!-- ===== TASK LISTS ===== -->
@@ -457,19 +468,19 @@ button:disabled{opacity:.4!important;pointer-events:none}
 <!-- ===== ADD SHEET ===== -->
 <div class="add-overlay" id="addOverlay" onclick="hideAddSheet(event)">
   <div class="add-sheet" onclick="event.stopPropagation()">
-    <h3>✨ 新任务</h3>
+    <h3>新任务</h3>
     <input type="text" id="newText" placeholder="任务名称…" maxlength="40" autocomplete="off">
     <div class="row">
       <select id="newType">
-        <option value="habit">✅ 习惯</option>
-        <option value="daily" selected>📅 每日</option>
-        <option value="todo">📋 待办</option>
-        <option value="reward">🎁 奖励</option>
+        <option value="habit">习惯</option>
+        <option value="daily" selected>每日</option>
+        <option value="todo">待办</option>
+        <option value="reward">奖励</option>
       </select>
       <select id="newPriority">
-        <option value="easy">🟢 普通</option>
-        <option value="medium">🟡 重要</option>
-        <option value="hard">🔴 超重要</option>
+        <option value="easy">普通</option>
+        <option value="medium">重要</option>
+        <option value="hard">超重要</option>
       </select>
     </div>
     <div class="row" id="rewardPriceRow" style="display:none">
@@ -486,7 +497,7 @@ button:disabled{opacity:.4!important;pointer-events:none}
     <span class="big" id="lvlEmoji">🎉</span>
     <h2 id="lvlTitle">升级了！</h2>
     <p id="lvlDesc">太棒了，继续加油！</p>
-    <button class="btn btn-gold" onclick="closeLvlModal()">太好啦！🎉</button>
+    <button class="btn btn-gold" onclick="closeLvlModal()">太好啦！</button>
   </div>
 </div>
 
@@ -652,17 +663,17 @@ const state = {
 
 // --- 示例任务 ---
 const SAMPLES = [
-  { type: 'habit', text: '🚶 走 5000 步', priority: 'easy' },
-  { type: 'habit', text: '🥤 喝 6 杯水', priority: 'easy' },
-  { type: 'habit', text: '📱 少刷手机', priority: 'medium' },
-  { type: 'daily', text: '📖 读 20 分钟书', priority: 'easy' },
-  { type: 'daily', text: '🧹 整理书桌', priority: 'easy' },
-  { type: 'daily', text: '✏️ 写日记', priority: 'medium' },
-  { type: 'todo', text: '🏫 科学课手工作业', priority: 'hard' },
-  { type: 'todo', text: '🎨 画一幅画', priority: 'medium' },
-  { type: 'reward', text: '🎮 多玩 30 分钟', priority: 'easy', value: 50 },
-  { type: 'reward', text: '🍦 吃冰淇淋', priority: 'easy', value: 30 },
-  { type: 'reward', text: '📺 看一集动画片', priority: 'easy', value: 20 },
+  { type: 'habit', text: '走 5000 步', priority: 'easy' },
+  { type: 'habit', text: '喝 6 杯水', priority: 'easy' },
+  { type: 'habit', text: '少刷手机', priority: 'medium' },
+  { type: 'daily', text: '读 20 分钟书', priority: 'easy' },
+  { type: 'daily', text: '整理书桌', priority: 'easy' },
+  { type: 'daily', text: '写日记', priority: 'medium' },
+  { type: 'todo', text: '科学课手工作业', priority: 'hard' },
+  { type: 'todo', text: '画一幅画', priority: 'medium' },
+  { type: 'reward', text: '多玩 30 分钟', priority: 'easy', value: 50 },
+  { type: 'reward', text: '吃冰淇淋', priority: 'easy', value: 30 },
+  { type: 'reward', text: '看一集动画片', priority: 'easy', value: 20 },
 ];
 SAMPLES.forEach(t => state.tasks.push(taskDef(t)));
 
@@ -785,6 +796,11 @@ function renderStats() {
   document.getElementById('statDone').textContent = state.todayDone;
   document.getElementById('statDay').textContent = state.dayCount;
 }
+
+// task type icon map (BIG emoji on cards)
+const TYPE_ICON = { habit: '🔁', daily: '📆', todo: '📋', reward: '🎁' };
+const PRIORITY_ICON = { easy: '🟢', medium: '🟡', hard: '🔴' };
+
 function renderTasks() {
   const tab = state.tab;
   const map = { habits: 'habitsList', dailies: 'dailiesList', todos: 'todosList', rewards: 'rewardsList' };
@@ -798,8 +814,8 @@ function renderTasks() {
       return false;
     });
     if (tasks.length === 0) {
-      const emojis = { habits: '🏃', dailies: '📅', todos: '📋', rewards: '🎁' };
-      el.innerHTML = `<div class="empty-state"><div class="icon">${emojis[k] || '✨'}</div><p>还没有任务，点 + 添加吧！</p></div>`;
+      const icons = { habits: '🔁', dailies: '📆', todos: '📋', rewards: '🎁' };
+      el.innerHTML = `<div class="empty-state"><div class="icon">${icons[k] || '✨'}</div><p>还没有任务，点 + 添加吧！</p></div>`;
     } else {
       el.innerHTML = tasks.map(t => cardHTML(t, k === 'rewards')).join('');
     }
@@ -808,17 +824,23 @@ function renderTasks() {
 function cardHTML(task, isReward) {
   const done = task.completed || false;
   const v = rd(task.value, 2);
-  let vc = 'tag-value', vl = '−';
-  if (v > 1) { vc = 'tag-value'; vl = `+${v}`; }
-  else if (v < -1) { vc = 'tag-value'; vl = v; }
-  else { vl = v.toFixed(1); }
-  let meta = `<span class="tag tag-${task.priority}">${task.priority === 'hard' ? '🔴' : task.priority === 'medium' ? '🟡' : '🟢'}</span>`;
-  meta += ` <span class="tag-value">${vl}</span>`;
+  let vl = '−';
+  if (v > 1) vl = `+${v}`;
+  else if (v < -1) vl = v;
+  else vl = v.toFixed(1);
+
+  // BIG emoji type icon
+  const typeIcon = TYPE_ICON[task.type] || '✨';
+  const prioIcon = PRIORITY_ICON[task.priority] || '';
+
+  let meta = `<span class="tag tag-icon">${prioIcon}</span> <span class="tag tag-${task.priority}">${task.priority === 'hard' ? '超重要' : task.priority === 'medium' ? '重要' : '普通'}</span> <span class="tag-value">${vl}</span>`;
   if (task.type === 'daily' && task.streak > 0) meta += ` <span class="streak-badge">🔥×${task.streak}</span>`;
   if (isReward) meta += ` <span class="price-tag">🪙${task.value}</span>`;
+
   const check = done ? '✓' : (isReward ? '🛒' : '');
   return `<div class="task-card ${done ? 'completed' : ''}" data-type="${task.type}" data-id="${task._id}" onclick="clickTask('${task._id}')">
     <div class="task-check">${check}</div>
+    <div class="task-type-icon">${typeIcon}</div>
     <div class="task-body">
       <div class="task-text">${esc(task.text)}</div>
       <div class="task-meta">${meta}</div>
@@ -1058,7 +1080,7 @@ document.getElementById('soundBtn').textContent = soundEnabled ? '🔊' : '🔇'
 document.getElementById('expBarFill').style.width = '0%';
 render();
 saveState();
-console.log('🏰 习惯大陆 · 多邻国风格 UI');
+console.log('🏰 习惯大陆 · 多邻国风格 UI (大 emoji 图标)');
 </script>
 </body>
 </html>
