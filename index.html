@@ -797,9 +797,33 @@ function renderStats() {
   document.getElementById('statDay').textContent = state.dayCount;
 }
 
-// task type icon map (BIG emoji on cards)
-const TYPE_ICON = { habit: '🔁', daily: '📆', todo: '📋', reward: '🎁' };
+// task type icon map (BIG emoji on cards) — replaced by getTaskEmoji
 const PRIORITY_ICON = { easy: '🟢', medium: '🟡', hard: '🔴' };
+
+// Keyword-based emoji for task cards
+function getTaskEmoji(text) {
+  const t = text.toLowerCase();
+  if (/走|步|跑|跑步|走路/.test(t)) return '🚶';
+  if (/水|喝|杯/.test(t)) return '💧';
+  if (/书|阅读|读书/.test(t)) return '📖';
+  if (/整理|打扫|清洁|拖地|擦/.test(t)) return '🧹';
+  if (/日记|写/.test(t)) return '✏️';
+  if (/画|美术|画画/.test(t)) return '🎨';
+  if (/游戏|玩/.test(t)) return '🎮';
+  if (/冰淇淋|甜品|糖/.test(t)) return '🍦';
+  if (/电视|动画|看.+集|看.+片/.test(t)) return '📺';
+  if (/手机|刷/.test(t)) return '📱';
+  if (/科学|实验/.test(t)) return '🔬';
+  if (/作业|学习/.test(t)) return '📚';
+  if (/运动|健身/.test(t)) return '🏃';
+  if (/早餐|午餐|晚餐|吃饭/.test(t)) return '🍽️';
+  if (/睡觉|睡眠|早睡/.test(t)) return '😴';
+  if (/单词|英语|背/.test(t)) return '📝';
+  if (/冥想|放松/.test(t)) return '🧘';
+  if (/习惯/.test(t)) return '🔁';
+  // 默认
+  return '✨';
+}
 
 function renderTasks() {
   const tab = state.tab;
@@ -829,8 +853,8 @@ function cardHTML(task, isReward) {
   else if (v < -1) vl = v;
   else vl = v.toFixed(1);
 
-  // BIG emoji type icon
-  const typeIcon = TYPE_ICON[task.type] || '✨';
+  // BIG emoji type icon (keyword-based)
+  const typeIcon = getTaskEmoji(task.text);
   const prioIcon = PRIORITY_ICON[task.priority] || '';
 
   let meta = `<span class="tag tag-icon">${prioIcon}</span> <span class="tag tag-${task.priority}">${task.priority === 'hard' ? '超重要' : task.priority === 'medium' ? '重要' : '普通'}</span> <span class="tag-value">${vl}</span>`;
