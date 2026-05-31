@@ -2092,10 +2092,14 @@ function showAddSheet() {
   document.getElementById('newText').focus();
   // 键盘弹出时调整浮层位置
   if (window.visualViewport) {
-    const onResize = () => {
-      document.getElementById('addOverlay').style.height = window.visualViewport.height + 'px';
+    window._vkHandler = () => {
+      const vh = window.visualViewport.height;
+      document.getElementById('addOverlay').style.height = vh + 'px';
+      document.getElementById('addOverlay').style.top = '0px';
     };
-    window.visualViewport.addEventListener('resize', onResize, { once: true });
+    window.visualViewport.addEventListener('resize', window._vkHandler);
+    // 立即执行一次
+    window._vkHandler();
   }
   setTimeout(() => {
     document.getElementById('newText').scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -2161,7 +2165,17 @@ function resetAddSheet() {
   document.getElementById('addStepPreview').style.display = 'none';
 }
 
-function hideAddSheet(e) { if (e && e.target !== e.currentTarget) return; playTap(); document.getElementById('addOverlay').classList.remove('show'); }
+function hideAddSheet(e) {
+  if (e && e.target !== e.currentTarget) return;
+  playTap();
+  document.getElementById('addOverlay').classList.remove('show');
+  document.getElementById('addOverlay').style.height = '';
+  document.getElementById('addOverlay').style.top = '';
+  if (window._vkHandler && window.visualViewport) {
+    window.visualViewport.removeEventListener('resize', window._vkHandler);
+    window._vkHandler = null;
+  }
+}
 function addTask() {
   const text = document.getElementById('newText').value.trim();
   if (!text) { showToast('请输入任务名称'); return; }
