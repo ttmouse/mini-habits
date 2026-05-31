@@ -658,17 +658,15 @@ button:disabled{opacity:.4!important;pointer-events:none}
       <img id="monkeyMascot" src="sprites/houzi01.png" alt="小绿猴">
     </div>
     <div class="merged-body">
-      <div class="merged-top">
-        <div class="lvl-badge"><i data-lucide="crown" style="width:14px;height:14px"></i> <span id="lvlBadge">Lv.1</span></div>
-      </div>
+
       <div class="exp-bar-compact">
         <div class="exp-bar-bg">
           <div class="exp-bar-fill" id="expBarFill"></div>
         </div>
       </div>
       <div class="merged-stats">
-        <span class="merged-stat" id="statToday">0 今日</span>
-        <span class="merged-stat" id="statTotal">0 累计</span>
+        <span class="merged-stat" id="statToday">今日 0</span>
+        <span class="merged-stat" id="statWeek">本周 0</span>
       </div>
     </div>
   </div>
@@ -1099,8 +1097,6 @@ function render() { renderExp(); renderStats(); renderTasks(); renderBadge(); re
 function renderExp() {
   const lv = state.user.stats.lvl, exp = state.user.stats.exp, en = expToLv(lv);
   document.getElementById('expBarFill').style.width = Math.min(100, (exp / en) * 100) + '%';
-  const badge = document.getElementById('lvlBadge');
-  if (badge) badge.textContent = `Lv.${lv}`;
 }
 function renderStats() {
   const s = state.user.stats;
@@ -1109,16 +1105,22 @@ function renderStats() {
 }
 function renderMergedStats() {
   const today = toDateStr(new Date());
-  let todayCount = 0, totalCount = 0;
+  // 计算本周一的日期
+  const now = new Date();
+  const weekStart = new Date(now);
+  weekStart.setDate(now.getDate() - (now.getDay() || 7) + 1);
+  const weekStartStr = toDateStr(weekStart);
+  let todayCount = 0, weekCount = 0;
   state.tasks.forEach(t => {
     (t.history || []).forEach(h => {
       const c = h.scoredUp || 0;
-      if (toDateStr(new Date(h.date)) === today) todayCount += c;
-      totalCount += c;
+      const ds = toDateStr(new Date(h.date));
+      if (ds === today) todayCount += c;
+      if (ds >= weekStartStr) weekCount += c;
     });
   });
-  document.getElementById('statToday').textContent = todayCount + ' 今日';
-  document.getElementById('statTotal').textContent = totalCount + ' 累计';
+  document.getElementById('statToday').textContent = '今日 ' + todayCount;
+  document.getElementById('statWeek').textContent = '本周 ' + weekCount;
 }
 
 // task type icon map (BIG emoji on cards) — replaced by getTaskEmoji
