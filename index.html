@@ -475,9 +475,10 @@ button:disabled{opacity:.4!important;pointer-events:none}
 .r-sub{font-size:12px;color:#8a8680;margin-top:4px}
 .r-score-tag{display:inline-block;background:linear-gradient(135deg,#58CC02,#46a302);color:#fff;font-size:12px;font-weight:700;padding:3px 12px;border-radius:14px;margin-top:6px}
 .r-card{background:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 1px 8px rgba(0,0,0,.05);margin-bottom:10px}
-.r-summary{display:flex;align-items:center;gap:8px}
-.r-summary-left{flex-shrink:0}
-.r-mascot-img{width:48px;height:48px;border-radius:50%;object-fit:cover;background:linear-gradient(135deg,#e8f5e0,#c8e6c9)}
+.r-summary-card{overflow:visible}
+.r-summary{display:flex;align-items:center;gap:8px;overflow:visible}
+.r-summary-left{flex-shrink:0;margin-left:-8px;margin-top:-20px}
+.r-mascot-img{width:68px;height:68px;object-fit:contain;transform:rotate(-3deg) scale(1.1);filter:drop-shadow(0 4px 8px rgba(0,0,0,.1))}
 .r-summary-right{flex:1;min-width:0}
 .r-summary-label{font-size:11px;color:#8a8680}
 .r-summary-pct{font-size:24px;font-weight:800;color:#1a1a18;line-height:1.2}
@@ -1811,7 +1812,7 @@ function showReport(type) {
         <div class="r-score-tag">${score}</div>
       </div>
 
-      <div class="r-card r-summary">
+      <div class="r-card r-summary r-summary-card">
         <div class="r-summary-left">
           <img class="r-mascot-img" src="${MONKEY_LIST[_monkeyIdx]}" alt="猴子">
         </div>
