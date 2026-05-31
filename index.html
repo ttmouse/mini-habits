@@ -568,7 +568,7 @@ button:disabled{opacity:.4!important;pointer-events:none}
 .hweek-day{font-size:11px;color:var(--text-tertiary)}
 .hweek-num{font-size:16px;font-weight:800;color:var(--text)}
 .hweek-zero{color:var(--n250)}
-.hdetail-empty{text-align:center;padding:var(--s4) 0;font-size:13px;color:var(--text-tertiary)}
+
 .hdetail-count{font-size:13px;color:var(--text-secondary);margin-bottom:var(--s4);margin-left:4px}
 .hdetail-section{
   display:flex;align-items:flex-start;gap:var(--s3);
@@ -1141,64 +1141,43 @@ function cardHTML(task, isReward) {
 }
 // ===== 微习惯建议数据 =====
 // ===== AI 配置 =====
-let AI_CONFIG = {
-  base_url: 'https://api.minimax.io/anthropic',
-  api_key: localStorage.getItem('ai_api_key') || '',
-  model: 'MiniMax-M2.7-highspeed',
-};
 
-function generateAITips(text) {
-  return new Promise((resolve) => {
-    const cached = localStorage.getItem('ai_tips_' + text);
-    if (cached) { try { return resolve(JSON.parse(cached)); } catch(e) {} }
-
-    const onResult = (json) => {
-      if (json && json.times && json.prompt) {
-        localStorage.setItem('ai_tips_' + text, JSON.stringify(json));
-        resolve(json);
-      } else resolve(null);
-    };
-
-    // 直接模式下跳过代理
-    if (window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-      if (AI_CONFIG.api_key) directCall(text, onResult);
-      else resolve(null);
-      return;
-    }
-    // 先试代理（Vercel 部署时生效）
-    fetch('/api/proxy', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text }),
     }).then(r => r.json()).then(data => {
-      if (data && data.success && data.data) return onResult(data.data);
-      // 代理无效，直连
-      if (AI_CONFIG.api_key) directCall(text, onResult);
-      else resolve(null);
-    }).catch(() => {
-      if (AI_CONFIG.api_key) directCall(text, onResult);
-      else resolve(null);
-    });
+      if (data && data.success && data.data) {
+        const json = data.data;
+        if (json && json.times && json.prompt) {
+          localStorage.setItem('ai_tips_' + text, JSON.stringify(json));
+          resolve(json);
+        } else resolve(null);
+      } else resolve(null);
+    }).catch(() => resolve(null));
   });
 }
-function directCall(text, cb) {
-  fetch(AI_CONFIG.base_url + '/v1/messages', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-api-key': AI_CONFIG.api_key, 'anthropic-version': '2023-06-01' },
-    body: JSON.stringify({
-      model: AI_CONFIG.model, max_tokens: 300,
-      system: '你是一个儿童微习惯教练。用户输入一个习惯名称，你需要返回 JSON，包含 times（建议频次）、prompt（具体触发时机，绑定日常生活动作）、action（微小到无法拒绝的动作）、next（进阶目标）。用中文。只输出 JSON，不要其他文字。',
-      messages: [{ role: 'user', content: text }]
-    })
-  }).then(r => r.json()).then(data => {
-    const c = data.content?.[0]?.text || data.content?.text || '';
-    const m = c.match(/\{[\s\S]*\}/);
-    cb(m ? JSON.parse(m[0]) : null);
-  }).catch(() => cb(null));
-}
 
+// 本地预定义建议（优先于规则兜底）
+const LOCAL_TIPS = {
+  跳绳: { times:'每天 1 次', prompt:'放学换好家居服后', action:'拿出绳子跳 10 个，跳完就去玩', next:'连续跳 100 个不断' },
+  引体向上: { times:'每天 1-2 组', prompt:'路过家里的单杠/门框时', action:'顺手挂上去，双脚离地就算一次', next:'连续做 10 个' },
+  健腹轮: { times:'每天 3-5 个', prompt:'看完一集动画片站起来时', action:'跪姿推 3 个，腰不要塌，做完继续玩', next:'站姿做 10 个' },
+  练字: { times:'每天 3 个字', prompt:'合上作业本、笔还没放下时', action:'翻到练字页写 3 个字，写完就收', next:'每天写一整页' },
+  喝水: { times:'每天 4-6 杯', prompt:'听到下课铃、站起来伸懒腰时', action:'走到水杯前喝一口，不用喝光一杯', next:'每天喝满 8 杯' },
+  口算: { times:'每天 3 道', prompt:'拿出作业本、翻开到口算那页', action:'只做第一行 3 道题，计时看几秒', next:'挑战 5 分钟做完一页' },
+  单词: { times:'每天 1-2 个', prompt:'放下筷子、抽出纸巾擦嘴时', action:'拿出单词卡看 1 个，读一遍就行', next:'每天背 5 个' },
+  书包: { times:'每天睡前', prompt:'刷完牙对着镜子笑一下之后', action:'走到书桌前看课程表，放好明早要带的书', next:'提前准备好第二天的衣服' },
+  阅读: { times:'每天 2 页', prompt:'关掉大灯、只留床头灯时', action:'拿起书翻到上次看到的那页，读 2 页就好', next:'每天读 10 页' },
+  家务: { times:'每天 1 件', prompt:'放下碗、站起来准备离开餐桌时', action:'把自己的碗筷收到厨房，只做这一件', next:'每周学做一道菜' },
+  日记: { times:'每天 1 句', prompt:'关灯躺好、闭上眼睛之前', action:'摸到床头的本子写一句话', next:'每天写满 3 句话' },
+  垃圾: { times:'每次离开房间', prompt:'站起来要去做别的事、走到门口时', action:'回头扫一眼地面，看到垃圾就捡起来带走', next:'每天主动检查房间垃圾' },
+};
 function getHabitTips(text, task) {
   if (task && task._aiTips) return task._aiTips;
+  // 查找本地预定义建议
+  for (const [key, tips] of Object.entries(LOCAL_TIPS)) {
+    if (text.includes(key)) return tips;
+  }
   // 规则兜底
   const t = text.toLowerCase();
   const isExercise = /跳|跑|运动|健身|引体|俯卧|深蹲|跳绳|仰卧|拉伸/.test(t);
@@ -1221,18 +1200,7 @@ function showHabitDetail(id) {
   _hDetailId = id;
   const task = state.tasks.find(t => t._id === id);
   if (!task) return;
-  // 先用已有建议填充
-  let tips = getHabitTips(task.text, task);
-  renderHabitDetail(task, tips || { times: '—', prompt: 'AI 生成中…', action: 'AI 生成中…', next: '—' });
-  // 异步调用 AI 生成建议，成功后更新界面
-  generateAITips(task.text).then(aiTips => {
-    if (aiTips && aiTips.times && aiTips.prompt) {
-      tips = aiTips;
-      renderHabitDetail(task, tips);
-      task._aiTips = aiTips;
-      saveState();
-    }
-  });
+  renderHabitDetail(task, getHabitTips(task.text, task));
 }
 function renderHabitDetail(task, tips) {
   document.getElementById('hDetailIcon').innerHTML = `<i data-lucide="${getTaskIcon(task.text)}" style="width:32px;height:32px"></i>`;
@@ -1251,20 +1219,16 @@ function renderHabitDetail(task, tips) {
     <span class="hdetail-stat-dot"></span>
     <span class="hdetail-stat"><span class="hdetail-stat-num">${totalCount}</span> 累计</span>
   `;
-  // 近 7 天历史
-  if (history.length === 0) {
-    document.getElementById('hDetailHistory').innerHTML = '<div class="hdetail-empty">开始做习惯后，这里会显示每周统计</div>';
-  } else {
-    const dayNames = ['日','一','二','三','四','五','六'];
-    const parts = [];
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date(Date.now() - i * 86400000);
-      const ds = toDateStr(d);
-      const dayCount = history.filter(h => toDateStr(new Date(h.date)) === ds).reduce((s, h) => s + (h.scoredUp || 0), 0);
-      parts.push(`<span class="hweek-item"><span class="hweek-day">${dayNames[d.getDay()]}</span><span class="hweek-num ${dayCount > 0 ? '' : 'hweek-zero'}">${dayCount}</span></span>`);
-    }
-    document.getElementById('hDetailHistory').innerHTML = `<div class="hweek-row">${parts.join('')}</div>`;
+  // 近 7 天历史（始终显示，无数据时全为 0）
+  const dayNames = ['日','一','二','三','四','五','六'];
+  const parts = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(Date.now() - i * 86400000);
+    const ds = toDateStr(d);
+    const dayCount = history.filter(h => toDateStr(new Date(h.date)) === ds).reduce((s, h) => s + (h.scoredUp || 0), 0);
+    parts.push(`<span class="hweek-item"><span class="hweek-day">${dayNames[d.getDay()]}</span><span class="hweek-num ${dayCount > 0 ? '' : 'hweek-zero'}">${dayCount}</span></span>`);
   }
+  document.getElementById('hDetailHistory').innerHTML = `<div class="hweek-row">${parts.join('')}</div>`;
   if(typeof lucide!=="undefined"&&lucide.createIcons)lucide.createIcons();
   document.getElementById('habitDetail').classList.add('show');
   playPop();
@@ -1600,36 +1564,18 @@ function showAddSheet() {
 function generateAdd() {
   const text = document.getElementById('newText').value.trim();
   if (!text) { showToast('请输入习惯名称'); return; }
-  // 商店直接添加，不需要 AI
+  // 商店直接添加
   if (state.tab === 'rewards') { addTask(); return; }
-  // 显示加载
-  document.getElementById('aiLoading').style.display = 'block';
-  document.getElementById('btnGenerate').disabled = true;
-  generateAITips(text).then(tips => {
-    document.getElementById('aiLoading').style.display = 'none';
-    document.getElementById('btnGenerate').disabled = false;
-    if (tips && tips.times && tips.prompt) {
-      _pendingAdd = { text, tips };
-      document.getElementById('addStepInput').style.display = 'none';
-      document.getElementById('addStepPreview').style.display = '';
-      document.getElementById('aiPreviewName').textContent = text;
-      document.getElementById('aiPreviewTimes').textContent = tips.times;
-      document.getElementById('aiPreviewPrompt').textContent = tips.prompt;
-      document.getElementById('aiPreviewAction').textContent = tips.action;
-      document.getElementById('aiPreviewNext').textContent = tips.next;
-    } else {
-      // AI 失败，用规则兜底
-      const fallback = getHabitTips(text);
-      _pendingAdd = { text, tips: fallback };
-      document.getElementById('addStepInput').style.display = 'none';
-      document.getElementById('addStepPreview').style.display = '';
-      document.getElementById('aiPreviewName').textContent = text;
-      document.getElementById('aiPreviewTimes').textContent = fallback.times;
-      document.getElementById('aiPreviewPrompt').textContent = fallback.prompt;
-      document.getElementById('aiPreviewAction').textContent = fallback.action;
-      document.getElementById('aiPreviewNext').textContent = fallback.next;
-    }
-  });
+  // 规则生成建议 → 预览确认
+  const fallback = getHabitTips(text);
+  _pendingAdd = { text, tips: fallback };
+  document.getElementById('addStepInput').style.display = 'none';
+  document.getElementById('addStepPreview').style.display = '';
+  document.getElementById('aiPreviewName').textContent = text;
+  document.getElementById('aiPreviewTimes').textContent = fallback.times;
+  document.getElementById('aiPreviewPrompt').textContent = fallback.prompt;
+  document.getElementById('aiPreviewAction').textContent = fallback.action;
+  document.getElementById('aiPreviewNext').textContent = fallback.next;
 }
 function confirmAdd() {
   if (!_pendingAdd) return;
@@ -1719,18 +1665,7 @@ function showModal(iconName, title, desc, btnText) {
 
 // ===== SOUND TOGGLE =====
 document.getElementById('settingsBtn').addEventListener('click', () => {
-  // 检查是否部署了代理（通过 /api/proxy 是否能访问判断）
-  const key = AI_CONFIG.api_key || '';
-  const newKey = prompt(
-    '输入 API Key 开启 AI 建议\n（部署 Vercel 代理后无需填写）',
-    key
-  );
-  if (newKey !== null) {
-    AI_CONFIG.api_key = newKey.trim();
-    localStorage.setItem('ai_api_key', AI_CONFIG.api_key);
-    if (AI_CONFIG.api_key) showToast('✅ AI 功能已开启');
-    else showToast('API Key 已清除');
-  }
+  showToast('⚙️ 设置功能开发中');
 });
 
 // ===== MODAL CLOSE =====
