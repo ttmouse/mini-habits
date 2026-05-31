@@ -505,6 +505,9 @@ button:disabled{opacity:.4!important;pointer-events:none}
 .r-summary-ai{padding:8px 12px}
 .r-ai-text{font-size:12px;color:#6d6964;line-height:1.5}
 .r-footer{text-align:center;padding:8px 0;font-size:12px;font-weight:600;color:#58CC02}
+.r-report-tabs{display:flex;gap:4px;justify-content:center;margin-bottom:8px}
+.r-tab{font-size:12px;font-weight:600;color:#8a8680;background:#fff;padding:4px 14px;border-radius:14px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.r-tab-active{color:#fff;background:var(--primary);box-shadow:0 2px 8px var(--primary-shadow)}
 .del-confirm-modal{padding:var(--s8) var(--s6)}
 .del-confirm-icon{display:block;text-align:center;margin-bottom:var(--s2)}
 .del-confirm-btn{width:100%}
@@ -1701,17 +1704,35 @@ function monkeyTalk(taskName) {
   return msgs[Math.floor(Math.random() * msgs.length)];
 }
 function showReport(type) {
+  // 关闭已有报告，避免叠加
+  closeReport();
   const today = toDateStr(new Date());
   const now = new Date();
   const dateStr = `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`;
   const weekDays = ['日','一','二','三','四','五','六'];
+  const typeLabels = { today: '今日', week: '本周', total: '累计' };
+
+  // 根据类型确定时间范围
+  let dateFilter, label;
+  if (type === 'today') {
+    dateFilter = d => toDateStr(new Date(d)) === today;
+    label = '今日';
+  } else if (type === 'week') {
+    const ws = new Date(now); ws.setDate(now.getDate() - (now.getDay() || 7) + 1);
+    const wsStr = toDateStr(ws);
+    dateFilter = d => toDateStr(new Date(d)) >= wsStr;
+    label = '本周';
+  } else {
+    dateFilter = () => true;
+    label = '累计';
+  }
 
   // 计算数据
   let todayTotal = 0, todayDone = 0, weekStreak = 0, maxStreak = 0, _maxCount = 0;
   const habitRecords = [];
   state.tasks.forEach(t => {
     const history = t.history || [];
-    const tCount = history.filter(h => toDateStr(new Date(h.date)) === today).reduce((s, h) => s + (h.scoredUp || 0), 0);
+    const tCount = history.filter(h => dateFilter(h.date)).reduce((s, h) => s + (h.scoredUp || 0), 0);
     if (tCount > 0) {
       todayTotal += tCount;
       todayDone++;
@@ -1733,13 +1754,23 @@ function showReport(type) {
   habitRecords.sort((a, b) => b.pct - a.pct);
   const best = habitRecords.length > 0 ? habitRecords[0].text : '—';
 
-  // 周累计
-  const weekStart = new Date(now); weekStart.setDate(now.getDate() - (now.getDay() || 7) + 1);
-  const weekStartStr = toDateStr(weekStart);
-  state.tasks.forEach(t => (t.history || []).forEach(h => {
-    const ds = toDateStr(new Date(h.date));
-    if (ds >= weekStartStr) weekStreak += h.scoredUp || 0;
-  }));
+  // 高峰分析
+  let peakLabel = '';
+  if (type === 'today') {
+    peakLabel = now.getHours() + ':00';
+  } else {
+    // 找最活跃的那天
+    const dayCounts = {};
+    state.tasks.forEach(t => (t.history || []).forEach(h => {
+      const ds = toDateStr(new Date(h.date));
+      if (dateFilter(h.date)) dayCounts[ds] = (dayCounts[ds] || 0) + (h.scoredUp || 0);
+    }));
+    const bestDay = Object.entries(dayCounts).sort((a,b) => b[1]-a[1])[0];
+    peakLabel = bestDay ? bestDay[0].slice(5) : '—';
+  }
+
+  // 总完成次数
+  const totalCount = state.tasks.reduce((s, t) => s + (t.history || []).filter(h => dateFilter(h.date)).reduce((s2, h) => s2 + (h.scoredUp || 0), 0), 0);
 
   // 连续天数
   let streak = 0;
@@ -1771,7 +1802,12 @@ function showReport(type) {
       <div class="report-close" onclick="closeReport()">✕</div>
 
       <div class="r-top">
-        <div class="r-title">今日习惯报告</div>
+        <div class="r-report-tabs">
+          <span class="r-tab ${type==='today'?'r-tab-active':''}" onclick="showReport('today')">今日</span>
+          <span class="r-tab ${type==='week'?'r-tab-active':''}" onclick="showReport('week')">本周</span>
+          <span class="r-tab ${type==='total'?'r-tab-active':''}" onclick="showReport('total')">累计</span>
+        </div>
+        <div class="r-title">${label}习惯报告</div>
         <div class="r-sub">${dateStr} · 小小进步，也值得被看见</div>
         <div class="r-score-tag">${score}</div>
       </div>
@@ -1789,7 +1825,7 @@ function showReport(type) {
       </div>
 
       <div class="r-capsules">
-        <div class="r-cap">奖励 +${Math.floor(weekStreak/2)}</div>
+        <div class="r-cap">完成 ${totalCount} 次</div>
         <div class="r-cap">连续 ${streak} 天</div>
         <div class="r-cap">活跃 ${todayDone} 项</div>
       </div>
@@ -1798,14 +1834,14 @@ function showReport(type) {
       <div class="r-highlights">
         <div class="r-highlight"><div class="r-hl-icon" style="background:#e8f5e9"><i data-lucide="check-check" style="width:14px;height:14px;color:#4caf50"></i></div><div class="r-hl-text"><strong>完成任务</strong>${todayDone} 项</div></div>
         <div class="r-highlight"><div class="r-hl-icon" style="background:#fff8e1"><i data-lucide="award" style="width:14px;height:14px;color:#ff9800"></i></div><div class="r-hl-text"><strong>最佳习惯</strong>${best}</div></div>
-        <div class="r-highlight"><div class="r-hl-icon" style="background:#e3f2fd"><i data-lucide="clock" style="width:14px;height:14px;color:#2196f3"></i></div><div class="r-hl-text"><strong>完成高峰</strong>${now.getHours()}:00</div></div>
+        <div class="r-highlight"><div class="r-hl-icon" style="background:#e3f2fd"><i data-lucide="clock" style="width:14px;height:14px;color:#2196f3"></i></div><div class="r-hl-text"><strong>${type==='today'?'高峰时段':'最活跃日'}</strong>${peakLabel}</div></div>
       </div>
 
       <div class="r-section-title">习惯完成情况</div>
       <div class="r-card r-records">${recordsHtml}</div>
 
       <div class="r-card r-summary-ai">
-        <div class="r-ai-text">今天执行最稳定的是${best}。明天可以把其他任务安排在更早的时间，先完成最容易拖延的任务。</div>
+        <div class="r-ai-text">${label}执行最稳定的是「${best}」。继续坚持，把好习惯融入每天的生活中。</div>
       </div>
 
       <div class="r-footer">明天继续，习惯大陆又前进一步！</div>
