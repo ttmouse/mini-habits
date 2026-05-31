@@ -161,6 +161,8 @@ button:disabled{opacity:.4!important;pointer-events:none}
 .merged-avatar img{width:100%;height:100%;display:block;object-fit:contain}
 .merged-body{flex:1;min-width:0}
 .merged-top{display:flex;align-items:center;margin-bottom:var(--s1)}
+.merged-stats{display:flex;gap:var(--s1);margin-top:var(--s1)}
+.merged-stat{font-size:11px;font-weight:600;color:var(--text-secondary);background:var(--n50);padding:2px 8px;border-radius:8px}
 
 
 .lvl-badge{
@@ -664,7 +666,10 @@ button:disabled{opacity:.4!important;pointer-events:none}
           <div class="exp-bar-fill" id="expBarFill"></div>
         </div>
       </div>
-
+      <div class="merged-stats">
+        <span class="merged-stat" id="statToday">0 今日</span>
+        <span class="merged-stat" id="statTotal">0 累计</span>
+      </div>
     </div>
   </div>
 
@@ -1090,7 +1095,7 @@ function gainHeart() {
 // ================================================================
 // UI RENDER
 // ================================================================
-function render() { renderExp(); renderStats(); renderTasks(); renderBadge(); renderHearts(); }
+function render() { renderExp(); renderStats(); renderTasks(); renderBadge(); renderHearts(); renderMergedStats(); }
 function renderExp() {
   const lv = state.user.stats.lvl, exp = state.user.stats.exp, en = expToLv(lv);
   document.getElementById('expBarFill').style.width = Math.min(100, (exp / en) * 100) + '%';
@@ -1101,6 +1106,19 @@ function renderStats() {
   const s = state.user.stats;
   const gp = Math.floor(s.gp) || 0;
   document.getElementById('statGp').textContent = gp;
+}
+function renderMergedStats() {
+  const today = toDateStr(new Date());
+  let todayCount = 0, totalCount = 0;
+  state.tasks.forEach(t => {
+    (t.history || []).forEach(h => {
+      const c = h.scoredUp || 0;
+      if (toDateStr(new Date(h.date)) === today) todayCount += c;
+      totalCount += c;
+    });
+  });
+  document.getElementById('statToday').textContent = todayCount + ' 今日';
+  document.getElementById('statTotal').textContent = totalCount + ' 累计';
 }
 
 // task type icon map (BIG emoji on cards) — replaced by getTaskEmoji
@@ -1469,6 +1487,7 @@ function clickHabit(id, dir) {
   });
   document.getElementById('statGp').textContent = Math.floor(state.user.stats.gp) || 0;
   renderExp();
+  renderMergedStats();
   saveState();
   _popCard(task._id);
   checkUp();
