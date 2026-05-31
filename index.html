@@ -1469,7 +1469,7 @@ function clickTask(id) {
       card.style.display = task.completed && !_showDoneTodos ? 'none' : '';
     });
     document.getElementById('statGp').textContent = Math.floor(state.user.stats.gp);
-    renderExp();
+    renderMergedStats();
     updateTodoFooter();
     saveState();
     checkUp();
@@ -1504,7 +1504,6 @@ function clickHabit(id, dir) {
     el.classList.toggle('habit-count-empty', !todayCount);
   });
   document.getElementById('statGp').textContent = Math.floor(state.user.stats.gp) || 0;
-  renderExp();
   renderMergedStats();
   saveState();
   _popCard(task._id);
