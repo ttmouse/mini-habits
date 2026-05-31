@@ -1612,6 +1612,8 @@ function monkeyHappy() {
   _monkeyIdx = (_monkeyIdx + 1) % MONKEY_LIST.length;
   const img = document.getElementById('monkeyMascot');
   if (img) img.src = MONKEY_LIST[_monkeyIdx];
+  showToast(MONKEY_TALKS[Math.floor(Math.random() * MONKEY_TALKS.length)]);
+  playCorrect();
 }
 function monkeyGreet() {}
 
