@@ -1793,6 +1793,16 @@ function showAddSheet() {
   document.getElementById('newText').placeholder = isReward ? '奖励名称…' : '输入习惯名称…';
   document.getElementById('addOverlay').classList.add('show');
   document.getElementById('newText').focus();
+  // 键盘弹出时调整浮层位置
+  if (window.visualViewport) {
+    const onResize = () => {
+      document.getElementById('addOverlay').style.height = window.visualViewport.height + 'px';
+    };
+    window.visualViewport.addEventListener('resize', onResize, { once: true });
+  }
+  setTimeout(() => {
+    document.getElementById('newText').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 300);
 }
 function generateAdd() {
   const text = document.getElementById('newText').value.trim();
