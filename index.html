@@ -714,7 +714,7 @@ button:disabled{opacity:.4!important;pointer-events:none}
         </div>
         <div class="daily-progress-label">
           <span>今日 <span id="dailyProgressCount">0</span>/<span id="dailyProgressTarget">10</span></span>
-          <span id="dailyProgressNext">10次 → +5</span>
+          <span id="dailyProgressNext">10次 → +6</span>
         </div>
       </div>
       <div class="merged-stats" style="margin-top:2px">
@@ -1192,7 +1192,7 @@ function renderMergedStats() {
   for (const m of MILESTONES) { if (m <= todayCount) prevMilestone = m; }
   const progress = nextTarget > 0 ? ((todayCount - prevMilestone) / (nextTarget - prevMilestone)) * 100 : 0;
   // 里程碑奖励
-  const MILESTONE_BONUS = { 5: 3, 10: 5, 15: 8, 20: 10, 30: 15, 50: 20 };
+  const MILESTONE_BONUS = { 5: 3, 10: 6, 15: 9, 20: 12, 30: 30, 50: 80 };
   if (MILESTONE_BONUS[todayCount] && state._lastMilestone !== todayCount) {
     state._lastMilestone = todayCount;
     state.user.stats.gp += MILESTONE_BONUS[todayCount];
@@ -1891,8 +1891,8 @@ function showMilestoneTip() {
     if (toDateStr(new Date(h.date)) === today) count += h.scoredUp || 0;
   }));
   const milestones = [
-    [5, 3], [10, 5], [15, 8],
-    [20, 10], [30, 15], [50, 20]
+    [5, 3], [10, 6], [15, 9],
+    [20, 12], [30, 30], [50, 80]
   ];
   let rows = '', cul = 0;
   milestones.forEach(([m, r]) => {
