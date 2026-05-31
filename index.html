@@ -1117,9 +1117,9 @@ function cardHTML(task, isReward) {
 }
 // ===== 微习惯建议数据 =====
 // ===== AI 配置 =====
-const AI_CONFIG = {
+let AI_CONFIG = {
   base_url: 'https://api.minimax.io/anthropic',
-  api_key: 'sk-cp-J6U3MURJsqkCzbhXb5e93hxXoUPrUfiiCxTVzvWMezu4dZD94xESVhPUyn2XcbXfZcDZcAkHPtbJMPHP7j7aCr-gdNVLjSY6QykFqfFPI0UoVhbD8xs1dw8',
+  api_key: localStorage.getItem('ai_api_key') || '',
   model: 'MiniMax-M2.7-highspeed',
 };
 
@@ -1128,29 +1128,43 @@ function generateAITips(text) {
     const cached = localStorage.getItem('ai_tips_' + text);
     if (cached) { try { return resolve(JSON.parse(cached)); } catch(e) {} }
 
-    fetch(AI_CONFIG.base_url + '/v1/messages', {
+    const onResult = (json) => {
+      if (json && json.times && json.prompt) {
+        localStorage.setItem('ai_tips_' + text, JSON.stringify(json));
+        resolve(json);
+      } else resolve(null);
+    };
+
+    // 先试代理（Vercel 部署时生效）
+    fetch('/api/proxy', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': AI_CONFIG.api_key, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({
-        model: AI_CONFIG.model,
-        max_tokens: 300,
-        system: '你是一个儿童微习惯教练。用户输入一个习惯名称，你需要返回 JSON，包含 times（建议频次）、prompt（具体触发时机，绑定日常生活动作）、action（微小到无法拒绝的动作）、next（进阶目标）。用中文。只输出 JSON，不要其他文字。',
-        messages: [{ role: 'user', content: text }]
-      })
-    })
-    .then(r => r.json())
-    .then(data => {
-      try {
-        const content = data.content?.[0]?.text || data.content?.text || '';
-        const json = JSON.parse(content.match(/\{[\s\S]*\}/)?.[0] || '{}');
-        if (json.times && json.prompt) {
-          localStorage.setItem('ai_tips_' + text, JSON.stringify(json));
-          resolve(json);
-        } else { resolve(null); }
-      } catch(e) { resolve(null); }
-    })
-    .catch(() => resolve(null));
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text }),
+    }).then(r => r.json()).then(data => {
+      if (data && data.success && data.data) return onResult(data.data);
+      // 代理无效，直连
+      if (AI_CONFIG.api_key) directCall(text, onResult);
+      else resolve(null);
+    }).catch(() => {
+      if (AI_CONFIG.api_key) directCall(text, onResult);
+      else resolve(null);
+    });
   });
+}
+function directCall(text, cb) {
+  fetch(AI_CONFIG.base_url + '/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-api-key': AI_CONFIG.api_key, 'anthropic-version': '2023-06-01' },
+    body: JSON.stringify({
+      model: AI_CONFIG.model, max_tokens: 300,
+      system: '你是一个儿童微习惯教练。用户输入一个习惯名称，你需要返回 JSON，包含 times（建议频次）、prompt（具体触发时机，绑定日常生活动作）、action（微小到无法拒绝的动作）、next（进阶目标）。用中文。只输出 JSON，不要其他文字。',
+      messages: [{ role: 'user', content: text }]
+    })
+  }).then(r => r.json()).then(data => {
+    const c = data.content?.[0]?.text || data.content?.text || '';
+    const m = c.match(/\{[\s\S]*\}/);
+    cb(m ? JSON.parse(m[0]) : null);
+  }).catch(() => cb(null));
 }
 
 const HABIT_TIPS = {
@@ -1668,7 +1682,19 @@ function showModal(iconName, title, desc, btnText) {
 
 // ===== SOUND TOGGLE =====
 document.getElementById('settingsBtn').addEventListener('click', () => {
-  showToast('⚙️ 设置功能开发中');
+  const viaProxy = window.location.hostname !== '127.0.0.1' && window.location.hostname !== 'localhost';
+  if (viaProxy) {
+    showToast('⚙️ 设置 · AI 由服务端代理，无需配置');
+    return;
+  }
+  const key = AI_CONFIG.api_key || '';
+  const newKey = prompt('输入 API Key 开启 AI 建议功能', key);
+  if (newKey !== null) {
+    AI_CONFIG.api_key = newKey.trim();
+    localStorage.setItem('ai_api_key', AI_CONFIG.api_key);
+    if (AI_CONFIG.api_key) showToast('✅ AI 功能已开启');
+    else showToast('API Key 已清除');
+  }
 });
 
 // ===== MODAL CLOSE =====

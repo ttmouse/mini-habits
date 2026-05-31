@@ -1,0 +1,10 @@
+{
+  "functions": {
+    "api/proxy.mjs": {
+      "maxDuration": 30
+    }
+  },
+  "rewrites": [
+    { "source": "/api/proxy", "destination": "/api/proxy.mjs" }
+  ]
+}
