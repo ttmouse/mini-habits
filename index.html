@@ -1335,8 +1335,7 @@ function habitCardHTML(task) {
   const icon = getTaskIcon(task.text);
   // 从 history 算今天做了几次
   const today = toDateStr(new Date());
-  const todayCount = (task.history || []).filter(h => toDateStr(new Date(h.date)) === today).reduce((s, h) => s + (h.scoredUp || 0), 0);
-  const count = todayCount || task.counterUp || 0;
+  const count = (task.history || []).filter(h => toDateStr(new Date(h.date)) === today).reduce((s, h) => s + (h.scoredUp || 0), 0);
   return `<div class="task-card task-habit" data-id="${task._id}" onclick="showHabitDetail('${task._id}')">
     <div class="task-type-icon"><i data-lucide="${icon}" class="icon-task-type"></i></div>
     <div class="task-body">
@@ -1469,8 +1468,9 @@ function clickHabit(id, dir) {
     const gpGain = rd(state.user.stats.gp - beforeGP);
     const expGain = rd(state.user.stats.exp - beforeExp);
     if (expGain > 0) spawnFloat(task, 'exp', beforeExp);
-    if (gpGain > 0) spawnFloat(task, 'gp', beforeGP);
+    if (gpGain > 0) { spawnFloat(task, 'gp', beforeGP); playCoin(); }
     playTask();
+    monkeyHappy();
   }
   // 只更新计数字段和进度，不重新渲染整个列表
   const today = toDateStr(new Date());
@@ -1599,11 +1599,30 @@ function undoDelete() {
 // ===== MONKEY INTERACTION =====
 
 
-function monkeyHappy() {}
+function monkeyHappy() {
+  _monkeyIdx = (_monkeyIdx + 1) % MONKEY_LIST.length;
+  const img = document.getElementById('monkeyMascot');
+  if (img) img.src = MONKEY_LIST[_monkeyIdx];
+}
 function monkeyGreet() {}
 
+const MONKEY_LIST = [
+  'sprites/houzi01.png',
+  'sprites/houzi02.png',
+  'sprites/houzi03.png',
+  'sprites/houzi04.png',
+  'sprites/houzi05.png',
+];
+let _monkeyIdx = 0;
+const MONKEY_TALKS = [
+  '🐒 嘻嘻～', '🐒 加油！', '🐒 继续努力！', '🐒 好棒！', '🐒 今天也很精神呢！',
+  '🐒 坚持就是胜利！', '🐒 不错不错！', '🐒 再做一个吧！', '🐒 习惯养成中～',
+  '🐒 又进步了！', '🐒 好习惯越来越多了！', '🐒 今天也要加油哦！',
+];
 function petMonkey() {
-  showToast('🐒 嘻嘻～');
+  _monkeyIdx = (_monkeyIdx + 1) % MONKEY_LIST.length;
+  document.getElementById('monkeyMascot').src = MONKEY_LIST[_monkeyIdx];
+  showToast(MONKEY_TALKS[Math.floor(Math.random() * MONKEY_TALKS.length)]);
   playCorrect();
 }
 function showHistory() {
@@ -1682,7 +1701,14 @@ function deleteHistoryRecord(recId, taskId, ts) {
     task.dateCompleted = null;
   }
   saveState();
-  showHistory(); // 刷新列表
+  // 更新习惯卡片上的计数
+  document.querySelectorAll(`.task-card[data-id="${taskId}"] .habit-count`).forEach(el => {
+    const today = toDateStr(new Date());
+    const c = (task.history || []).filter(h => toDateStr(new Date(h.date)) === today).reduce((s, h) => s + (h.scoredUp || 0), 0);
+    el.textContent = `今天 ×${c || 0}`;
+    el.classList.toggle('habit-count-empty', !c);
+  });
+  showHistory(); // 刷新记录列表
   showToast('已删除');
 }
 function toggleDoneTodos() { playTap(); _showDoneTodos = !_showDoneTodos; renderTasks(); }
@@ -1903,6 +1929,8 @@ if (state.tasks.length === 0) {
   });
 }
 soundEnabled = localStorage.getItem('mh_sound') !== 'off';
+_monkeyIdx = Math.floor(Math.random() * MONKEY_LIST.length);
+document.getElementById('monkeyMascot').src = MONKEY_LIST[_monkeyIdx];
 
 saveState();
 document.getElementById('expBarFill').style.width = '0%';
