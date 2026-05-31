@@ -1657,7 +1657,7 @@ function monkeyTalk() {
     `${prefix}再做一个吧！`, `${prefix}习惯养成中～`, `${prefix}又进步了！`,
     `${prefix}好习惯越来越多了！`, `${prefix}今天也要加油哦！`,
   ];
-  return '🐒 ' + msgs[Math.floor(Math.random() * msgs.length)];
+  return msgs[Math.floor(Math.random() * msgs.length)];
 }
 function showMilestoneTip() {
   const today = toDateStr(new Date());
