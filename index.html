@@ -1666,12 +1666,12 @@ function showMilestoneTip() {
     if (toDateStr(new Date(h.date)) === today) count += h.scoredUp || 0;
   }));
   const milestones = [
-    [5, '+10🪙'], [10, '+20🪙'], [15, '+30🪙'],
-    [20, '+50🪙'], [30, '+80🪙'], [50, '+150🪙']
+    [5, '+10'], [10, '+20'], [15, '+30'],
+    [20, '+50'], [30, '+80'], [50, '+150']
   ];
   let tip = `今日已完成 ${count} 次\n━━━━━━━━━━━━━━━\n里程碑奖励：\n`;
   milestones.forEach(([m, r]) => {
-    tip += `${count >= m ? '✅' : '  '} 完成 ${m} 次 → ${r}\n`;
+    tip += `  ${count >= m ? '已达成' : '      '}  完成 ${m} 次 → +${r} 金币\n`;
   });
   tip += '\n达到里程碑自动获得额外金币！';
   showToast(tip);
