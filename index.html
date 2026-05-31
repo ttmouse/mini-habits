@@ -163,6 +163,10 @@ button:disabled{opacity:.4!important;pointer-events:none}
 .merged-top{display:flex;align-items:center;margin-bottom:var(--s1)}
 .merged-stats{display:flex;gap:var(--s1);margin-top:var(--s1)}
 .merged-stat{font-size:11px;font-weight:600;color:var(--text-secondary);background:var(--n50);padding:2px 8px;border-radius:8px}
+.daily-progress{margin-bottom:var(--s1)}
+.daily-progress-bar{background:var(--n150);border-radius:20px;height:8px;overflow:hidden}
+.daily-progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--orange),var(--gold-dark));border-radius:20px;transition:width .4s ease-out}
+.daily-progress-label{display:flex;justify-content:space-between;font-size:10px;color:var(--text-tertiary);margin-top:var(--s1)}
 
 
 .lvl-badge{
@@ -639,7 +643,16 @@ button:disabled{opacity:.4!important;pointer-events:none}
     </div>
     <div class="merged-body">
 
-      <div class="merged-stats" style="margin-top:0">
+      <div class="daily-progress">
+        <div class="daily-progress-bar">
+          <div class="daily-progress-fill" id="dailyProgressFill"></div>
+        </div>
+        <div class="daily-progress-label">
+          <span>今日 <span id="dailyProgressCount">0</span>/<span id="dailyProgressTarget">10</span></span>
+          <span id="dailyProgressNext">🎯 10 奖励 +20🪙</span>
+        </div>
+      </div>
+      <div class="merged-stats" style="margin-top:2px">
         <span class="merged-stat" id="statToday">今日 0</span>
         <span class="merged-stat" id="statWeek">本周 0</span>
         <span class="merged-stat" id="statTotal">累计 0</span>
@@ -928,6 +941,7 @@ const state = {
   hearts: 5,
   lastHeartsCheck: null,
   _todoDate: null,
+  _lastMilestone: 0,
 };
 
 // --- 示例任务（四年级适用） ---
@@ -1009,6 +1023,7 @@ function saveState() {
     hearts: state.hearts,
     lastHeartsCheck: state.lastHeartsCheck,
     _todoDate: state._todoDate,
+    _lastMilestone: state._lastMilestone,
     soundEnabled: soundEnabled,
   }));
 }
@@ -1031,6 +1046,7 @@ function loadState() {
       state.hearts = meta.hearts ?? 5;
       state.lastHeartsCheck = meta.lastHeartsCheck ?? null;
       state._todoDate = meta._todoDate ?? null;
+      state._lastMilestone = meta._lastMilestone ?? 0;
       soundEnabled = meta.soundEnabled ?? true;
     }
   } catch (e) { console.warn('load failed', e); }
@@ -1078,12 +1094,12 @@ function renderStats() {
 }
 function renderMergedStats() {
   const today = toDateStr(new Date());
-  // 计算本周一的日期
   const now = new Date();
   const weekStart = new Date(now);
   weekStart.setDate(now.getDate() - (now.getDay() || 7) + 1);
   const weekStartStr = toDateStr(weekStart);
-  let todayCount = 0, weekCount = 0, totalCount = 0;
+  let todayCount = 0, weekCount = 0, totalCount = 0, _prevMilestone = 0;
+  const MILESTONES = [5, 10, 15, 20, 30, 50];
   state.tasks.forEach(t => {
     (t.history || []).forEach(h => {
       const c = h.scoredUp || 0;
@@ -1093,6 +1109,26 @@ function renderMergedStats() {
       totalCount += c;
     });
   });
+  // 找下一个里程碑
+  let nextTarget = MILESTONES.find(m => m > todayCount) || MILESTONES[MILESTONES.length - 1];
+  let prevMilestone = 0;
+  for (const m of MILESTONES) { if (m <= todayCount) prevMilestone = m; }
+  const progress = nextTarget > 0 ? ((todayCount - prevMilestone) / (nextTarget - prevMilestone)) * 100 : 0;
+  // 里程碑奖励
+  const MILESTONE_BONUS = { 5: 10, 10: 20, 15: 30, 20: 50, 30: 80, 50: 150 };
+  if (MILESTONE_BONUS[todayCount] && state._lastMilestone !== todayCount) {
+    state._lastMilestone = todayCount;
+    state.user.stats.gp += MILESTONE_BONUS[todayCount];
+    showToast(`🎉 里程碑达成！+${MILESTONE_BONUS[todayCount]}🪙`);
+    confetti();
+    playStreak();
+    saveState();
+  }
+  if (state._lastMilestone && !MILESTONE_BONUS[todayCount]) state._lastMilestone = 0;
+  document.getElementById('dailyProgressFill').style.width = Math.min(100, progress) + '%';
+  document.getElementById('dailyProgressCount').textContent = todayCount;
+  document.getElementById('dailyProgressTarget').textContent = nextTarget;
+  document.getElementById('dailyProgressNext').textContent = `🎯 ${nextTarget} 奖励 +${MILESTONE_BONUS[nextTarget] || nextTarget * 2}🪙`;
   document.getElementById('statToday').textContent = '今日 ' + todayCount;
   document.getElementById('statWeek').textContent = '本周 ' + weekCount;
   document.getElementById('statTotal').textContent = '累计 ' + totalCount;
