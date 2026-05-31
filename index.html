@@ -516,10 +516,12 @@ button:disabled{opacity:.4!important;pointer-events:none}
 .ms-count{font-size:14px;color:var(--text-secondary);margin-bottom:var(--s4)}
 .ms-list{display:flex;flex-direction:column;gap:var(--s2)}
 .ms-row{display:flex;align-items:center;gap:var(--s2);padding:var(--s2) var(--s3);border-radius:var(--r-md);background:var(--n50)}
+.ms-header{background:transparent;font-size:12px;color:var(--text-tertiary);font-weight:600;padding-bottom:var(--s1)}
 .ms-done{background:#e8f5e0}
 .ms-label{flex:1;font-size:14px;font-weight:600;color:var(--text)}
 .ms-done .ms-label{color:var(--primary-dark)}
-.ms-reward{font-size:13px;font-weight:700;color:var(--text-secondary)}
+.ms-reward{font-size:13px;font-weight:700;color:var(--text-secondary);width:40px;text-align:right}
+.ms-cul{font-size:13px;font-weight:700;color:var(--primary);width:40px;text-align:right}
 .ms-done .ms-reward{color:var(--primary-dark)}
 .ms-note{text-align:center;margin-top:var(--s4);font-size:12px;color:var(--text-tertiary)}
 .r-report-tabs{display:flex;gap:4px;justify-content:center;margin-bottom:8px}
@@ -1892,17 +1894,21 @@ function showMilestoneTip() {
     [5, 3], [10, 5], [15, 8],
     [20, 10], [30, 15], [50, 20]
   ];
-  let rows = '';
+  let rows = '', cul = 0;
   milestones.forEach(([m, r]) => {
+    cul += r;
     const done = count >= m;
-    rows += `<div class="ms-row ${done ? 'ms-done' : ''}"><span class="ms-label">完成 ${m} 次</span><span class="ms-reward">+${r} 金币</span></div>`;
+    rows += `<div class="ms-row ${done ? 'ms-done' : ''}"><span class="ms-label">完成 ${m} 次</span><span class="ms-reward">+${r}</span><span class="ms-cul">${cul}</span></div>`;
   });
   const html = `<div class="ms-overlay" onclick="closeMilestoneTip()">
     <div class="ms-sheet" onclick="event.stopPropagation()">
       <div class="ms-handle"></div>
       <div class="ms-title">今日进度</div>
       <div class="ms-count">已完成 ${count} 次</div>
-      <div class="ms-list">${rows}</div>
+      <div class="ms-list">
+        <div class="ms-row ms-header"><span class="ms-label">里程碑</span><span class="ms-reward">奖励</span><span class="ms-cul">累计</span></div>
+        ${rows}
+      </div>
       <div class="ms-note">达到里程碑自动获得额外金币</div>
     </div>
   </div>`;
