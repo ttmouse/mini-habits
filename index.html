@@ -1262,7 +1262,7 @@ function testAIKey() {
     btn.textContent = '测试连接';
     btn.disabled = false;
     const el = document.getElementById('aiTestResult');
-    el.textContent = '❌ 网络错误，无法连接到 API';
+    el.textContent = '❌ 浏览器跨域限制（CORS），需部署到服务端后才能使用 AI';
     el.className = 'settings-result err';
     el.style.display = 'block';
   });
