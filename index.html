@@ -1502,7 +1502,7 @@ function clickHabit(id, dir) {
     if (expGain > 0) spawnFloat(task, 'exp', beforeExp);
     if (gpGain > 0) { spawnFloat(task, 'gp', beforeGP); playCoin(); }
     playTask();
-    monkeyHappy();
+    monkeyHappy(task);
   }
   // 只更新计数字段和进度，不重新渲染整个列表
   const today = toDateStr(new Date());
@@ -1530,7 +1530,7 @@ function _doComplete(task) {
   const expGain = rd(state.user.stats.exp - beforeExp);
   if (expGain > 0) spawnFloat(task, 'exp', beforeExp);
   if (gpGain > 0) spawnFloat(task, 'gp', beforeGP);
-  monkeyHappy(); // 完成任务猴子开心
+  monkeyHappy(task); // 完成任务猴子开心
   playTask();
   // Streak tracking
   if (task.type === 'daily') {
@@ -1594,7 +1594,7 @@ function checkUp() {
     document.getElementById('lvlTitle').textContent = `Lv.${last.nl}！${last.title || ''}`;
     document.getElementById('lvlDesc').textContent = `太棒了！你已经养成了好习惯，继续加油！`;
     document.getElementById('lvlModal').classList.add('show');
-    monkeyHappy(); // 顶部猴子也兴奋一下
+    monkeyHappy(); // 升级时猴子开心（无特定任务）
     confetti();
     playUpgrade();
     if (state.user._tmp.streakMs) {
@@ -1631,11 +1631,11 @@ function undoDelete() {
 // ===== MONKEY INTERACTION =====
 
 
-function monkeyHappy() {
+function monkeyHappy(task) {
   _monkeyIdx = (_monkeyIdx + 1) % MONKEY_LIST.length;
   const img = document.getElementById('monkeyMascot');
   if (img) img.src = MONKEY_LIST[_monkeyIdx];
-  showToast(monkeyTalk());
+  showToast(monkeyTalk(task ? task.text : null));
   playCorrect();
 }
 function monkeyGreet() {}
@@ -1648,12 +1648,14 @@ const MONKEY_LIST = [
   'sprites/houzi05.png',
 ];
 let _monkeyIdx = 0;
-function monkeyTalk() {
+function monkeyTalk(taskName) {
   const name = loadNickname();
   const prefix = name ? name + ' ' : '';
+  const tag = taskName ? `「${taskName}」` : '';
   const msgs = [
-    `${prefix}嘻嘻～`, `${prefix}加油！`, `${prefix}继续努力！`, `${prefix}好棒！`,
-    `${prefix}今天也很精神呢！`, `${prefix}坚持就是胜利！`, `${prefix}不错不错！`,
+    `${prefix}${tag}完成！`, `${prefix}${tag}加油！`, `${prefix}${tag}继续努力！`,
+    `${prefix}${tag}好棒！`, `${prefix}今天也很精神呢！`,
+    `${prefix}坚持就是胜利！`, `${prefix}不错不错！`,
     `${prefix}再做一个吧！`, `${prefix}习惯养成中～`, `${prefix}又进步了！`,
     `${prefix}好习惯越来越多了！`, `${prefix}今天也要加油哦！`,
   ];
@@ -1679,7 +1681,7 @@ function showMilestoneTip() {
 function petMonkey() {
   _monkeyIdx = (_monkeyIdx + 1) % MONKEY_LIST.length;
   document.getElementById('monkeyMascot').src = MONKEY_LIST[_monkeyIdx];
-  showToast(monkeyTalk());
+  showToast(monkeyTalk(null));
   playCorrect();
 }
 function showHistory() {
