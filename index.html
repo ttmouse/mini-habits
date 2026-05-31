@@ -714,7 +714,7 @@ button:disabled{opacity:.4!important;pointer-events:none}
         </div>
         <div class="daily-progress-label">
           <span>今日 <span id="dailyProgressCount">0</span>/<span id="dailyProgressTarget">10</span></span>
-          <span id="dailyProgressNext">10次 → +8</span>
+          <span id="dailyProgressNext">10次 → +6</span>
         </div>
       </div>
       <div class="merged-stats" style="margin-top:2px">
@@ -1192,7 +1192,7 @@ function renderMergedStats() {
   for (const m of MILESTONES) { if (m <= todayCount) prevMilestone = m; }
   const progress = nextTarget > 0 ? ((todayCount - prevMilestone) / (nextTarget - prevMilestone)) * 100 : 0;
   // 里程碑奖励
-  const MILESTONE_BONUS = { 5: 5, 10: 8, 15: 12, 20: 16, 30: 40, 50: 80 };
+  const MILESTONE_BONUS = { 5: 5, 10: 6, 15: 7, 20: 8, 30: 18, 50: 40 };
   if (MILESTONE_BONUS[todayCount] && state._lastMilestone !== todayCount) {
     state._lastMilestone = todayCount;
     state.user.stats.gp += MILESTONE_BONUS[todayCount];
@@ -1263,6 +1263,15 @@ function renderTasks() {
       const emptyIcons = { habits: 'refresh-cw', dailies: 'calendar', todos: 'clipboard-list', rewards: 'gift' };
       el.innerHTML = `<div class="empty-state"><div class="icon"><i data-lucide="${emptyIcons[k] || 'sparkles'}" class="icon-empty"></i></div><p>还没有任务，点 + 添加吧！</p></div>`;
     } else {
+      // 习惯：按今日完成次数从高到低排序
+      if (k === 'habits') {
+        const today = toDateStr(new Date());
+        tasks.sort((a, b) => {
+          const ac = (a.history || []).filter(h => toDateStr(new Date(h.date)) === today).reduce((s, h) => s + (h.scoredUp || 0), 0);
+          const bc = (b.history || []).filter(h => toDateStr(new Date(h.date)) === today).reduce((s, h) => s + (h.scoredUp || 0), 0);
+          return bc - ac;
+        });
+      }
       // 待办：已完成排到底部
       if (k === 'todos') tasks.sort((a, b) => (a.completed ? 1 : 0) - (b.completed ? 1 : 0));
       el.innerHTML = tasks.map(t => cardHTML(t, k === 'rewards')).join('');
@@ -1891,8 +1900,8 @@ function showMilestoneTip() {
     if (toDateStr(new Date(h.date)) === today) count += h.scoredUp || 0;
   }));
   const milestones = [
-    [5, 5], [10, 8], [15, 12],
-    [20, 16], [30, 40], [50, 80]
+    [5, 5], [10, 6], [15, 7],
+    [20, 8], [30, 18], [50, 40]
   ];
   let rows = '', cul = 0;
   milestones.forEach(([m, r]) => {
