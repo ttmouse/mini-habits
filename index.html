@@ -1283,12 +1283,10 @@ function showHabitDetail(id) {
 function renderHabitDetail(task, tips) {
   document.getElementById('hDetailIcon').innerHTML = `<i data-lucide="${getTaskIcon(task.text)}" style="width:32px;height:32px"></i>`;
   document.getElementById('hDetailTitle').textContent = task.text;
-  const alt = tips.alternative || tips.替代习惯;
-  const item = (alt && alt.length > 0) ? alt[0] : tips;
-  document.getElementById('hDetailTimes').textContent = item.times || item.建议频次 || '—';
-  document.getElementById('hDetailPrompt').textContent = item.prompt || item.触发时机 || '—';
-  document.getElementById('hDetailAction').textContent = item.action || item.微小动作 || '—';
-  document.getElementById('hDetailNext').textContent = item.next || item.进阶目标 || '—';
+  document.getElementById('hDetailTimes').textContent = tips.times || '—';
+  document.getElementById('hDetailPrompt').textContent = tips.prompt || '—';
+  document.getElementById('hDetailAction').textContent = tips.action || '—';
+  document.getElementById('hDetailNext').textContent = tips.next || '—';
   // 统计数据
   const today = toDateStr(new Date());
   const history = task.history || [];
@@ -1678,14 +1676,11 @@ function showPreview(text, tips) {
   _pendingAdd = { text, tips };
   document.getElementById('addStepInput').style.display = 'none';
   document.getElementById('addStepPreview').style.display = '';
-  document.getElementById('aiPreviewName').textContent = tips.suggestion || text;
-  // 如果是替代方案格式，取第一个替代习惯展示
-  const alt = tips.alternative || tips.替代习惯;
-  const item = (alt && alt.length > 0) ? alt[0] : tips;
-  document.getElementById('aiPreviewTimes').textContent = item.times || item.建议频次 || item.frequency || '—';
-  document.getElementById('aiPreviewPrompt').textContent = item.prompt || item.触发时机 || item.trigger || '—';
-  document.getElementById('aiPreviewAction').textContent = item.action || item.微小动作 || item.action_step || '—';
-  document.getElementById('aiPreviewNext').textContent = item.next || item.进阶目标 || item.next_step || '—';
+  document.getElementById('aiPreviewName').textContent = text;
+  document.getElementById('aiPreviewTimes').textContent = tips.times || '—';
+  document.getElementById('aiPreviewPrompt').textContent = tips.prompt || '—';
+  document.getElementById('aiPreviewAction').textContent = tips.action || '—';
+  document.getElementById('aiPreviewNext').textContent = tips.next || '—';
 }
 function confirmAdd() {
   if (!_pendingAdd) return;

@@ -19,7 +19,7 @@ app.post('/api/chat', async (req, res) => {
   const body = {
     model: 'MiniMax-M2.7-highspeed',
     max_tokens: 500,
-    system: '你是一个微习惯教练。用户输入一个习惯名称，你需要返回 JSON，包含 times（建议频次）、prompt（具体触发时机，绑定日常生活动作）、action（微小到无法拒绝的动作）、next（进阶目标）。如果习惯不合适，返回合理的替代建议。用中文。只输出 JSON。',
+    system: '你严格按以下规则输出：用户输入一个习惯名称，你返回 JSON，只包含 4 个字段：times（建议频次）、prompt（具体触发时机，绑定日常生活动作）、action（微小到无法拒绝的动作）、next（进阶目标）。不要输出任何其他字段或解释。用中文。',
     messages: [{ role: 'user', content: text }]
   };
 
