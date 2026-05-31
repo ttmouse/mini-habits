@@ -418,6 +418,7 @@ button:disabled{opacity:.4!important;pointer-events:none}
   backdrop-filter:blur(2px);
   z-index:200;display:none;
   align-items:flex-end;justify-content:center;
+  overscroll-behavior:contain;
 }
 .add-overlay.show{display:flex}
 .add-sheet{
@@ -783,12 +784,12 @@ button:disabled{opacity:.4!important;pointer-events:none}
 </div>
 
 <!-- ===== 历史记录面板 ===== -->
-<div class="add-overlay" id="historyOverlay" onclick="document.getElementById('historyOverlay').classList.remove('show')">
+<div class="add-overlay" id="historyOverlay" onclick="document.body.style.overflow='';document.getElementById('historyOverlay').classList.remove('show')">
   <div class="add-sheet" onclick="event.stopPropagation()" style="max-height:80vh;overflow-y:auto">
     <h3>完成记录</h3>
     <div id="historyList" style="padding:var(--s2) 0"></div>
     <div class="add-sheet-actions" style="margin-top:var(--s2)">
-      <button class="btn btn-ghost" onclick="document.getElementById('historyOverlay').classList.remove('show')">关闭</button>
+      <button class="btn btn-ghost" onclick="document.body.style.overflow='';document.getElementById('historyOverlay').classList.remove('show')">关闭</button>
     </div>
   </div>
 </div>
@@ -1656,6 +1657,7 @@ function showHistory() {
 
   if (!hasData) {
     list.innerHTML = '<div style="text-align:center;padding:var(--s8);color:var(--text-tertiary);font-size:14px">还没有完成记录<br><span style="font-size:12px">完成习惯后就会显示在这里</span></div>';
+    document.body.style.overflow = 'hidden';
     document.getElementById('historyOverlay').classList.add('show');
     return;
   }
@@ -1684,6 +1686,7 @@ function showHistory() {
   });
 
   list.innerHTML = html;
+  document.body.style.overflow = 'hidden';
   document.getElementById('historyOverlay').classList.add('show');
 }
 function deleteHistoryRecord(recId, taskId, ts) {
