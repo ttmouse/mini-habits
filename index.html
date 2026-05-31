@@ -511,7 +511,7 @@ button:disabled{opacity:.4!important;pointer-events:none}
 .toast{
   background:rgba(60,60,60,.92);
   color:#fff;padding:var(--s3) var(--s5);border-radius:14px;
-  font-weight:700;font-size:14px;white-space:nowrap;
+  font-weight:700;font-size:14px;white-space:pre-line;text-align:left;
   animation:toastIn var(--fast) var(--ease-smooth),toastOut var(--fast) var(--ease-smooth) 2.2s forwards;
   pointer-events:auto;
   box-shadow:var(--shadow-md);
@@ -647,7 +647,7 @@ button:disabled{opacity:.4!important;pointer-events:none}
     </div>
     <div class="merged-body">
 
-      <div class="daily-progress">
+      <div class="daily-progress" onclick="event.stopPropagation();showMilestoneTip()">
         <div class="daily-progress-bar">
           <div class="daily-progress-fill" id="dailyProgressFill"></div>
         </div>
@@ -1645,6 +1645,23 @@ const MONKEY_TALKS = [
   '🐒 坚持就是胜利！', '🐒 不错不错！', '🐒 再做一个吧！', '🐒 习惯养成中～',
   '🐒 又进步了！', '🐒 好习惯越来越多了！', '🐒 今天也要加油哦！',
 ];
+function showMilestoneTip() {
+  const today = toDateStr(new Date());
+  let count = 0;
+  state.tasks.forEach(t => (t.history || []).forEach(h => {
+    if (toDateStr(new Date(h.date)) === today) count += h.scoredUp || 0;
+  }));
+  const milestones = [
+    [5, '+10🪙'], [10, '+20🪙'], [15, '+30🪙'],
+    [20, '+50🪙'], [30, '+80🪙'], [50, '+150🪙']
+  ];
+  let tip = `今日已完成 ${count} 次\n━━━━━━━━━━━━━━━\n里程碑奖励：\n`;
+  milestones.forEach(([m, r]) => {
+    tip += `${count >= m ? '✅' : '  '} 完成 ${m} 次 → ${r}\n`;
+  });
+  tip += '\n达到里程碑自动获得额外金币！';
+  showToast(tip);
+}
 function petMonkey() {
   _monkeyIdx = (_monkeyIdx + 1) % MONKEY_LIST.length;
   document.getElementById('monkeyMascot').src = MONKEY_LIST[_monkeyIdx];
