@@ -477,7 +477,7 @@ button:disabled{opacity:.4!important;pointer-events:none}
 .r-card{background:#fff;border-radius:16px;padding:16px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:12px}
 .r-summary{display:flex;align-items:center;gap:12px}
 .r-summary-left{flex-shrink:0}
-.r-mascot{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#e8f5e0,#c8e6c9);display:flex;align-items:center;justify-content:center;font-size:40px}
+.r-mascot-img{width:80px;height:80px;border-radius:50%;object-fit:cover;background:linear-gradient(135deg,#e8f5e0,#c8e6c9)}
 .r-summary-right{flex:1;min-width:0;position:relative;padding-right:72px}
 .r-summary-label{font-size:13px;color:#8a8680;margin-bottom:2px}
 .r-summary-pct{font-size:32px;font-weight:800;color:#1a1a18;line-height:1.1}
@@ -485,7 +485,6 @@ button:disabled{opacity:.4!important;pointer-events:none}
 .r-ring{position:absolute;right:0;top:50%;transform:translateY(-50%)}
 .r-capsules{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
 .r-cap{background:#fff;border-radius:20px;padding:6px 14px;font-size:13px;font-weight:600;color:#3c3c3c;box-shadow:0 1px 6px rgba(0,0,0,.06);display:flex;align-items:center;gap:4px}
-.r-cap-icon{font-size:14px}
 .r-section-title{font-size:16px;font-weight:700;color:#1a1a18;margin-bottom:10px;margin-top:4px}
 .r-highlights{display:flex;gap:8px;margin-bottom:16px}
 .r-highlight{flex:1;background:#fff;border-radius:14px;padding:12px 8px;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,.06)}
@@ -1751,11 +1750,13 @@ function showReport(type) {
     if (c > 0) streak++; else break;
   }
 
-  const recordsHtml = habitRecords.slice(0, 5).map(r => {
+  const iconColors = ['#e8f5e0','#fff8e1','#e3f2fd','#fce4ec','#f3e5f5'];
+  const recordsHtml = habitRecords.slice(0, 5).map((r, idx) => {
     const pct = r.pct;
     const badge = r.badge ? `<span class="r-badge">${r.badge}</span>` : '';
+    const firstChar = r.text.replace(/[0-9-]/g,'').trim()[0] || '·';
     return `<div class="r-record">
-      <div class="r-rec-icon">${r.text.includes('口算')?'🧮':r.text.includes('单词')?'📖':r.text.includes('练字')?'✏️':r.text.includes('作业')?'📝':r.text.includes('跳绳')?'🏃':r.text.includes('水')?'💧':'⭐'}</div>
+      <div class="r-rec-icon" style="background:${iconColors[idx%5]}">${firstChar}</div>
       <div class="r-rec-body">
         <div class="r-rec-top"><span class="r-rec-text">${r.text}</span><span class="r-rec-num">${Math.min(r.done, r.target)}/${r.target}</span></div>
         <div class="r-rec-bar-bg"><div class="r-rec-bar-fill" style="width:${pct}%"></div></div>
@@ -1776,34 +1777,33 @@ function showReport(type) {
 
       <div class="r-card r-summary">
         <div class="r-summary-left">
-          <div class="r-mascot">🐵</div>
+          <img class="r-mascot-img" src="${MONKEY_LIST[_monkeyIdx]}" alt="猴子">
         </div>
         <div class="r-summary-right">
           <div class="r-summary-label">今日完成率</div>
           <div class="r-summary-pct">${rate}%</div>
           <div class="r-summary-detail">完成 ${todayDone} / ${Math.max(todayDone, 10)} 项</div>
-          <div class="r-ring"><svg viewBox="0 0 80 80" width="64" height="64"><circle cx="40" cy="40" r="34" fill="none" stroke="var(--n150)" stroke-width="6"/><circle cx="40" cy="40" r="34" fill="none" stroke="var(--primary)" stroke-width="6" stroke-dasharray="${2*Math.PI*34}" stroke-dashoffset="${2*Math.PI*34*(1-rate/100)}" transform="rotate(-90 40 40)" stroke-linecap="round"/><text x="40" y="42" text-anchor="middle" font-size="16" font-weight="700" fill="var(--text)">⭐</text></svg></div>
+          <div class="r-ring"><svg viewBox="0 0 80 80" width="64" height="64"><circle cx="40" cy="40" r="34" fill="none" stroke="var(--n150)" stroke-width="6"/><circle cx="40" cy="40" r="34" fill="none" stroke="var(--primary)" stroke-width="6" stroke-dasharray="${2*Math.PI*34}" stroke-dashoffset="${2*Math.PI*34*(1-rate/100)}" transform="rotate(-90 40 40)" stroke-linecap="round"/><text x="40" y="42" text-anchor="middle" font-size="16" font-weight="700" fill="var(--primary)">★</text></svg></div>
         </div>
       </div>
 
       <div class="r-capsules">
-        <div class="r-cap"><span class="r-cap-icon">🪙</span>奖励 +${Math.floor(weekStreak/2)}</div>
-        <div class="r-cap"><span class="r-cap-icon">🔥</span>连续 ${streak} 天</div>
-        <div class="r-cap"><span class="r-cap-icon">⏱️</span>活跃 ${todayDone} 项</div>
+        <div class="r-cap">奖励 +${Math.floor(weekStreak/2)}</div>
+        <div class="r-cap">连续 ${streak} 天</div>
+        <div class="r-cap">活跃 ${todayDone} 项</div>
       </div>
 
       <div class="r-section-title">今日亮点</div>
       <div class="r-highlights">
         <div class="r-highlight"><div class="r-hl-icon" style="background:#e8f5e9">✓</div><div class="r-hl-text"><strong>完成任务</strong>${todayDone} 项</div></div>
-        <div class="r-highlight"><div class="r-hl-icon" style="background:#fff8e1">🏆</div><div class="r-hl-text"><strong>最佳习惯</strong>${best}</div></div>
-        <div class="r-highlight"><div class="r-hl-icon" style="background:#e3f2fd">🚩</div><div class="r-hl-text"><strong>完成高峰</strong>${now.getHours()}:00</div></div>
+        <div class="r-highlight"><div class="r-hl-icon" style="background:#fff8e1">★</div><div class="r-hl-text"><strong>最佳习惯</strong>${best}</div></div>
+        <div class="r-highlight"><div class="r-hl-icon" style="background:#e3f2fd">⌂</div><div class="r-hl-text"><strong>完成高峰</strong>${now.getHours()}:00</div></div>
       </div>
 
       <div class="r-section-title">习惯完成情况</div>
       <div class="r-card r-records">${recordsHtml}</div>
 
       <div class="r-card r-summary-ai">
-        <div class="r-ai-icon">🌱</div>
         <div class="r-ai-text">今天执行最稳定的是${best}。明天可以把其他任务安排在更早的时间，先完成最容易拖延的任务。</div>
       </div>
 
