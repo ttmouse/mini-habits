@@ -480,9 +480,7 @@ button:disabled{opacity:.4!important;pointer-events:none}
 .r-summary-left{flex-shrink:0;margin-left:-40px;margin-top:-40px;margin-right:-20px}
 .r-mascot-img{width:140px;height:140px;object-fit:contain;transform:rotate(-5deg);filter:drop-shadow(0 6px 12px rgba(0,0,0,.12));position:relative;z-index:2}
 .r-summary-right{flex:1;min-width:0}
-.r-summary-label{font-size:11px;color:#8a8680}
-.r-summary-pct{font-size:24px;font-weight:800;color:#1a1a18;line-height:1.2}
-.r-summary-detail{font-size:11px;color:#6d6964}
+
 
 .r-section-title{font-size:15px;font-weight:800;color:#1a1a18;margin-bottom:8px;margin-top:4px}
 .r-summary-metrics{display:flex;gap:12px;margin-top:8px}
@@ -1819,10 +1817,7 @@ function showReport(type) {
           <img class="r-mascot-img" src="${MONKEY_LIST[_monkeyIdx]}" alt="猴子">
         </div>
         <div class="r-summary-right">
-          <div class="r-summary-label">${label}完成率</div>
-          <div class="r-summary-pct">${rate}%</div>
-          <div class="r-summary-detail">完成 ${todayDone} / ${Math.max(todayDone, 10)} 项</div>
-          <div class="r-summary-metrics">
+          <div class="r-summary-metrics" style="margin-top:0">
             <span class="r-sm"><strong>${totalCount}</strong> 次完成</span>
             <span class="r-sm"><strong>${streak}</strong> 天连续</span>
             <span class="r-sm"><strong>${todayDone}</strong> 项活跃</span>
