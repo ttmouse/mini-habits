@@ -654,7 +654,7 @@ button:disabled{opacity:.4!important;pointer-events:none}
   <!-- ===== 合并卡片：进度 + 猴子 ===== -->
   <div class="merged-card" id="charCard" onclick="petMonkey()">
     <div class="merged-avatar">
-      <img id="monkeyMascot" src="sprites/monkey_mascot_transparent.png" alt="小绿猴">
+      <img id="monkeyMascot" src="sprites/houzi01.png" alt="小绿猴">
     </div>
     <div class="merged-body">
       <div class="merged-top">
@@ -757,7 +757,7 @@ button:disabled{opacity:.4!important;pointer-events:none}
 <!-- ===== LEVEL UP MODAL ===== -->
 <div class="modal-overlay" id="lvlModal">
   <div class="modal">
-    <div id="lvlEmoji" class="lvl-monkey"><img src="sprites/monkey_mascot_transparent.png" alt="猴子" style="width:100%;height:100%;object-fit:contain"></div>
+    <div id="lvlEmoji" class="lvl-monkey"><img src="sprites/houzi02.png" alt="猴子" style="width:100%;height:100%;object-fit:contain"></div>
     <h2 id="lvlTitle">升级了！</h2>
     <p id="lvlDesc">太棒了，继续加油！</p>
     <button class="btn btn-gold" onclick="closeLvlModal()">太好啦！</button>
@@ -845,7 +845,6 @@ function streakMs(s) { return s > 0 && s % STREAK_MS === 0; }
 function streakMul(s) { return 1 + s * STREAK_BONUS; }
 function rd(v, d) { return Math.round(v * (10 ** d)) / (10 ** d); }
 function gid() { return 't_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8); }
-function sameDay(ts) { const d = new Date(ts), n = new Date(); return d.getFullYear() === n.getFullYear() && d.getMonth() === n.getMonth() && d.getDate() === n.getDate(); }
 function toDateStr(d) { return d.toISOString().slice(0, 10); }
 
 // --- 任务创建 ---
@@ -902,9 +901,7 @@ function _sHabit(u, t, dir, times, cron, st) {
     if (streakMs(t.streak)) u._tmp.streakMs = t.streak;
   }
   t.history = t.history || [];
-  const l = t.history[t.history.length - 1];
-  if (l && sameDay(l.date)) { l.value = t.value; l.scoredUp = (l.scoredUp || 0) + (dir === 'up' ? times : 0); l.scoredDown = (l.scoredDown || 0) + (dir === 'down' ? times : 0); }
-  else t.history.push({ date: Date.now(), value: t.value, scoredUp: dir === 'up' ? times : 0, scoredDown: dir === 'down' ? times : 0 });
+  t.history.push({ date: Date.now(), value: t.value, scoredUp: dir === 'up' ? times : 0, scoredDown: dir === 'down' ? times : 0 });
 }
 function _sDaily(u, t, dir, times, cron, st) {
   if (cron) { _chgVal(u, t, dir, times, cron); t.streak = 0; t.completed = false; }
@@ -1678,7 +1675,7 @@ function showHistory() {
       html += `<div class="history-item" data-id="${r.id}" data-taskid="${r.taskId}" data-ts="${r.ts}">
         <div class="history-body">
           <span class="history-text">${esc(r.text)}</span>
-          <span class="history-time">${r.time}</span>
+          <span class="history-time">${new Date(r.ts).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}</span>
         </div>
         <span class="history-label">${r.label}</span>
         <span class="history-del" onclick="event.stopPropagation();deleteHistoryRecord('${r.id}','${r.taskId}',${r.ts})">×</span>
