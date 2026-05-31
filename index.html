@@ -764,6 +764,10 @@ button:disabled{opacity:.4!important;pointer-events:none}
   <div class="add-sheet" onclick="event.stopPropagation()">
     <h3>设置</h3>
     <div class="settings-section">
+      <div class="settings-label">昵称</div>
+      <input type="text" id="settingsName" placeholder="你的名字" maxlength="10" autocomplete="off">
+    </div>
+    <div class="settings-section">
       <div class="settings-label">AI API Key</div>
       <input type="text" id="settingsKey" placeholder="粘贴你的 API Key" autocomplete="off" style="font-size:12px;letter-spacing:0.5px">
       <div class="settings-status" id="aiTestStatus">未配置</div>
@@ -771,8 +775,7 @@ button:disabled{opacity:.4!important;pointer-events:none}
     </div>
     <div class="settings-actions">
       <button class="btn btn-ghost" onclick="document.getElementById('settingsOverlay').classList.remove('show')">关闭</button>
-      <button class="btn btn-primary" id="settingsTestBtn" onclick="testAIKey()">测试连接</button>
-      <button class="btn btn-primary" onclick="saveAIKey()">保存</button>
+      <button class="btn btn-primary" onclick="saveAllSettings()">保存</button>
     </div>
   </div>
 </div>
@@ -1269,11 +1272,17 @@ function getHabitTips(text, task) {
 }
 
 let _hDetailId = null;
-function saveAIKey() {
+function loadNickname() {
+  return localStorage.getItem('user_nickname') || '';
+}
+function saveAllSettings() {
+  const name = document.getElementById('settingsName').value.trim();
+  localStorage.setItem('user_nickname', name);
   const key = document.getElementById('settingsKey').value.trim();
   AI_CONFIG.api_key = key;
   localStorage.setItem('ai_api_key', key);
   document.getElementById('aiTestStatus').textContent = key ? '已保存' : '未配置';
+  document.getElementById('settingsOverlay').classList.remove('show');
   showToast('✅ 已保存');
 }
 function testAIKey() {
@@ -1626,7 +1635,7 @@ function monkeyHappy() {
   _monkeyIdx = (_monkeyIdx + 1) % MONKEY_LIST.length;
   const img = document.getElementById('monkeyMascot');
   if (img) img.src = MONKEY_LIST[_monkeyIdx];
-  showToast(MONKEY_TALKS[Math.floor(Math.random() * MONKEY_TALKS.length)]);
+  showToast(monkeyTalk());
   playCorrect();
 }
 function monkeyGreet() {}
@@ -1639,11 +1648,17 @@ const MONKEY_LIST = [
   'sprites/houzi05.png',
 ];
 let _monkeyIdx = 0;
-const MONKEY_TALKS = [
-  '🐒 嘻嘻～', '🐒 加油！', '🐒 继续努力！', '🐒 好棒！', '🐒 今天也很精神呢！',
-  '🐒 坚持就是胜利！', '🐒 不错不错！', '🐒 再做一个吧！', '🐒 习惯养成中～',
-  '🐒 又进步了！', '🐒 好习惯越来越多了！', '🐒 今天也要加油哦！',
-];
+function monkeyTalk() {
+  const name = loadNickname();
+  const tag = name ? name + '！' : '';
+  const msgs = [
+    '🐒 嘻嘻～', `🐒 ${tag}加油！`, '🐒 继续努力！', `🐒 ${tag}好棒！`,
+    '🐒 今天也很精神呢！', '🐒 坚持就是胜利！', '🐒 不错不错！',
+    '🐒 再做一个吧！', '🐒 习惯养成中～', '🐒 又进步了！',
+    '🐒 好习惯越来越多了！', `🐒 ${tag}今天也要加油哦！`,
+  ];
+  return msgs[Math.floor(Math.random() * msgs.length)];
+}
 function showMilestoneTip() {
   const today = toDateStr(new Date());
   let count = 0;
@@ -1664,7 +1679,7 @@ function showMilestoneTip() {
 function petMonkey() {
   _monkeyIdx = (_monkeyIdx + 1) % MONKEY_LIST.length;
   document.getElementById('monkeyMascot').src = MONKEY_LIST[_monkeyIdx];
-  showToast(MONKEY_TALKS[Math.floor(Math.random() * MONKEY_TALKS.length)]);
+  showToast(monkeyTalk());
   playCorrect();
 }
 function showHistory() {
@@ -1946,6 +1961,7 @@ function showModal(iconName, title, desc, btnText) {
 
 // ===== SOUND TOGGLE =====
 document.getElementById('settingsBtn').addEventListener('click', () => {
+  document.getElementById('settingsName').value = loadNickname();
   document.getElementById('aiTestStatus').textContent = AI_CONFIG.api_key ? '已配置' : '未配置';
   document.getElementById('aiTestResult').style.display = 'none';
   document.getElementById('settingsKey').value = AI_CONFIG.api_key || '';
