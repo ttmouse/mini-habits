@@ -714,7 +714,7 @@ button:disabled{opacity:.4!important;pointer-events:none}
         </div>
         <div class="daily-progress-label">
           <span>今日 <span id="dailyProgressCount">0</span>/<span id="dailyProgressTarget">10</span></span>
-          <span id="dailyProgressNext">🎯 10 奖励 +20🪙</span>
+          <span id="dailyProgressNext">10次 → +20 金币</span>
         </div>
       </div>
       <div class="merged-stats" style="margin-top:2px">
@@ -1196,7 +1196,7 @@ function renderMergedStats() {
   if (MILESTONE_BONUS[todayCount] && state._lastMilestone !== todayCount) {
     state._lastMilestone = todayCount;
     state.user.stats.gp += MILESTONE_BONUS[todayCount];
-    showToast(`🎉 里程碑达成！+${MILESTONE_BONUS[todayCount]}🪙`);
+    showToast(`里程碑达成！+${MILESTONE_BONUS[todayCount]} 金币`);
     confetti();
     playStreak();
     saveState();
@@ -1205,7 +1205,8 @@ function renderMergedStats() {
   document.getElementById('dailyProgressFill').style.width = Math.min(100, progress) + '%';
   document.getElementById('dailyProgressCount').textContent = todayCount;
   document.getElementById('dailyProgressTarget').textContent = nextTarget;
-  document.getElementById('dailyProgressNext').textContent = `🎯 ${nextTarget} 奖励 +${MILESTONE_BONUS[nextTarget] || nextTarget * 2}🪙`;
+  const bn = MILESTONE_BONUS[nextTarget] || nextTarget * 2;
+  document.getElementById('dailyProgressNext').textContent = `${nextTarget}次 → +${bn} 金币`;
   document.getElementById('statToday').textContent = '今日 ' + todayCount;
   document.getElementById('statWeek').textContent = '本周 ' + weekCount;
   document.getElementById('statTotal').textContent = '累计 ' + totalCount;
@@ -1890,8 +1891,8 @@ function showMilestoneTip() {
     if (toDateStr(new Date(h.date)) === today) count += h.scoredUp || 0;
   }));
   const milestones = [
-    [5, '+10'], [10, '+20'], [15, '+30'],
-    [20, '+50'], [30, '+80'], [50, '+150']
+    [5, 10], [10, 20], [15, 30],
+    [20, 50], [30, 80], [50, 150]
   ];
   let rows = '';
   milestones.forEach(([m, r]) => {
