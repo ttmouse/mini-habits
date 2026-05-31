@@ -480,10 +480,11 @@ button:disabled{opacity:.4!important;pointer-events:none}
 .r-summary{display:flex;align-items:center;gap:4px;overflow:visible;padding-left:60px;min-height:100px}
 .r-summary-left{flex-shrink:0;margin-left:-40px;margin-top:-40px;margin-right:-20px}
 .r-mascot-img{width:140px;height:140px;object-fit:contain;transform:rotate(-5deg);filter:drop-shadow(0 6px 12px rgba(0,0,0,.12));position:relative;z-index:2}
-.r-summary-right{flex:1;min-width:0}
+.r-summary-right{flex:1;min-width:0;padding-top:12px}
 
 
 .r-section-title{font-size:15px;font-weight:800;color:#1a1a18;margin-bottom:8px;margin-top:4px}
+.r-summary-date{font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:6px}
 .r-summary-metrics{display:flex;gap:12px;margin-top:8px}
 .r-sm{font-size:11px;color:#8a8680}
 .r-sm strong{font-size:15px;font-weight:800;color:#1a1a18;margin-right:2px}
@@ -1809,7 +1810,7 @@ function showReport(type) {
           <span class="r-tab ${type==='total'?'r-tab-active':''}" onclick="showReport('total')">累计</span>
         </div>
         <div class="r-title">${label}习惯报告</div>
-        <div class="r-sub">${dateStr} · 小小进步，也值得被看见</div>
+        <div class="r-sub">小小进步，也值得被看见</div>
         <div class="r-score-tag">${score}</div>
       </div>
 
@@ -1818,6 +1819,7 @@ function showReport(type) {
           <img class="r-mascot-img" src="${MONKEY_LIST[_monkeyIdx]}" alt="猴子">
         </div>
         <div class="r-summary-right">
+          <div class="r-summary-date">${dateStr}</div>
           <div class="r-summary-metrics" style="margin-top:0">
             <span class="r-sm"><strong>${totalCount}</strong> 次完成</span>
             <span class="r-sm"><strong>${streak}</strong> 天连续</span>
