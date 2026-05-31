@@ -1756,6 +1756,7 @@ function confirmHistoryDelete() {
   if (!_pendingHistoryDelete) return;
   const { taskId, ts } = _pendingHistoryDelete;
   _pendingHistoryDelete = null;
+  document.getElementById('delConfirmOverlay').classList.remove('show');
   const task = state.tasks.find(t => t._id === taskId);
   if (!task) return;
   if (task.history) {
