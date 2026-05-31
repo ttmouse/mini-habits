@@ -154,10 +154,11 @@ button:disabled{opacity:.4!important;pointer-events:none}
   display:flex;align-items:center;gap:var(--s3);
   padding:var(--s2) 0;
   margin:var(--s2) var(--s1) 0;
+  overflow:visible;
 }
 
-.merged-avatar{flex-shrink:0;width:108px;height:108px;display:flex;align-items:center;justify-content:center}
-.merged-avatar img{width:100%;height:100%;display:block;object-fit:contain;cursor:pointer}
+.merged-avatar{flex-shrink:0;width:140px;height:120px;display:flex;align-items:flex-start;justify-content:center;overflow:visible}
+.merged-avatar img{width:140px;height:140px;display:block;object-fit:contain;cursor:pointer;margin-top:-20px;margin-left:-10px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.1));transform:rotate(-3deg)}
 .merged-body{flex:1;min-width:0}
 .merged-top{display:flex;align-items:center;margin-bottom:var(--s1)}
 .merged-stats{display:flex;gap:var(--s1);margin-top:var(--s1)}
