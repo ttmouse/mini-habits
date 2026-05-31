@@ -466,6 +466,46 @@ button:disabled{opacity:.4!important;pointer-events:none}
 .ai-preview-label{font-size:12px;font-weight:700;color:var(--text-tertiary);width:64px;flex-shrink:0}
 .ai-preview-row:last-child{border-bottom:none}
 .hdetail-actions{display:flex;flex-direction:column;gap:var(--s1);margin-top:var(--s3)}
+/* ===== 今日报告 ===== */
+.report-overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:999;background:#faf8f5;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.report-scroll{max-width:420px;margin:0 auto;padding:24px 20px 48px;position:relative}
+.report-close{position:fixed;top:16px;right:16px;width:36px;height:36px;border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.1);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--text-secondary);cursor:pointer;z-index:10}
+.r-top{text-align:center;padding:16px 0 20px}
+.r-title{font-size:24px;font-weight:800;color:#1a1a18;margin-bottom:4px}
+.r-sub{font-size:13px;color:#8a8680;margin-bottom:12px}
+.r-score-tag{display:inline-block;background:linear-gradient(135deg,#58CC02,#46a302);color:#fff;font-size:13px;font-weight:700;padding:4px 14px;border-radius:20px}
+.r-card{background:#fff;border-radius:16px;padding:16px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:12px}
+.r-summary{display:flex;align-items:center;gap:12px}
+.r-summary-left{flex-shrink:0}
+.r-mascot{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#e8f5e0,#c8e6c9);display:flex;align-items:center;justify-content:center;font-size:40px}
+.r-summary-right{flex:1;min-width:0;position:relative;padding-right:72px}
+.r-summary-label{font-size:13px;color:#8a8680;margin-bottom:2px}
+.r-summary-pct{font-size:32px;font-weight:800;color:#1a1a18;line-height:1.1}
+.r-summary-detail{font-size:12px;color:#6d6964;margin-top:2px}
+.r-ring{position:absolute;right:0;top:50%;transform:translateY(-50%)}
+.r-capsules{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.r-cap{background:#fff;border-radius:20px;padding:6px 14px;font-size:13px;font-weight:600;color:#3c3c3c;box-shadow:0 1px 6px rgba(0,0,0,.06);display:flex;align-items:center;gap:4px}
+.r-cap-icon{font-size:14px}
+.r-section-title{font-size:16px;font-weight:700;color:#1a1a18;margin-bottom:10px;margin-top:4px}
+.r-highlights{display:flex;gap:8px;margin-bottom:16px}
+.r-highlight{flex:1;background:#fff;border-radius:14px;padding:12px 8px;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.r-hl-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;margin:0 auto 6px}
+.r-hl-text{font-size:11px;color:#6d6964;line-height:1.4}
+.r-hl-text strong{display:block;font-size:14px;color:#1a1a18;margin-bottom:2px}
+.r-record{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f2f0eb}
+.r-record:last-child{border-bottom:none}
+.r-rec-icon{width:32px;height:32px;border-radius:10px;background:#f7f6f3;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.r-rec-body{flex:1;min-width:0}
+.r-rec-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.r-rec-text{font-size:14px;font-weight:600;color:#1a1a18}
+.r-rec-num{font-size:12px;color:#8a8680}
+.r-rec-bar-bg{height:6px;background:#f2f0eb;border-radius:4px;overflow:hidden}
+.r-rec-bar-fill{height:100%;background:linear-gradient(90deg,#58CC02,#46a302);border-radius:4px;transition:width .4s}
+.r-badge{background:#e8f5e0;color:#58CC02;font-size:11px;font-weight:700;padding:2px 8px;border-radius:8px;flex-shrink:0}
+.r-summary-ai{display:flex;gap:10px;align-items:flex-start}
+.r-ai-icon{font-size:24px;flex-shrink:0;margin-top:2px}
+.r-ai-text{font-size:13px;color:#6d6964;line-height:1.6}
+.r-footer{text-align:center;padding:20px 0 8px;font-size:14px;font-weight:600;color:#58CC02}
 .del-confirm-modal{padding:var(--s8) var(--s6)}
 .del-confirm-icon{display:block;text-align:center;margin-bottom:var(--s2)}
 .del-confirm-btn{width:100%}
@@ -656,9 +696,9 @@ button:disabled{opacity:.4!important;pointer-events:none}
         </div>
       </div>
       <div class="merged-stats" style="margin-top:2px">
-        <span class="merged-stat" id="statToday">今日 0</span>
-        <span class="merged-stat" id="statWeek">本周 0</span>
-        <span class="merged-stat" id="statTotal">累计 0</span>
+        <span class="merged-stat" id="statToday" onclick="event.stopPropagation();showReport('today')">今日 0</span>
+        <span class="merged-stat" id="statWeek" onclick="event.stopPropagation();showReport('week')">本周 0</span>
+        <span class="merged-stat" id="statTotal" onclick="event.stopPropagation();showReport('total')">累计 0</span>
       </div>
     </div>
   </div>
@@ -1661,6 +1701,126 @@ function monkeyTalk(taskName) {
   ];
   return msgs[Math.floor(Math.random() * msgs.length)];
 }
+function showReport(type) {
+  const today = toDateStr(new Date());
+  const now = new Date();
+  const dateStr = `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`;
+  const weekDays = ['日','一','二','三','四','五','六'];
+
+  // 计算数据
+  let todayTotal = 0, todayDone = 0, weekStreak = 0, maxStreak = 0;
+  const habitRecords = [];
+  state.tasks.forEach(t => {
+    const history = t.history || [];
+    const tCount = history.filter(h => toDateStr(new Date(h.date)) === today).reduce((s, h) => s + (h.scoredUp || 0), 0);
+    if (tCount > 0) {
+      todayTotal += tCount;
+      todayDone++;
+      const target = t.type === 'habit' ? 3 : 1;
+      habitRecords.push({ text: t.text, done: tCount, target: Math.max(tCount, target), pct: Math.min(100, tCount / target * 100) });
+    }
+  });
+  const doneTodos = state.tasks.filter(t => t.type === 'todo' && t.completed && toDateStr(new Date(t.dateCompleted)) === today).length;
+  if (doneTodos > 0) {
+    todayDone += doneTodos;
+    habitRecords.push({ text: '作业任务', done: doneTodos, target: doneTodos, pct: 100, badge: '已完成' });
+  }
+
+  const totalItems = Math.max(todayDone, 1);
+  const rate = Math.round((todayDone / Math.max(totalItems, 1)) * 100);
+  const score = rate >= 80 ? '表现很棒' : rate >= 50 ? '继续加油' : '明天会更好';
+
+  // 找最佳习惯
+  habitRecords.sort((a, b) => b.pct - a.pct);
+  const best = habitRecords.length > 0 ? habitRecords[0].text : '—';
+
+  // 周累计
+  const weekStart = new Date(now); weekStart.setDate(now.getDate() - (now.getDay() || 7) + 1);
+  const weekStartStr = toDateStr(weekStart);
+  state.tasks.forEach(t => (t.history || []).forEach(h => {
+    const ds = toDateStr(new Date(h.date));
+    if (ds >= weekStartStr) weekStreak += h.scoredUp || 0;
+  }));
+
+  // 连续天数
+  let streak = 0;
+  for (let i = 0; i < 365; i++) {
+    const d = new Date(Date.now() - i * 86400000);
+    const ds = toDateStr(d);
+    const c = state.tasks.reduce((s, t) => s + (t.history || []).filter(h => toDateStr(new Date(h.date)) === ds).reduce((s2, h) => s2 + (h.scoredUp || 0), 0), 0);
+    if (c > 0) streak++; else break;
+  }
+
+  const recordsHtml = habitRecords.slice(0, 5).map(r => {
+    const pct = r.pct;
+    const badge = r.badge ? `<span class="r-badge">${r.badge}</span>` : '';
+    return `<div class="r-record">
+      <div class="r-rec-icon">${r.text.includes('口算')?'🧮':r.text.includes('单词')?'📖':r.text.includes('练字')?'✏️':r.text.includes('作业')?'📝':r.text.includes('跳绳')?'🏃':r.text.includes('水')?'💧':'⭐'}</div>
+      <div class="r-rec-body">
+        <div class="r-rec-top"><span class="r-rec-text">${r.text}</span><span class="r-rec-num">${Math.min(r.done, r.target)}/${r.target}</span></div>
+        <div class="r-rec-bar-bg"><div class="r-rec-bar-fill" style="width:${pct}%"></div></div>
+      </div>
+      ${badge}
+    </div>`;
+  }).join('');
+
+  const html = `<div class="report-overlay" onclick="closeReport()">
+    <div class="report-scroll" onclick="event.stopPropagation()">
+      <div class="report-close" onclick="closeReport()">✕</div>
+
+      <div class="r-top">
+        <div class="r-title">今日习惯报告</div>
+        <div class="r-sub">${dateStr} · 小小进步，也值得被看见</div>
+        <div class="r-score-tag">${score}</div>
+      </div>
+
+      <div class="r-card r-summary">
+        <div class="r-summary-left">
+          <div class="r-mascot">🐵</div>
+        </div>
+        <div class="r-summary-right">
+          <div class="r-summary-label">今日完成率</div>
+          <div class="r-summary-pct">${rate}%</div>
+          <div class="r-summary-detail">完成 ${todayDone} / ${Math.max(todayDone, 10)} 项</div>
+          <div class="r-ring"><svg viewBox="0 0 80 80" width="64" height="64"><circle cx="40" cy="40" r="34" fill="none" stroke="var(--n150)" stroke-width="6"/><circle cx="40" cy="40" r="34" fill="none" stroke="var(--primary)" stroke-width="6" stroke-dasharray="${2*Math.PI*34}" stroke-dashoffset="${2*Math.PI*34*(1-rate/100)}" transform="rotate(-90 40 40)" stroke-linecap="round"/><text x="40" y="42" text-anchor="middle" font-size="16" font-weight="700" fill="var(--text)">⭐</text></svg></div>
+        </div>
+      </div>
+
+      <div class="r-capsules">
+        <div class="r-cap"><span class="r-cap-icon">🪙</span>奖励 +${Math.floor(weekStreak/2)}</div>
+        <div class="r-cap"><span class="r-cap-icon">🔥</span>连续 ${streak} 天</div>
+        <div class="r-cap"><span class="r-cap-icon">⏱️</span>活跃 ${todayDone} 项</div>
+      </div>
+
+      <div class="r-section-title">今日亮点</div>
+      <div class="r-highlights">
+        <div class="r-highlight"><div class="r-hl-icon" style="background:#e8f5e9">✓</div><div class="r-hl-text"><strong>完成任务</strong>${todayDone} 项</div></div>
+        <div class="r-highlight"><div class="r-hl-icon" style="background:#fff8e1">🏆</div><div class="r-hl-text"><strong>最佳习惯</strong>${best}</div></div>
+        <div class="r-highlight"><div class="r-hl-icon" style="background:#e3f2fd">🚩</div><div class="r-hl-text"><strong>完成高峰</strong>${now.getHours()}:00</div></div>
+      </div>
+
+      <div class="r-section-title">习惯完成情况</div>
+      <div class="r-card r-records">${recordsHtml}</div>
+
+      <div class="r-card r-summary-ai">
+        <div class="r-ai-icon">🌱</div>
+        <div class="r-ai-text">今天执行最稳定的是${best}。明天可以把其他任务安排在更早的时间，先完成最容易拖延的任务。</div>
+      </div>
+
+      <div class="r-footer">明天继续，习惯大陆又前进一步！</div>
+    </div>
+  </div>`;
+
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  document.body.appendChild(div);
+  document.body.style.overflow = 'hidden';
+}
+function closeReport() {
+  document.querySelectorAll('.report-overlay').forEach(el => el.remove());
+  document.body.style.overflow = '';
+}
+
 function showMilestoneTip() {
   const today = toDateStr(new Date());
   let count = 0;
