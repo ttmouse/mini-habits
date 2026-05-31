@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <link rel="icon" type="image/svg+xml" href="sprites/favicon.svg">
 <title>朱古力豆 · 养成好习惯</title>
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="lucide.js"></script>
 <style>
 /* ===== DESIGN TOKENS ===== */
 :root{
@@ -273,6 +273,7 @@ button:disabled{opacity:.4!important;pointer-events:none}
 .todo-footer{text-align:center;padding:var(--s2) 0}
 .todo-footer-btn{font-size:12px;color:var(--text-tertiary);cursor:pointer;padding:var(--s1) var(--s3);border-radius:var(--r-md);transition:all var(--fast)}
 .todo-footer-btn:hover{color:var(--primary);background:#f0f8e8}
+.todo-time{font-size:11px;color:var(--text-tertiary);margin-top:2px;display:block}
 
 
 /* ===== TASK CARD ===== */
@@ -416,7 +417,7 @@ button:disabled{opacity:.4!important;pointer-events:none}
   border-radius:var(--r-xl) var(--r-xl) 0 0;
   padding:var(--s6) var(--s5) var(--s10);
   width:100%;max-width:480px;
-  animation:slideUp .3s var(--ease-spring);
+  animation:slideUp .25s ease-out;
 }
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .add-sheet h3{
@@ -538,7 +539,7 @@ button:disabled{opacity:.4!important;pointer-events:none}
   border-radius:var(--r-xl) var(--r-xl) 0 0;
   padding:var(--s3) var(--s5) var(--s10);
   width:100%;max-width:480px;
-  animation:slideUp .3s var(--ease-spring);
+  animation:slideUp .25s ease-out;
 }
 .hdetail-handle{
   width:36px;height:4px;border-radius:2px;
@@ -550,6 +551,17 @@ button:disabled{opacity:.4!important;pointer-events:none}
 .hdetail-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center}
 .hdetail-icon i{width:32px;height:32px;color:var(--primary)}
 .hdetail-title{font-size:20px;font-weight:800;color:var(--text)}
+.hdetail-stats{display:flex;align-items:center;gap:var(--s2);margin-bottom:var(--s3);margin-left:4px}
+.hdetail-stat{font-size:13px;color:var(--text-secondary)}
+.hdetail-stat-num{font-size:18px;font-weight:800;color:var(--text);margin-right:2px}
+.hdetail-stat-dot{width:3px;height:3px;border-radius:50%;background:var(--n200)}
+.hdetail-history{margin-bottom:var(--s2)}
+.hweek-row{display:flex;justify-content:space-around;padding:var(--s2) 0}
+.hweek-item{display:flex;flex-direction:column;align-items:center;gap:2px}
+.hweek-day{font-size:11px;color:var(--text-tertiary)}
+.hweek-num{font-size:16px;font-weight:800;color:var(--text)}
+.hweek-zero{color:var(--n250)}
+.hdetail-empty{text-align:center;padding:var(--s4) 0;font-size:13px;color:var(--text-tertiary)}
 .hdetail-count{font-size:13px;color:var(--text-secondary);margin-bottom:var(--s4);margin-left:4px}
 .hdetail-section{
   display:flex;align-items:flex-start;gap:var(--s3);
@@ -560,7 +572,9 @@ button:disabled{opacity:.4!important;pointer-events:none}
   width:70px;flex-shrink:0;padding-top:1px;
 }
 .hdetail-val{font-size:14px;font-weight:600;color:var(--text);line-height:1.5}
-.hdetail-tip{color:var(--primary-dark);font-weight:700}
+.hdetail-tip{color:var(--primary-dark);font-weight:600;line-height:1.7;font-size:13px}
+.hdetail-prompt{font-size:15px;font-weight:700;color:var(--primary-dark)}
+.hdetail-action{font-size:14px;font-weight:600;color:var(--text);line-height:1.5}
 
 /* ===== RESPONSIVE ===== */
 @media(max-width:400px){
@@ -581,7 +595,7 @@ button:disabled{opacity:.4!important;pointer-events:none}
 .icon-heart{width:22px;height:22px}
 .heart-full{color:var(--red);fill:var(--red)}
 .heart-empty{color:var(--n200);fill:var(--n200)}
-.icon-gem{color:var(--primary);width:16px;height:16px}
+
 .icon-exp{color:var(--purple);width:16px;height:16px}
 .icon-check{color:var(--primary);width:16px;height:16px}
 .icon-flame{color:var(--orange);width:16px;height:16px}
@@ -609,7 +623,7 @@ button:disabled{opacity:.4!important;pointer-events:none}
     <span class="app-title">微习惯</span>
     <div class="top-center">
       <div class="hearts-display" id="heartsDisplay"></div>
-      <div class="stat-pill"><span class="gem"><i data-lucide="gem" class="icon-gem"></i></span> <span id="statGp">0</span></div>
+      <div class="stat-pill"><i data-lucide="coins" style="width:16px;height:16px;color:var(--primary)"></i> <span id="statGp">0</span></div>
     </div>
     <button class="settings-btn" id="settingsBtn"><i data-lucide="settings"></i></button>
   </div>
@@ -668,7 +682,7 @@ button:disabled{opacity:.4!important;pointer-events:none}
 </div>
 
 <!-- ===== 习惯详情面板 ===== -->
-<div class="add-overlay" id="habitDetail">
+<div class="add-overlay" id="habitDetail" onclick="document.getElementById('habitDetail').classList.remove('show')">
   <div class="hdetail-sheet" onclick="event.stopPropagation()">
     <div class="hdetail-handle"></div>
     <div class="hdetail-head">
@@ -676,18 +690,19 @@ button:disabled{opacity:.4!important;pointer-events:none}
       <span class="hdetail-title" id="hDetailTitle">习惯</span>
       <span class="hdetail-del" id="hDetailDel" onclick="event.stopPropagation();confirmDeleteDetail()"><i data-lucide="trash-2" style="width:16px;height:16px"></i></span>
     </div>
-    <div class="hdetail-count" id="hDetailCount">今天做了 0 次</div>
+    <div class="hdetail-stats" id="hDetailStats"></div>
+    <div class="hdetail-history" id="hDetailHistory"></div>
     <div class="hdetail-section">
       <div class="hdetail-label">建议次数</div>
       <div class="hdetail-val" id="hDetailTimes"></div>
     </div>
     <div class="hdetail-section">
-      <div class="hdetail-label">最佳时间</div>
-      <div class="hdetail-val" id="hDetailWhen"></div>
+      <div class="hdetail-label">触发时机</div>
+      <div class="hdetail-val hdetail-prompt" id="hDetailPrompt"></div>
     </div>
     <div class="hdetail-section">
-      <div class="hdetail-label">执行技巧</div>
-      <div class="hdetail-val hdetail-tip" id="hDetailTip"></div>
+      <div class="hdetail-label">动作</div>
+      <div class="hdetail-val hdetail-action" id="hDetailAction"></div>
     </div>
     <div class="hdetail-section">
       <div class="hdetail-label">进阶挑战</div>
@@ -877,23 +892,28 @@ const state = {
   dayCount: 1,
   hearts: 5,
   lastHeartsCheck: null,
+  _todoDate: null,
 };
 
 // --- 示例任务（四年级适用） ---
 const SAMPLES = [
   // 习惯
-  { type: 'habit', text: '跳绳 50 个' },
-  { type: 'habit', text: '练字 5 分钟' },
-  { type: 'habit', text: '背一首古诗' },
+  { type: 'habit', text: '跳绳 10 个' },
+  { type: 'habit', text: '练字 3 个字' },
+
   { type: 'habit', text: '喝水一杯' },
-  { type: 'habit', text: '做口算一页' },
+  { type: 'habit', text: '做口算 3 道题' },
   { type: 'habit', text: '背 1-2 个英语单词' },
   { type: 'habit', text: '收拾书包（睡前）' },
-  { type: 'habit', text: '阅读 15 分钟' },
+  { type: 'habit', text: '读 2 页书' },
   { type: 'habit', text: '做一件家务' },
   { type: 'habit', text: '写一句话日记' },
+  { type: 'habit', text: '离开房间扔掉一个垃圾' },
   // 待办
-  { type: 'todo', text: '单元复习' },
+  { type: 'todo', text: '语文作业' },
+  { type: 'todo', text: '数学作业' },
+  { type: 'todo', text: '英语作业' },
+  { type: 'todo', text: '科学作业' },
   { type: 'todo', text: '整理房间' },
   { type: 'todo', text: '给家人做一张贺卡' },
   // 商店
@@ -924,11 +944,22 @@ function playTone(freq, dur, type = 'sine', vol = 0.3) {
     o.start(); o.stop(audioCtx.currentTime + dur);
   } catch (e) {}
 }
-function playTask() { playTone(523, 0.1); setTimeout(() => playTone(659, 0.1), 80); setTimeout(() => playTone(784, 0.18), 160); }
-function playUpgrade() { playTone(523, 0.15); setTimeout(() => playTone(659, 0.15), 120); setTimeout(() => playTone(784, 0.15), 240); setTimeout(() => playTone(1047, 0.35), 360); }
-function playHeartLost() { playTone(200, 0.3, 'sawtooth', 0.2); setTimeout(() => playTone(160, 0.4, 'sawtooth', 0.15), 150); }
-function playNoGP() { playTone(300, 0.2, 'square', 0.15); setTimeout(() => playTone(250, 0.3, 'square', 0.12), 100); }
-function playStreak() { playTone(784, 0.12); setTimeout(() => playTone(988, 0.12), 100); setTimeout(() => playTone(1175, 0.12), 200); setTimeout(() => playTone(1319, 0.4), 300); }
+// 多邻国风格音效
+function playToneChain(notes, vol = 0.25) {
+  notes.forEach(([freq, delay, dur, type]) => {
+    setTimeout(() => playTone(freq, dur || 0.12, type || 'sine', vol), delay);
+  });
+}
+function playTap() { playTone(880, 0.04, 'sine', 0.1); }                           // 按钮轻触
+function playPop() { playTone(660, 0.06, 'sine', 0.12); }                          // 弹窗打开
+function playTask() { playToneChain([[523,0,0.08],[659,60,0.08],[784,120,0.14]], 0.2); }  // 完成任务 ding
+function playComplete() { playToneChain([[784,0,0.1],[988,80,0.1],[1175,160,0.25]], 0.22); } // 大完成
+function playCoin() { playToneChain([[1319,0,0.06],[1568,50,0.06],[1760,100,0.1]], 0.15); }  // 金币声
+function playUpgrade() { playToneChain([[523,0,0.12],[659,100,0.12],[784,200,0.12],[1047,300,0.35]], 0.25); }
+function playHeartLost() { playTone(200, 0.3, 'sawtooth', 0.15); setTimeout(() => playTone(160, 0.4, 'sawtooth', 0.1), 150); }
+function playNoGP() { playTone(300, 0.2, 'square', 0.1); setTimeout(() => playTone(250, 0.3, 'square', 0.08), 100); }
+function playStreak() { playToneChain([[784,0,0.1,],[988,80,0.1],[1175,160,0.1],[1319,240,0.35]], 0.28); }
+function playCorrect() { playToneChain([[660,0,0.06],[880,60,0.06],[1047,120,0.18]], 0.2); } // 正确反馈
 
 // ================================================================
 // PERSISTENCE
@@ -942,6 +973,7 @@ function saveState() {
     dayCount: state.dayCount,
     hearts: state.hearts,
     lastHeartsCheck: state.lastHeartsCheck,
+    _todoDate: state._todoDate,
     soundEnabled: soundEnabled,
   }));
 }
@@ -963,6 +995,7 @@ function loadState() {
       state.dayCount = meta.dayCount ?? 1;
       state.hearts = meta.hearts ?? 5;
       state.lastHeartsCheck = meta.lastHeartsCheck ?? null;
+      state._todoDate = meta._todoDate ?? null;
       soundEnabled = meta.soundEnabled ?? true;
     }
   } catch (e) { console.warn('load failed', e); }
@@ -977,7 +1010,7 @@ function renderHearts() {
   el.innerHTML = Array.from({ length: 5 }, (_, i) =>
     `<i data-lucide="${i < state.hearts ? 'heart' : 'heart'}" class="icon-heart ${i < state.hearts ? 'heart-full' : 'heart-empty'}"></i>`
   ).join('');
-  if (window.lucide) lucide.createIcons();
+  if(typeof lucide!=="undefined"&&lucide.createIcons)lucide.createIcons();
 }
 function loseHeart() {
   if (state.hearts <= 0) {
@@ -1020,11 +1053,14 @@ const PRIORITY_ICON = { easy: '<span class="prio-dot dot-easy"></span>', medium:
 // Keyword-based icon for task cards (returns Lucide icon name)
 function getTaskIcon(text) {
   const t = text.toLowerCase();
+  if (/跳绳/.test(t)) return 'heart';
   if (/引体/.test(t)) return 'armchair';
   if (/健腹/.test(t)) return 'dumbbell';
   if (/走|步|跑|跑步|走路/.test(t)) return 'person-standing';
   if (/水|喝|杯/.test(t)) return 'droplet';
   if (/书|阅读|读书/.test(t)) return 'book-open';
+  if (/垃圾/.test(t)) return 'trash-2';
+  if (/口算/.test(t)) return 'calculator';
   if (/整理|打扫|清洁|拖地|擦/.test(t)) return 'sparkles';
   if (/日记|写/.test(t)) return 'pencil';
   if (/画|美术|画画/.test(t)) return 'palette';
@@ -1032,6 +1068,9 @@ function getTaskIcon(text) {
   if (/冰淇淋|甜品|糖/.test(t)) return 'cookie';
   if (/电视|动画|看.+集|看.+片/.test(t)) return 'tv';
   if (/手机|刷/.test(t)) return 'smartphone';
+  if (/语文/.test(t)) return 'book-open';
+  if (/数学/.test(t)) return 'sigma';
+  if (/英语/.test(t)) return 'globe';
   if (/科学|实验/.test(t)) return 'microscope';
   if (/作业|学习/.test(t)) return 'books';
   if (/运动|健身/.test(t)) return 'person-running';
@@ -1058,28 +1097,14 @@ function renderTasks() {
       const emptyIcons = { habits: 'refresh-cw', dailies: 'calendar', todos: 'clipboard-list', rewards: 'gift' };
       el.innerHTML = `<div class="empty-state"><div class="icon"><i data-lucide="${emptyIcons[k] || 'sparkles'}" class="icon-empty"></i></div><p>还没有任务，点 + 添加吧！</p></div>`;
     } else {
+      // 待办：已完成排到底部
+      if (k === 'todos') tasks.sort((a, b) => (a.completed ? 1 : 0) - (b.completed ? 1 : 0));
       el.innerHTML = tasks.map(t => cardHTML(t, k === 'rewards')).join('');
     }
     // 待办：已完成自动隐藏，底部可展开
-    if (k === 'todos') {
-      const allTodos = state.tasks.filter(t => t.type === 'todo');
-      const doneTodos = allTodos.filter(t => t.completed);
-      const activeTodos = allTodos.filter(t => !t.completed);
-      if (doneTodos.length > 0) {
-        const footer = document.createElement('div');
-        footer.className = 'todo-footer';
-        footer.innerHTML = _showDoneTodos
-          ? `<span class="todo-footer-btn" onclick="toggleDoneTodos()">▲ 隐藏已完成（${doneTodos.length} 项）</span>`
-          : `<span class="todo-footer-btn" onclick="toggleDoneTodos()">▼ 已完成（${doneTodos.length} 项）</span>`;
-        el.appendChild(footer);
-      }
-      // 隐藏/显示已完成
-      el.querySelectorAll('.task-card.completed').forEach(card => {
-        card.style.display = _showDoneTodos ? '' : 'none';
-      });
-    }
+    if (k === 'todos') { updateTodoFooter(); }
   }
-  if (window.lucide) lucide.createIcons();
+  if(typeof lucide!=="undefined"&&lucide.createIcons)lucide.createIcons();
 }
 function cardHTML(task, isReward) {
   switch (task.type) {
@@ -1092,19 +1117,20 @@ function cardHTML(task, isReward) {
 }
 // ===== 微习惯建议数据 =====
 const HABIT_TIPS = {
-  default: { times: '每天 1-2 次', when: '找到固定时间点', tip: '从 2 分钟开始，先做再优化', next: '坚持一周后逐渐增加' },
-  跳绳: { times: '每天 1 次', when: '放学后 / 运动时间', tip: '不要求数量，先跳 10 个就算成功', next: '连续跳 100 个不断' },
-  引体向上: { times: '每天 1-2 组', when: '运动时间', tip: '能拉一个算一个，挂上去就是胜利', next: '连续做 10 个' },
-  健腹轮: { times: '每天 3-5 个', when: '运动时间', tip: '跪姿做，腰不要塌，3 个就够', next: '站姿做 10 个' },
-  练字: { times: '每天 1 次', when: '写完作业后', tip: '只写 3 个字，写好为止', next: '每天写一页' },
-  古诗: { times: '每天 1-2 首', when: '早读 / 睡前', tip: '读一遍就算完成，不要求背下来', next: '每周完整背出 2 首' },
-  喝水: { times: '每天 4-6 杯', when: '每节课后', tip: '在桌上放一个水杯提醒自己', next: '每天喝满 8 杯' },
-  口算: { times: '每天 1 页', when: '做作业前热身', tip: '计时做，比昨天快 1 秒就是进步', next: '挑战 5 分钟做完' },
-  单词: { times: '每天 1-2 个', when: '吃完早饭后', tip: '抄一遍 + 读一遍就够了，不要求记住', next: '每天 5 个' },
-  书包: { times: '每天睡前', when: '刷完牙后', tip: '看课程表整理，只要 1 分钟', next: '提前准备好第二天的衣服' },
-  阅读: { times: '每天 15 分钟', when: '睡前', tip: '只看 2 页也行，翻开了就是胜利', next: '每天 30 分钟' },
-  家务: { times: '每天 1 件', when: '吃完饭后', tip: '摆碗筷 / 倒垃圾都算，选最简单的', next: '每周学做一道菜' },
-  日记: { times: '每天 1 句', when: '睡前', tip: '写一句话就够，不会写就抄一句喜欢的', next: '写满 3 句话' },
+  default: { times: '每天 1-2 次', prompt: '建议选一个日常动作：放学回家后 / 洗完澡后 / 吃完饭站起来时 / 坐到书桌前 / 刷完牙后', action: '只做 2 分钟，做完就算成功，不要贪多', next: '坚持一周后逐渐增加' },
+  跳绳: { times: '每天 1 次', prompt: '放学换好家居服后', action: '拿出绳子跳 10 个，跳完就去玩', next: '连续跳 100 个不断' },
+  引体向上: { times: '每天 1-2 组', prompt: '路过家里的单杠/门框时', action: '顺手挂上去，双脚离地就算一次', next: '连续做 10 个' },
+  健腹轮: { times: '每天 3-5 个', prompt: '看完一集动画片站起来时', action: '跪姿推 3 个，腰不要塌，做完继续玩', next: '站姿做 10 个' },
+  练字: { times: '每天 3 个字', prompt: '合上作业本、笔还没放下时', action: '翻到练字页写 3 个字，写完就收', next: '每天写一整页' },
+
+  喝水: { times: '每天 4-6 杯', prompt: '听到下课铃、站起来伸懒腰时', action: '走到水杯前喝一口，不用喝光一杯', next: '每天喝满 8 杯' },
+  口算: { times: '每天 3 道', prompt: '拿出作业本、翻开到口算那页', action: '只做第一行 3 道题，计时看几秒', next: '挑战 5 分钟做完一页' },
+  单词: { times: '每天 1-2 个', prompt: '放下筷子、抽出纸巾擦嘴时', action: '拿出单词卡看 1 个，读一遍就行', next: '每天背 5 个' },
+  书包: { times: '每天睡前', prompt: '刷完牙对着镜子笑一下之后', action: '走到书桌前看课程表，放好明早要带的书', next: '提前准备好第二天的衣服' },
+  阅读: { times: '每天 2 页', prompt: '关掉大灯、只留床头灯时', action: '拿起书翻到上次看到的那页，读 2 页就好', next: '每天读 10 页' },
+  家务: { times: '每天 1 件', prompt: '放下碗、站起来准备离开餐桌时', action: '把自己的碗筷收到厨房，只做这一件', next: '每周学做一道菜' },
+  日记: { times: '每天 1 句', prompt: '关灯躺好、闭上眼睛之前', action: '摸到床头的本子写一句话', next: '每天写满 3 句话' },
+  垃圾: { times: '每次离开房间', prompt: '站起来要去做别的事、走到门口时', action: '回头扫一眼地面，看到垃圾就捡起来带走', next: '每天主动检查房间垃圾' },
 };
 function getHabitTips(text) {
   for (const [key, tips] of Object.entries(HABIT_TIPS)) {
@@ -1119,18 +1145,39 @@ function showHabitDetail(id) {
   const task = state.tasks.find(t => t._id === id);
   if (!task) return;
   const tips = getHabitTips(task.text);
-  const today = toDateStr(new Date());
-  const todayCount = (task.history || []).filter(h => toDateStr(new Date(h.date)) === today).reduce((s, h) => s + (h.scoredUp || 0), 0);
-  const count = todayCount || task.counterUp || 0;
   document.getElementById('hDetailIcon').innerHTML = `<i data-lucide="${getTaskIcon(task.text)}" style="width:32px;height:32px"></i>`;
   document.getElementById('hDetailTitle').textContent = task.text;
   document.getElementById('hDetailTimes').textContent = tips.times;
-  document.getElementById('hDetailWhen').textContent = tips.when;
-  document.getElementById('hDetailTip').textContent = tips.tip;
+  document.getElementById('hDetailPrompt').textContent = tips.prompt;
+  document.getElementById('hDetailAction').textContent = tips.action;
   document.getElementById('hDetailNext').textContent = tips.next;
-  document.getElementById('hDetailCount').textContent = `今天做了 ${count} 次`;
-  if (window.lucide) lucide.createIcons();
+  // 统计数据
+  const today = toDateStr(new Date());
+  const history = task.history || [];
+  const todayCount = history.filter(h => toDateStr(new Date(h.date)) === today).reduce((s, h) => s + (h.scoredUp || 0), 0);
+  const totalCount = history.reduce((s, h) => s + (h.scoredUp || 0), 0);
+  document.getElementById('hDetailStats').innerHTML = `
+    <span class="hdetail-stat"><span class="hdetail-stat-num">${todayCount}</span> 今日</span>
+    <span class="hdetail-stat-dot"></span>
+    <span class="hdetail-stat"><span class="hdetail-stat-num">${totalCount}</span> 累计</span>
+  `;
+  // 近 7 天历史
+  if (history.length === 0) {
+    document.getElementById('hDetailHistory').innerHTML = '<div class="hdetail-empty">开始做习惯后，这里会显示每周统计</div>';
+  } else {
+    const dayNames = ['日','一','二','三','四','五','六'];
+    const parts = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(Date.now() - i * 86400000);
+      const ds = toDateStr(d);
+      const dayCount = history.filter(h => toDateStr(new Date(h.date)) === ds).reduce((s, h) => s + (h.scoredUp || 0), 0);
+      parts.push(`<span class="hweek-item"><span class="hweek-day">${dayNames[d.getDay()]}</span><span class="hweek-num ${dayCount > 0 ? '' : 'hweek-zero'}">${dayCount}</span></span>`);
+    }
+    document.getElementById('hDetailHistory').innerHTML = `<div class="hweek-row">${parts.join('')}</div>`;
+  }
+  if(typeof lucide!=="undefined"&&lucide.createIcons)lucide.createIcons();
   document.getElementById('habitDetail').classList.add('show');
+  playPop();
 }
 
 function habitCardHTML(task) {
@@ -1139,9 +1186,9 @@ function habitCardHTML(task) {
   const today = toDateStr(new Date());
   const todayCount = (task.history || []).filter(h => toDateStr(new Date(h.date)) === today).reduce((s, h) => s + (h.scoredUp || 0), 0);
   const count = todayCount || task.counterUp || 0;
-  return `<div class="task-card task-habit" data-id="${task._id}">
-    <div class="task-type-icon" onclick="event.stopPropagation();showHabitDetail('${task._id}')"><i data-lucide="${icon}" class="icon-task-type"></i></div>
-    <div class="task-body" onclick="event.stopPropagation();showHabitDetail('${task._id}')">
+  return `<div class="task-card task-habit" data-id="${task._id}" onclick="showHabitDetail('${task._id}')">
+    <div class="task-type-icon"><i data-lucide="${icon}" class="icon-task-type"></i></div>
+    <div class="task-body">
       <div class="task-text">${esc(task.text)}</div>
     </div>
     <div class="habit-right">
@@ -1158,15 +1205,14 @@ function todoCardHTML(task) { return taskCardHTML(task, 'todo'); }
 function taskCardHTML(task, type) {
   const icon = getTaskIcon(task.text);
   const done = task.completed || false;
-  const streak = task.streak || 0;
-  const streakHtml = streak > 0 ? `<span class="streak-pill"><i data-lucide="flame" class="icon-flame-sm"></i> ${streak}</span>` : '';
+  const timeHtml = task.dateCompleted ? `<span class="todo-time">${fmtTime(task.dateCompleted)} 完成</span>` : '';
   return `<div class="task-card ${done ? 'completed' : ''}" data-type="${type}" data-id="${task._id}" onclick="clickTask('${task._id}')">
     <div class="task-check">${done ? '✓' : ''}</div>
     <div class="task-type-icon"><i data-lucide="${icon}" class="icon-task-type"></i></div>
     <div class="task-body">
       <div class="task-text">${esc(task.text)}</div>
+      ${timeHtml}
     </div>
-    ${streakHtml}
   </div>`;
 }
 function rewardCardHTML(task) {
@@ -1193,11 +1239,22 @@ function renderBadge() {
   b.textContent = c; b.style.display = c > 0 ? 'inline' : 'none';
 }
 function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function fmtTime(ts) {
+  const d = new Date(ts);
+  const now = new Date();
+  const today = toDateStr(now);
+  const taskDay = toDateStr(d);
+  if (taskDay === today) return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  const yesterday = toDateStr(new Date(now - 86400000));
+  if (taskDay === yesterday) return `昨天 ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  return `${d.getMonth()+1}/${d.getDate()}`;
+}
 
 // ================================================================
 // INTERACTIONS
 // ================================================================
 function switchTab(tab) {
+  playTap();
   state.tab = tab;
   document.querySelectorAll('.tab').forEach(el => el.classList.toggle('active', el.dataset.tab === tab));
   ['habitsList', 'todosList', 'rewardsList'].forEach(id => document.getElementById(id).classList.toggle('hidden', id.replace('List', '') !== tab));
@@ -1228,8 +1285,22 @@ function clickTask(id) {
     return;
   }
 
-  if (task.type === 'todo' && task.completed) { scoreTask(state.user, task, 'down'); render(); return; }
-  if (task.type === 'todo' && !task.completed) { _doComplete(task); render(); checkUp(); return; }
+  if (task.type === 'todo') {
+    const wasComplete = task.completed;
+    if (wasComplete) { scoreTask(state.user, task, 'down'); } else { _doComplete(task); }
+    // 只更新当前卡片，不重新渲染整个列表
+    document.querySelectorAll(`.task-card[data-id="${id}"]`).forEach(card => {
+      card.classList.toggle('completed', !!task.completed);
+      card.querySelector('.task-check').textContent = task.completed ? '✓' : '';
+      card.style.display = task.completed && !_showDoneTodos ? 'none' : '';
+    });
+    document.getElementById('statGp').textContent = Math.floor(state.user.stats.gp);
+    renderExp();
+    updateTodoFooter();
+    saveState();
+    checkUp();
+    return;
+  }
   if (task.type === 'habit') { clickHabit(task._id, 'up'); return; }
   if (task.type === 'daily') { if (task.completed) { scoreTask(state.user, task, 'down'); render(); } else { _doComplete(task); } render(); checkUp(); return; }
 
@@ -1351,6 +1422,7 @@ function checkUp() {
 let _deletedTask = null;
 let _deleteTimer = null;
 function deleteTask(id) {
+  playTap();
   const idx = state.tasks.findIndex(t => t._id === id);
   if (idx === -1) return;
   _deletedTask = state.tasks.splice(idx, 1)[0];
@@ -1370,6 +1442,7 @@ function undoDelete() {
   clearTimeout(_deleteTimer);
   render();
   showToast('↩️ 已恢复');
+  playCorrect();
 }
 
 // ===== MONKEY INTERACTION =====
@@ -1377,24 +1450,45 @@ function undoDelete() {
 
 function monkeyHappy() {}
 function monkeyGreet() {}
-function petMonkey() { showToast('🐒 嘻嘻～'); playTask(); }
-function toggleDoneTodos() { _showDoneTodos = !_showDoneTodos; renderTasks(); }
+function petMonkey() { showToast('🐒 嘻嘻～'); playCorrect(); }
+function toggleDoneTodos() { playTap(); _showDoneTodos = !_showDoneTodos; renderTasks(); }
+function updateTodoFooter() {
+  const el = document.getElementById('todosList');
+  const allTodos = state.tasks.filter(t => t.type === 'todo');
+  const doneTodos = allTodos.filter(t => t.completed);
+  // 移除旧的 footer
+  el.querySelectorAll('.todo-footer').forEach(f => f.remove());
+  if (doneTodos.length > 0) {
+    const footer = document.createElement('div');
+    footer.className = 'todo-footer';
+    footer.innerHTML = _showDoneTodos
+      ? `<span class="todo-footer-btn" onclick="toggleDoneTodos()">▲ 隐藏已完成（${doneTodos.length} 项）</span>`
+      : `<span class="todo-footer-btn" onclick="toggleDoneTodos()">▼ 已完成（${doneTodos.length} 项）</span>`;
+    el.appendChild(footer);
+  }
+  // 隐藏/显示已完成卡片
+  el.querySelectorAll('.task-card.completed').forEach(card => {
+    card.style.display = _showDoneTodos ? '' : 'none';
+  });
+}
 function confirmDeleteDetail() {
   if (!_hDetailId) return;
   document.getElementById('delConfirmOverlay').classList.add('show');
 }
 function doDeleteDetail() {
   if (!_hDetailId) return;
+  playTap();
   deleteTask(_hDetailId);
   document.getElementById('habitDetail').classList.remove('show');
   document.getElementById('delConfirmOverlay').classList.remove('show');
   _hDetailId = null;
 }
 function cancelDeleteDetail() {
+  playTap();
   document.getElementById('delConfirmOverlay').classList.remove('show');
 }
 
-function closeLvlModal() { document.getElementById('lvlModal').classList.remove('show'); }
+function closeLvlModal() { playTap(); document.getElementById('lvlModal').classList.remove('show'); }
 
 // ===== ADD SHEET =====
 function showAddSheet() {
@@ -1406,7 +1500,7 @@ function showAddSheet() {
   document.getElementById('addOverlay').classList.add('show');
   document.getElementById('newText').focus();
 }
-function hideAddSheet(e) { if (e && e.target !== e.currentTarget) return; document.getElementById('addOverlay').classList.remove('show'); }
+function hideAddSheet(e) { if (e && e.target !== e.currentTarget) return; playTap(); document.getElementById('addOverlay').classList.remove('show'); }
 function addTask() {
   const text = document.getElementById('newText').value.trim();
   if (!text) { showToast('请输入任务名称'); return; }
@@ -1465,7 +1559,7 @@ function showModal(iconName, title, desc, btnText) {
   document.getElementById('lvlTitle').textContent = title;
   document.getElementById('lvlDesc').textContent = desc;
   document.querySelector('.btn-gold').textContent = btnText;
-  if (window.lucide) lucide.createIcons();
+  if(typeof lucide!=="undefined"&&lucide.createIcons)lucide.createIcons();
   document.getElementById('lvlModal').classList.add('show');
   confetti();
 }
@@ -1482,11 +1576,20 @@ document.getElementById('lvlModal').addEventListener('click', (e) => {
 
 // ===== INIT =====
 loadState();
+// 每日重置待办
+const todayStr = toDateStr(new Date());
+if (state._todoDate !== todayStr) {
+  state.tasks.filter(t => t.type === 'todo').forEach(t => { t.completed = false; t.dateCompleted = null; });
+  state._todoDate = todayStr;
+}
 // 首次使用：加载示例任务
 if (state.tasks.length === 0) {
   SAMPLES.forEach(t => state.tasks.push(taskDef(t)));
 } else {
-  // 检查并补充缺少的示例任务（避免旧数据没有新示例）
+  // 迁移：移除旧名称的重复习惯（已被改名）
+  const oldNames = ['背 5 个英语单词','跳绳 50 个','练字 5 分钟','做口算一页','阅读 15 分钟'];
+  state.tasks = state.tasks.filter(t => !oldNames.includes(t.text));
+  // 检查并补充缺少的示例任务
   const existingTexts = new Set(state.tasks.map(t => t.text));
   SAMPLES.forEach(t => {
     if (!existingTexts.has(t.text)) {
@@ -1498,7 +1601,7 @@ soundEnabled = localStorage.getItem('mh_sound') !== 'off';
 saveState();
 document.getElementById('expBarFill').style.width = '0%';
 render();
-if (window.lucide) lucide.createIcons();
+if(typeof lucide!=="undefined"&&lucide.createIcons)lucide.createIcons();
 saveState();
 
 console.log('朱古力豆 · Lucide 图标系统');
