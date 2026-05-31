@@ -454,6 +454,14 @@ button:disabled{opacity:.4!important;pointer-events:none}
 .add-sheet-actions .btn{width:auto;margin-top:0}
 .add-sheet-actions .btn-primary{flex:1}
 .add-sheet-actions .btn-ghost{flex:0 0 auto;padding:var(--s3) var(--s5);border-radius:var(--r-md)}
+.settings-section{padding:var(--s4) 0}
+.settings-label{font-size:13px;font-weight:700;color:var(--text-secondary);margin-bottom:var(--s2)}
+.settings-status{font-size:12px;color:var(--text-tertiary);margin-top:var(--s1)}
+.settings-result{font-size:13px;font-weight:600;margin-top:var(--s2);padding:var(--s2);border-radius:var(--r-sm);display:none}
+.settings-result.ok{display:block;background:#e8f5e9;color:#2e7d32}
+.settings-result.err{display:block;background:#ffebee;color:#c62828}
+.settings-actions{display:flex;gap:var(--s2);margin-top:var(--s3)}
+.settings-actions .btn{flex:1;margin-top:0}
 .ai-loading{text-align:center;padding:var(--s4);font-size:14px;color:var(--text-secondary);font-weight:600}
 .ai-dots{animation:aiDot 1.2s steps(3) infinite}
 @keyframes aiDot{0%{opacity:.2}50%{opacity:1}100%{opacity:.2}}
@@ -745,6 +753,24 @@ button:disabled{opacity:.4!important;pointer-events:none}
     <h2 id="lvlTitle">升级了！</h2>
     <p id="lvlDesc">太棒了，继续加油！</p>
     <button class="btn btn-gold" onclick="closeLvlModal()">太好啦！</button>
+  </div>
+</div>
+
+<!-- ===== 设置面板 ===== -->
+<div class="add-overlay" id="settingsOverlay" onclick="document.getElementById('settingsOverlay').classList.remove('show')">
+  <div class="add-sheet" onclick="event.stopPropagation()">
+    <h3>设置</h3>
+    <div class="settings-section">
+      <div class="settings-label">AI API Key</div>
+      <input type="text" id="settingsKey" placeholder="粘贴你的 API Key" autocomplete="off" style="font-size:12px;letter-spacing:0.5px">
+      <div class="settings-status" id="aiTestStatus">未配置</div>
+      <div class="settings-result" id="aiTestResult"></div>
+    </div>
+    <div class="settings-actions">
+      <button class="btn btn-ghost" onclick="document.getElementById('settingsOverlay').classList.remove('show')">关闭</button>
+      <button class="btn btn-primary" id="settingsTestBtn" onclick="testAIKey()">测试连接</button>
+      <button class="btn btn-primary" onclick="saveAIKey()">保存</button>
+    </div>
   </div>
 </div>
 
@@ -1139,22 +1165,26 @@ function cardHTML(task, isReward) {
     default: return '';
   }
 }
-// ===== 微习惯建议数据 =====
 // ===== AI 配置 =====
-
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text }),
-    }).then(r => r.json()).then(data => {
-      if (data && data.success && data.data) {
-        const json = data.data;
-        if (json && json.times && json.prompt) {
-          localStorage.setItem('ai_tips_' + text, JSON.stringify(json));
-          resolve(json);
-        } else resolve(null);
-      } else resolve(null);
-    }).catch(() => resolve(null));
-  });
+const AI_CONFIG = {
+  base_url: 'https://api.minimax.io/anthropic',
+  api_key: localStorage.getItem('ai_api_key') || '',
+  model: 'MiniMax-M2.7-highspeed',
+};
+function directCallAI(text) {
+  return fetch(AI_CONFIG.base_url + '/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-api-key': AI_CONFIG.api_key, 'anthropic-version': '2023-06-01' },
+    body: JSON.stringify({
+      model: AI_CONFIG.model, max_tokens: 300,
+      system: '你是一个儿童微习惯教练。用户输入一个习惯名称，你需要返回 JSON，包含 times（建议频次）、prompt（具体触发时机，绑定日常生活动作）、action（微小到无法拒绝的动作）、next（进阶目标）。用中文。只输出 JSON，不要其他文字。',
+      messages: [{ role: 'user', content: text }]
+    })
+  }).then(r => r.json()).then(data => {
+    const c = data.content?.[0]?.text || data.content?.text || '';
+    const m = c.match(/\{[\s\S]*\}/);
+    return m ? JSON.parse(m[0]) : null;
+  }).catch(() => null);
 }
 
 // 本地预定义建议（优先于规则兜底）
@@ -1196,6 +1226,47 @@ function getHabitTips(text, task) {
 }
 
 let _hDetailId = null;
+function saveAIKey() {
+  const key = document.getElementById('settingsKey').value.trim();
+  AI_CONFIG.api_key = key;
+  localStorage.setItem('ai_api_key', key);
+  document.getElementById('aiTestStatus').textContent = key ? '已保存' : '未配置';
+  showToast('✅ 已保存');
+}
+function testAIKey() {
+  const key = document.getElementById('settingsKey').value.trim();
+  if (!key || key.length < 10) {
+    const el = document.getElementById('aiTestResult');
+    el.textContent = '请输入有效的 API Key';
+    el.className = 'settings-result err';
+    el.style.display = 'block';
+    return;
+  }
+  const btn = document.getElementById('settingsTestBtn');
+  btn.textContent = '测试中…';
+  btn.disabled = true;
+  AI_CONFIG.api_key = key;
+  directCallAI('测试').then(result => {
+    btn.textContent = '测试连接';
+    btn.disabled = false;
+    const el = document.getElementById('aiTestResult');
+    if (result && result.times) {
+      el.textContent = '✅ 连接成功！AI 可以正常使用';
+      el.className = 'settings-result ok';
+    } else {
+      el.textContent = '❌ 连接失败，请检查 API Key 是否正确';
+      el.className = 'settings-result err';
+    }
+    el.style.display = 'block';
+  }).catch(() => {
+    btn.textContent = '测试连接';
+    btn.disabled = false;
+    const el = document.getElementById('aiTestResult');
+    el.textContent = '❌ 网络错误，无法连接到 API';
+    el.className = 'settings-result err';
+    el.style.display = 'block';
+  });
+}
 function showHabitDetail(id) {
   _hDetailId = id;
   const task = state.tasks.find(t => t._id === id);
@@ -1564,18 +1635,37 @@ function showAddSheet() {
 function generateAdd() {
   const text = document.getElementById('newText').value.trim();
   if (!text) { showToast('请输入习惯名称'); return; }
-  // 商店直接添加
   if (state.tab === 'rewards') { addTask(); return; }
-  // 规则生成建议 → 预览确认
-  const fallback = getHabitTips(text);
-  _pendingAdd = { text, tips: fallback };
+  // 尝试 AI 生成，失败则用规则
+  document.getElementById('aiLoading').style.display = 'block';
+  document.getElementById('btnGenerate').disabled = true;
+  const useAI = AI_CONFIG.api_key && AI_CONFIG.api_key.length > 10;
+  if (useAI) {
+    directCallAI(text).then(aiTips => {
+      document.getElementById('aiLoading').style.display = 'none';
+      document.getElementById('btnGenerate').disabled = false;
+      const tips = (aiTips && aiTips.times && aiTips.prompt) ? aiTips : getHabitTips(text);
+      showPreview(text, tips);
+    }).catch(() => {
+      document.getElementById('aiLoading').style.display = 'none';
+      document.getElementById('btnGenerate').disabled = false;
+      showPreview(text, getHabitTips(text));
+    });
+  } else {
+    document.getElementById('aiLoading').style.display = 'none';
+    document.getElementById('btnGenerate').disabled = false;
+    showPreview(text, getHabitTips(text));
+  }
+}
+function showPreview(text, tips) {
+  _pendingAdd = { text, tips };
   document.getElementById('addStepInput').style.display = 'none';
   document.getElementById('addStepPreview').style.display = '';
   document.getElementById('aiPreviewName').textContent = text;
-  document.getElementById('aiPreviewTimes').textContent = fallback.times;
-  document.getElementById('aiPreviewPrompt').textContent = fallback.prompt;
-  document.getElementById('aiPreviewAction').textContent = fallback.action;
-  document.getElementById('aiPreviewNext').textContent = fallback.next;
+  document.getElementById('aiPreviewTimes').textContent = tips.times;
+  document.getElementById('aiPreviewPrompt').textContent = tips.prompt;
+  document.getElementById('aiPreviewAction').textContent = tips.action;
+  document.getElementById('aiPreviewNext').textContent = tips.next;
 }
 function confirmAdd() {
   if (!_pendingAdd) return;
@@ -1665,7 +1755,10 @@ function showModal(iconName, title, desc, btnText) {
 
 // ===== SOUND TOGGLE =====
 document.getElementById('settingsBtn').addEventListener('click', () => {
-  showToast('⚙️ 设置功能开发中');
+  document.getElementById('aiTestStatus').textContent = AI_CONFIG.api_key ? '已配置' : '未配置';
+  document.getElementById('aiTestResult').style.display = 'none';
+  document.getElementById('settingsKey').value = AI_CONFIG.api_key || '';
+  document.getElementById('settingsOverlay').classList.add('show');
 });
 
 // ===== MODAL CLOSE =====
