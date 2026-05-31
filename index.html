@@ -646,7 +646,7 @@ button:disabled{opacity:.4!important;pointer-events:none}
   <!-- ===== 合并卡片：进度 + 猴子 ===== -->
   <div class="merged-card" id="charCard" onclick="petMonkey()">
     <div class="merged-avatar">
-      <img src="sprites/monkey_mascot_transparent.png" alt="小绿猴">
+      <img id="monkeyMascot" src="sprites/monkey_mascot_transparent.png" alt="小绿猴">
     </div>
     <div class="merged-body">
       <div class="merged-top">
@@ -1283,10 +1283,12 @@ function showHabitDetail(id) {
 function renderHabitDetail(task, tips) {
   document.getElementById('hDetailIcon').innerHTML = `<i data-lucide="${getTaskIcon(task.text)}" style="width:32px;height:32px"></i>`;
   document.getElementById('hDetailTitle').textContent = task.text;
-  document.getElementById('hDetailTimes').textContent = tips.times;
-  document.getElementById('hDetailPrompt').textContent = tips.prompt;
-  document.getElementById('hDetailAction').textContent = tips.action;
-  document.getElementById('hDetailNext').textContent = tips.next;
+  const alt = tips.alternative || tips.替代习惯;
+  const item = (alt && alt.length > 0) ? alt[0] : tips;
+  document.getElementById('hDetailTimes').textContent = item.times || item.建议频次 || '—';
+  document.getElementById('hDetailPrompt').textContent = item.prompt || item.触发时机 || '—';
+  document.getElementById('hDetailAction').textContent = item.action || item.微小动作 || '—';
+  document.getElementById('hDetailNext').textContent = item.next || item.进阶目标 || '—';
   // 统计数据
   const today = toDateStr(new Date());
   const history = task.history || [];
@@ -1582,7 +1584,11 @@ function undoDelete() {
 
 function monkeyHappy() {}
 function monkeyGreet() {}
-function petMonkey() { showToast('🐒 嘻嘻～'); playCorrect(); }
+
+function petMonkey() {
+  showToast('🐒 嘻嘻～');
+  playCorrect();
+}
 function toggleDoneTodos() { playTap(); _showDoneTodos = !_showDoneTodos; renderTasks(); }
 function updateTodoFooter() {
   const el = document.getElementById('todosList');
@@ -1647,37 +1653,39 @@ function generateAdd() {
   document.getElementById('aiLoading').style.display = 'block';
   document.getElementById('btnGenerate').disabled = true;
   const useAI = AI_CONFIG.api_key && AI_CONFIG.api_key.length > 10;
-  if (useAI) {
-    console.log('===== AI 生成建议 =====');
-    console.log('习惯:', text);
-    directCallAI(text).then(aiTips => {
-      document.getElementById('aiLoading').style.display = 'none';
-      document.getElementById('btnGenerate').disabled = false;
-      console.log('AI 结果:', aiTips);
-      const tips = (aiTips && aiTips.times && aiTips.prompt) ? aiTips : getHabitTips(text);
-      if (!aiTips || !aiTips.times) console.log('AI 结果无效，使用本地规则');
-      showPreview(text, tips);
-    }).catch((e) => {
-      console.log('AI 调用失败:', e);
-      document.getElementById('aiLoading').style.display = 'none';
-      document.getElementById('btnGenerate').disabled = false;
-      showPreview(text, getHabitTips(text));
-    });
-  } else {
+  if (!useAI) {
     document.getElementById('aiLoading').style.display = 'none';
     document.getElementById('btnGenerate').disabled = false;
-    showPreview(text, getHabitTips(text));
+    showToast('请先在 ⚙️ 设置中配置 API Key');
+    return;
   }
+  console.log('===== AI 生成建议 =====');
+  console.log('习惯:', text);
+  directCallAI(text).then(aiTips => {
+    document.getElementById('aiLoading').style.display = 'none';
+    document.getElementById('btnGenerate').disabled = false;
+    console.log('AI 结果:', aiTips);
+    if (aiTips) showPreview(text, aiTips);
+    else showToast('AI 返回为空，请重试');
+  }).catch((e) => {
+    console.log('AI 调用失败:', e);
+    document.getElementById('aiLoading').style.display = 'none';
+    document.getElementById('btnGenerate').disabled = false;
+    showToast('AI 调用失败，请检查 API Key');
+  });
 }
 function showPreview(text, tips) {
   _pendingAdd = { text, tips };
   document.getElementById('addStepInput').style.display = 'none';
   document.getElementById('addStepPreview').style.display = '';
-  document.getElementById('aiPreviewName').textContent = text;
-  document.getElementById('aiPreviewTimes').textContent = tips.times;
-  document.getElementById('aiPreviewPrompt').textContent = tips.prompt;
-  document.getElementById('aiPreviewAction').textContent = tips.action;
-  document.getElementById('aiPreviewNext').textContent = tips.next;
+  document.getElementById('aiPreviewName').textContent = tips.suggestion || text;
+  // 如果是替代方案格式，取第一个替代习惯展示
+  const alt = tips.alternative || tips.替代习惯;
+  const item = (alt && alt.length > 0) ? alt[0] : tips;
+  document.getElementById('aiPreviewTimes').textContent = item.times || item.建议频次 || item.frequency || '—';
+  document.getElementById('aiPreviewPrompt').textContent = item.prompt || item.触发时机 || item.trigger || '—';
+  document.getElementById('aiPreviewAction').textContent = item.action || item.微小动作 || item.action_step || '—';
+  document.getElementById('aiPreviewNext').textContent = item.next || item.进阶目标 || item.next_step || '—';
 }
 function confirmAdd() {
   if (!_pendingAdd) return;
@@ -1685,7 +1693,7 @@ function confirmAdd() {
   const type = tabType[state.tab] || 'habit';
   const value = type === 'reward' ? parseInt(document.getElementById('newPrice').value) || 20 : undefined;
   const task = taskDef({ type, text: _pendingAdd.text, value });
-  task._aiTips = _pendingAdd.tips; // 保存 AI 建议
+  task._aiTips = _pendingAdd.tips;
   state.tasks.push(task);
   _pendingAdd = null;
   document.getElementById('newText').value = '';
@@ -1802,6 +1810,7 @@ if (state.tasks.length === 0) {
   });
 }
 soundEnabled = localStorage.getItem('mh_sound') !== 'off';
+
 saveState();
 document.getElementById('expBarFill').style.width = '0%';
 render();
