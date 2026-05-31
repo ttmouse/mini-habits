@@ -788,7 +788,7 @@ button:disabled{opacity:.4!important;pointer-events:none}
     <span class="del-confirm-icon"><i data-lucide="alert-triangle" style="width:48px;height:48px;color:var(--red)"></i></span>
     <h2 style="font-size:18px;margin-bottom:var(--s1)">删除这个习惯？</h2>
     <p style="font-size:13px;color:var(--text-tertiary);margin-bottom:var(--s5)">删除后数据将丢失，无法恢复</p>
-    <button class="btn btn-gold del-confirm-btn" onclick="doDeleteDetail()" style="background:var(--red);box-shadow:0 4px 20px rgba(255,75,75,.4)">确定删除</button>
+    <button class="btn btn-gold del-confirm-btn" onclick="doConfirmDelete()" style="background:var(--red);box-shadow:0 4px 20px rgba(255,75,75,.4)">确定删除</button>
     <button class="btn btn-ghost" onclick="cancelDeleteDetail()" style="margin-top:var(--s1)">取消</button>
   </div>
 </div>
@@ -1747,8 +1747,15 @@ function showHistory() {
 
   list.innerHTML = html;
 }
+let _pendingHistoryDelete = null;
 function deleteHistoryRecord(recId, taskId, ts) {
-  if (!confirm('删除这条记录？')) return;
+  _pendingHistoryDelete = { recId, taskId, ts };
+  document.getElementById('delConfirmOverlay').classList.add('show');
+}
+function confirmHistoryDelete() {
+  if (!_pendingHistoryDelete) return;
+  const { taskId, ts } = _pendingHistoryDelete;
+  _pendingHistoryDelete = null;
   const task = state.tasks.find(t => t._id === taskId);
   if (!task) return;
   if (task.history) {
@@ -1801,7 +1808,12 @@ function doDeleteDetail() {
   document.getElementById('delConfirmOverlay').classList.remove('show');
   _hDetailId = null;
 }
+function doConfirmDelete() {
+  if (_pendingHistoryDelete) { confirmHistoryDelete(); }
+  else { doDeleteDetail(); }
+}
 function cancelDeleteDetail() {
+  _pendingHistoryDelete = null;
   playTap();
   document.getElementById('delConfirmOverlay').classList.remove('show');
 }
