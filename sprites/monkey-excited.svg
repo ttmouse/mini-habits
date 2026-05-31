@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240" width="200" height="240">
+  <defs>
+    <linearGradient id="bodyGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6CE01A"/>
+      <stop offset="100%" stop-color="#58CC02"/>
+    </linearGradient>
+    <linearGradient id="earGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFE8C8"/>
+      <stop offset="100%" stop-color="#F5D4A8"/>
+    </linearGradient>
+    <linearGradient id="faceGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFF0D6"/>
+      <stop offset="100%" stop-color="#FFE4BA"/>
+    </linearGradient>
+    <radialGradient id="blushGrad">
+      <stop offset="0%" stop-color="#FFB6C1" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#FFB6C1" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="starGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FFD700"/>
+      <stop offset="100%" stop-color="#FF8C00"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 阴影 -->
+  <ellipse cx="100" cy="230" rx="48" ry="7" fill="rgba(0,0,0,0.08)"/>
+
+  <!-- 尾巴（翘起高兴状） -->
+  <path d="M155,168 Q192,148 190,104 Q188,82 174,76" fill="none" stroke="#58CC02" stroke-width="8" stroke-linecap="round"/>
+  <path d="M174,76 Q178,68 182,72" fill="none" stroke="#58CC02" stroke-width="6" stroke-linecap="round"/>
+
+  <!-- 身体 -->
+  <ellipse cx="100" cy="172" rx="50" ry="58" fill="url(#bodyGrad)"/>
+  <ellipse cx="100" cy="182" rx="28" ry="32" fill="#D4F5A0" opacity="0.45"/>
+
+  <!-- 双臂举高（欢呼状） -->
+  <path d="M56,148 Q28,114 32,82" fill="none" stroke="url(#bodyGrad)" stroke-width="13" stroke-linecap="round"/>
+  <circle cx="32" cy="80" r="9" fill="url(#faceGrad)"/>
+  <path d="M144,148 Q172,114 168,82" fill="none" stroke="url(#bodyGrad)" stroke-width="13" stroke-linecap="round"/>
+  <circle cx="168" cy="80" r="9" fill="url(#faceGrad)"/>
+
+  <!-- 腿 -->
+  <ellipse cx="82" cy="228" rx="15" ry="7" fill="#4AB502"/>
+  <path d="M82,212 Q80,224 82,228" fill="none" stroke="#4AB502" stroke-width="13" stroke-linecap="round"/>
+  <ellipse cx="118" cy="228" rx="15" ry="7" fill="#4AB502"/>
+  <path d="M118,212 Q120,224 118,228" fill="none" stroke="#4AB502" stroke-width="13" stroke-linecap="round"/>
+
+  <!-- 耳朵 -->
+  <circle cx="42" cy="86" r="21" fill="url(#earGrad)" stroke="#E8D4B0" stroke-width="2"/>
+  <circle cx="158" cy="86" r="21" fill="url(#earGrad)" stroke="#E8D4B0" stroke-width="2"/>
+
+  <!-- 头部 -->
+  <ellipse cx="100" cy="98" rx="62" ry="60" fill="url(#bodyGrad)"/>
+
+  <!-- 脸部 -->
+  <ellipse cx="100" cy="108" rx="40" ry="34" fill="url(#faceGrad)"/>
+
+  <!-- 腮红 -->
+  <ellipse cx="68" cy="116" rx="13" ry="9" fill="url(#blushGrad)"/>
+  <ellipse cx="132" cy="116" rx="13" ry="9" fill="url(#blushGrad)"/>
+
+  <!-- 左眼（睁大） -->
+  <ellipse cx="78" cy="98" rx="16" ry="19" fill="#fff"/>
+  <ellipse cx="83" cy="100" rx="9" ry="10" fill="#3C3C3C"/>
+  <circle cx="87" cy="95" r="4" fill="#fff"/>
+  <circle cx="80" cy="105" r="1.8" fill="#fff" opacity="0.6"/>
+
+  <!-- 右眼（睁大） -->
+  <ellipse cx="122" cy="98" rx="16" ry="19" fill="#fff"/>
+  <ellipse cx="127" cy="100" rx="9" ry="10" fill="#3C3C3C"/>
+  <circle cx="131" cy="95" r="4" fill="#fff"/>
+  <circle cx="124" cy="105" r="1.8" fill="#fff" opacity="0.6"/>
+
+  <!-- 眉毛上扬 -->
+  <path d="M66,82 Q78,74 92,80" fill="none" stroke="#3C3C3C" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M108,80 Q122,74 134,82" fill="none" stroke="#3C3C3C" stroke-width="2.5" stroke-linecap="round"/>
+
+  <!-- 嘴巴 - 大笑 -->
+  <path d="M88,124 Q100,142 112,124" fill="none" stroke="#3C3C3C" stroke-width="2.8" stroke-linecap="round"/>
+  <!-- 露齿 -->
+  <path d="M92,126 Q100,136 108,126" fill="#fff" stroke="none"/>
+  <line x1="100" y1="126" x2="100" y2="134" stroke="#3C3C3C" stroke-width="0.8" opacity="0.2"/>
+  <line x1="94" y1="127" x2="96" y2="133" stroke="#3C3C3C" stroke-width="0.8" opacity="0.2"/>
+  <line x1="104" y1="127" x2="104" y2="133" stroke="#3C3C3C" stroke-width="0.8" opacity="0.2"/>
+
+  <!-- 鼻子 -->
+  <ellipse cx="100" cy="110" rx="3.5" ry="2.5" fill="#D4A574"/>
+  <circle cx="97" cy="111" r="1.2" fill="#B8864E"/>
+  <circle cx="103" cy="111" r="1.2" fill="#B8864E"/>
+
+  <!-- 星星头冠 -->
+  <g transform="translate(100,42)">
+    <polygon points="0,-18 5,-6 18,-6 8,3 12,16 0,8 -12,16 -8,3 -18,-6 -5,-6" fill="url(#starGrad)" stroke="#E65100" stroke-width="0.8"/>
+  </g>
+  <g transform="translate(100,42) scale(0.5) translate(-100,-42)">
+    <polygon points="88,30 91,36 98,36 92,40 94,47 88,42 82,47 84,40 78,36 85,36" fill="#FFF9C4" opacity="0.8"/>
+  </g>
+
+  <!-- 星星光效 -->
+  <g opacity="0.6">
+    <path d="M56,50 L62,54 L56,58 L60,52 Z" fill="#FFD700"/>
+    <path d="M136,38 L142,42 L136,46 L140,40 Z" fill="#FFD700" opacity="0.7"/>
+    <path d="M148,62 L152,65 L148,68 L151,64 Z" fill="#FFD700" opacity="0.5"/>
+  </g>
+</svg>

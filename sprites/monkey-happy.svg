@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240" width="200" height="240">
+  <defs>
+    <!-- 身体渐变 -->
+    <linearGradient id="bodyGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6CE01A"/>
+      <stop offset="100%" stop-color="#58CC02"/>
+    </linearGradient>
+    <!-- 耳朵渐变 -->
+    <linearGradient id="earGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFE8C8"/>
+      <stop offset="100%" stop-color="#F5D4A8"/>
+    </linearGradient>
+    <!-- 脸渐变 -->
+    <linearGradient id="faceGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFF0D6"/>
+      <stop offset="100%" stop-color="#FFE4BA"/>
+    </linearGradient>
+    <!-- 腮红 -->
+    <radialGradient id="blushGrad">
+      <stop offset="0%" stop-color="#FFB6C1" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#FFB6C1" stop-opacity="0"/>
+    </radialGradient>
+    <!-- 皇冠渐变 -->
+    <linearGradient id="crownGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFC107"/>
+      <stop offset="100%" stop-color="#FF9800"/>
+    </linearGradient>
+    <!-- 叶子渐变 -->
+    <linearGradient id="leafGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8BC34A"/>
+      <stop offset="100%" stop-color="#4CAF50"/>
+    </linearGradient>
+  </defs>
+
+  <!-- ===== 阴影 ===== -->
+  <ellipse cx="100" cy="228" rx="52" ry="8" fill="rgba(0,0,0,0.08)"/>
+
+  <!-- ===== 尾巴 ===== -->
+  <path d="M160,170 Q198,160 195,120 Q192,95 180,88" 
+        fill="none" stroke="#58CC02" stroke-width="8" stroke-linecap="round"/>
+  <path d="M180,88 Q172,82 174,74" 
+        fill="none" stroke="#58CC02" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- ===== 身体 ===== -->
+  <ellipse cx="100" cy="172" rx="52" ry="60" fill="url(#bodyGrad)"/>
+  
+  <!-- 肚子浅色区域 -->
+  <ellipse cx="100" cy="182" rx="30" ry="34" fill="#D4F5A0" opacity="0.5"/>
+
+  <!-- ===== 左臂（挥手） ===== -->
+  <path d="M54,155 Q30,130 22,108" fill="none" stroke="url(#bodyGrad)" stroke-width="14" stroke-linecap="round"/>
+  <!-- 左手 -->
+  <circle cx="22" cy="106" r="9" fill="url(#faceGrad)"/>
+
+  <!-- ===== 右臂（自然垂） ===== -->
+  <path d="M146,158 Q162,168 170,188" fill="none" stroke="url(#bodyGrad)" stroke-width="14" stroke-linecap="round"/>
+  <!-- 右手 -->
+  <circle cx="170" cy="190" r="9" fill="url(#faceGrad)"/>
+
+  <!-- ===== 左腿 ===== -->
+  <ellipse cx="80" cy="228" rx="16" ry="8" fill="#4AB502"/>
+  <path d="M80,212 Q78,224 80,228" fill="none" stroke="#4AB502" stroke-width="14" stroke-linecap="round"/>
+
+  <!-- ===== 右腿 ===== -->
+  <ellipse cx="120" cy="228" rx="16" ry="8" fill="#4AB502"/>
+  <path d="M120,212 Q122,224 120,228" fill="none" stroke="#4AB502" stroke-width="14" stroke-linecap="round"/>
+
+  <!-- ===== 左耳 ===== -->
+  <circle cx="40" cy="88" r="22" fill="url(#earGrad)" stroke="#E8D4B0" stroke-width="2"/>
+
+  <!-- ===== 右耳 ===== -->
+  <circle cx="160" cy="88" r="22" fill="url(#earGrad)" stroke="#E8D4B0" stroke-width="2"/>
+
+  <!-- ===== 头部 ===== -->
+  <ellipse cx="100" cy="100" rx="64" ry="62" fill="url(#bodyGrad)"/>
+
+  <!-- ===== 脸部 ===== -->
+  <ellipse cx="100" cy="110" rx="42" ry="36" fill="url(#faceGrad)"/>
+
+  <!-- ===== 腮红 ===== -->
+  <ellipse cx="68" cy="118" rx="12" ry="8" fill="url(#blushGrad)"/>
+  <ellipse cx="132" cy="118" rx="12" ry="8" fill="url(#blushGrad)"/>
+
+  <!-- ===== 左眼 ===== -->
+  <!-- 眼白 -->
+  <ellipse cx="78" cy="100" rx="15" ry="17" fill="#fff"/>
+  <!-- 眼珠 -->
+  <ellipse cx="82" cy="102" rx="8" ry="9" fill="#3C3C3C"/>
+  <!-- 高光 -->
+  <circle cx="85" cy="97" r="3.5" fill="#fff"/>
+  <circle cx="79" cy="106" r="1.5" fill="#fff" opacity="0.6"/>
+
+  <!-- ===== 右眼 ===== -->
+  <ellipse cx="122" cy="100" rx="15" ry="17" fill="#fff"/>
+  <ellipse cx="126" cy="102" rx="8" ry="9" fill="#3C3C3C"/>
+  <circle cx="129" cy="97" r="3.5" fill="#fff"/>
+  <circle cx="123" cy="106" r="1.5" fill="#fff" opacity="0.6"/>
+
+  <!-- ===== 眉毛 ===== -->
+  <path d="M68,86 Q78,80 90,84" fill="none" stroke="#3C3C3C" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M110,84 Q122,80 132,86" fill="none" stroke="#3C3C3C" stroke-width="2.5" stroke-linecap="round"/>
+
+  <!-- ===== 嘴巴 - 微笑 ===== -->
+  <path d="M88,126 Q100,140 112,126" fill="none" stroke="#3C3C3C" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- ===== 鼻子 ===== -->
+  <ellipse cx="100" cy="112" rx="3.5" ry="2.5" fill="#D4A574"/>
+
+  <!-- ===== 鼻孔 ===== -->
+  <circle cx="97" cy="113" r="1.2" fill="#B8864E"/>
+  <circle cx="103" cy="113" r="1.2" fill="#B8864E"/>
+
+  <!-- ===== 叶子皇冠 ===== -->
+  <!-- 茎 -->
+  <path d="M100,40 Q100,30 100,24" fill="none" stroke="#4CAF50" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- 左叶 -->
+  <path d="M100,38 Q78,22 88,38 Q78,32 100,38" fill="url(#leafGrad)"/>
+  <!-- 中叶 -->
+  <path d="M100,40 Q86,14 100,24 Q114,14 100,40" fill="url(#leafGrad)"/>
+  <!-- 右叶 -->
+  <path d="M100,38 Q122,22 112,38 Q122,32 100,38" fill="url(#leafGrad)"/>
+  
+  <!-- 叶脉 -->
+  <line x1="100" y1="40" x2="100" y2="26" stroke="#388E3C" stroke-width="1" opacity="0.5"/>
+  <line x1="100" y1="36" x2="84" y2="26" stroke="#388E3C" stroke-width="1" opacity="0.4"/>
+  <line x1="100" y1="36" x2="116" y2="26" stroke="#388E3C" stroke-width="1" opacity="0.4"/>
+</svg>

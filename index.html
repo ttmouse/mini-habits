@@ -3,343 +3,478 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>习惯大陆 · 养成好习惯</title>
+<link rel="icon" type="image/svg+xml" href="sprites/favicon.svg">
+<title>朱古力豆 · 养成好习惯</title>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 <style>
+/* ===== DESIGN TOKENS ===== */
+:root{
+  /* Neutral palette (warm zinc) */
+  --n50:#f7f6f3;
+  --n100:#f2f0eb;
+  --n150:#e8e5df;
+  --n200:#e4e4e7;
+  --n250:#d4d1ca;
+  --n300:#a8a49d;
+  --n400:#8a8680;
+  --n500:#6d6964;
+  --n600:#55514c;
+  --n700:#3c3c3c;
+  --n800:#27272a;
+  --n900:#1a1a18;
+
+  /* Semantic colors */
+  --primary:#58CC02;
+  --primary-light:#46a302;
+  --primary-dark:#3a8a02;
+  --primary-ring:rgba(88,204,2,.35);
+  --primary-shadow:rgba(88,204,2,.3);
+  --primary-shadow-lg:rgba(88,204,2,.5);
+  --blue:#1cb0f6;
+  --orange:#ff9600;
+  --orange-dark:#ff7800;
+  --purple:#c054f7;
+  --red:#FF4B4B;
+  --gold:#ff9600;
+  --gold-dark:#ff7800;
+
+  /* Surfaces */
+  --bg:#f2f0eb;
+  --surface:#ffffff;
+  --surface-elevated:#ffffff;
+  --overlay:rgba(0,0,0,.5);
+  --overlay-light:rgba(0,0,0,.4);
+
+  /* Text tokens */
+  --text:#3c3c3c;
+  --text-secondary:#6d6964;
+  --text-tertiary:#a8a49d;
+  --text-muted:#bbb;
+
+  /* Border tokens */
+  --border:#e4e4e7;
+  --border-light:#dcdcdc;
+  --border-focus:#58CC02;
+
+  /* Shadow tokens — 5 levels */
+  --shadow-sm:0 1px 3px rgba(0,0,0,.06);
+  --shadow-md:0 4px 12px rgba(0,0,0,.08);
+  --shadow-lg:0 8px 24px rgba(0,0,0,.12);
+  --shadow-xl:0 20px 60px rgba(0,0,0,.30);
+  --shadow-primary:0 4px 20px var(--primary-shadow-lg),0 0 0 5px var(--primary-ring);
+
+  /* Radius tokens */
+  --r-sm:6px;
+  --r-md:12px;
+  --r-lg:16px;
+  --r-xl:24px;
+  --r-2xl:28px;
+  --r-full:50%;
+
+  /* Spacing tokens (4px base) */
+  --s1:4px;
+  --s2:8px;
+  --s3:12px;
+  --s4:16px;
+  --s5:20px;
+  --s6:24px;
+  --s8:32px;
+  --s10:40px;
+  --s12:48px;
+
+  /* Motion tokens */
+  --ease-spring:cubic-bezier(.34,1.56,.64,1);
+  --ease-smooth:cubic-bezier(.16,1,.3,1);
+  --fast:150ms;
+  --std:250ms;
+  --slow:400ms;
+}
+
 /* ===== RESET & BASE ===== */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{
   font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans SC',sans-serif;
-  background:#f2f0eb;
+  background:var(--bg);
   min-height:100vh;
-  color:#3c3c3c;
+  color:var(--text);
   overflow-x:hidden;
 }
 ::-webkit-scrollbar{width:4px;height:4px}
-::-webkit-scrollbar-track{background:#f2f0eb}
-::-webkit-scrollbar-thumb{background:#58CC02;border-radius:4px}
-button{border:none;cursor:pointer;font-family:inherit;transition:.25s ease}
-button:active{transform:scale(.95)}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--primary);border-radius:4px}
+button{border:none;cursor:pointer;font-family:inherit;transition:all var(--std) var(--ease-smooth)}
+button:active{transform:scale(.97)}
+.btn-add:active{transform:scale(.92)}
+.task-check:active{transform:scale(.9)}
 button:disabled{opacity:.4!important;pointer-events:none}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px;border-radius:var(--r-sm)}
 
-/* ===== TOP BAR (Duolingo: white bar, green accents) ===== */
+/* ===== TOP BAR ===== */
 .top-bar{
   display:flex;align-items:center;justify-content:space-between;
-  padding:14px 16px;
-  background:#fff;
-  border-radius:0 0 20px 20px;
-  box-shadow:0 2px 12px rgba(0,0,0,.08);
+  padding:var(--s3) var(--s4);
+  background:var(--surface);
+  border-radius:0 0 var(--r-xl) var(--r-xl);
+  box-shadow:var(--shadow-md);
   position:sticky;top:0;z-index:100;
 }
 .app-title{
   font-size:22px;font-weight:800;
-  color:#3c3c3c;
-  display:flex;align-items:center;gap:6px;
+  color:var(--text);
+  display:flex;align-items:center;gap:var(--s2);
 }
-.app-title .title-icon{font-size:24px}
-.top-center{display:flex;align-items:center;gap:10px}
+
+/* Monkey in level-up modal */
+.lvl-monkey{
+  width:120px;height:140px;display:block;margin:0 auto var(--s2);
+  animation:lvlMonkeyPop .6s var(--ease-spring);
+}
+@keyframes lvlMonkeyPop{
+  0%{transform:scale(0) rotate(-10deg);opacity:0}
+  60%{transform:scale(1.1) rotate(3deg);opacity:1}
+  100%{transform:scale(1) rotate(0)}
+}
+.modal .big{font-size:72px;display:block;margin-bottom:var(--s3)}
+.top-center{display:flex;align-items:center;gap:var(--s3)}
 .hearts-display{
-  display:flex;gap:3px;font-size:26px;
+  display:flex;gap:var(--s1);font-size:26px;
   line-height:1;
 }
 .stat-pill{
   font-size:12px;font-weight:700;
-  display:flex;align-items:center;gap:4px;
-  background:#f0f0f0;
-  padding:4px 10px;border-radius:20px;
-  color:#777;
+  display:flex;align-items:center;gap:var(--s1);
+  background:var(--n50);
+  padding:var(--s1) var(--s3);border-radius:var(--r-xl);
+  color:var(--text-secondary);
 }
-.stat-pill .gem{font-size:18px;color:#58CC02;line-height:1}
-.stat-pill .exp-icon{font-size:18px;color:#A150F7;line-height:1}
-.sound-btn{font-size:22px;padding:4px 8px;background:#f0f0f0;border-radius:20px;line-height:1}
 
 /* ===== App Container ===== */
-.app{max-width:480px;margin:0 auto;padding:0 12px 100px}
+.app{max-width:480px;margin:0 auto;padding:0 var(--s4) 100px}
 
-/* ===== CHARACTER (Duolingo-style oval avatar) ===== */
-.character-area{
-  text-align:center;
-  padding:20px 0 12px;
-  position:relative;
-}
-.character-box{position:relative;display:inline-block;margin-bottom:8px}
-.character{
-  width:88px;height:88px;border-radius:50%;
-  background:linear-gradient(145deg,#58CC02,#46a302);
-  display:flex;align-items:center;justify-content:center;
-  font-size:44px;
-  transition:all 0.3s ease;
-  box-shadow:0 6px 24px rgba(88,204,2,.35),0 0 0 4px rgba(88,204,2,.15);
-  cursor:pointer;user-select:none;position:relative;
-}
-.character:active{transform:scale(.95)}
-.character.happy{animation:bounce .4s ease}
-@keyframes bounce{0%,100%{transform:translateY(0)}30%{transform:translateY(-14px)}60%{transform:translateY(-7px)}}
-.level-ring{
-  position:absolute;top:-5px;left:-5px;right:-5px;bottom:-5px;
-  border-radius:50%;border:3px solid transparent;
-  transition:border-color .5s;
-}
-.char-accessory{position:absolute;font-size:20px;transition:all .3s}
-.char-hat{top:-14px;right:-6px}
-.char-pet{bottom:-4px;right:-8px;font-size:16px;animation:float 3s ease-in-out infinite}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 
-/* Name & XP */
-.char-name{font-size:18px;font-weight:700;color:#3c3c3c;margin-bottom:2px}
-.char-title{font-size:12px;color:#aaa;margin-bottom:4px}
-.char-lvl{
-  font-size:11px;color:#fff;font-weight:700;
-  background:#A150F7;
-  display:inline-block;padding:3px 12px;border-radius:20px;
+
+/* ===== 合并卡片：进度 + 猴子 ===== */
+.merged-card{
+  display:flex;align-items:center;gap:var(--s3);
+  padding:var(--s2) 0;
+  margin:var(--s2) var(--s1) 0;
+  cursor:pointer;
+}
+.merged-card:active{transform:scale(.97)}
+.merged-avatar{flex-shrink:0;width:108px;height:108px;display:flex;align-items:center;justify-content:center}
+.merged-avatar img{width:100%;height:100%;display:block;object-fit:contain}
+.merged-body{flex:1;min-width:0}
+.merged-top{display:flex;align-items:center;margin-bottom:var(--s1)}
+
+.lvl-badge{
+  font-size:12px;font-weight:700;color:var(--text-secondary);
+  display:flex;align-items:center;gap:var(--s1);
 }
 
-/* EXP Bar (Duolingo green) */
-.exp-section{margin:0 4px 14px}
-.exp-bar-bg{
-  background:#e5e5e5;
-  border-radius:20px;height:12px;overflow:hidden;
+
+.progress-body{flex:1;min-width:0}
+.exp-bar-compact{margin-bottom:0}
+.exp-bar-compact .exp-bar-bg{
+  background:var(--n150);
+  border-radius:20px;height:10px;overflow:hidden;
 }
-.exp-bar-fill{
+.exp-bar-compact .exp-bar-fill{
   height:100%;width:0%;
-  background:linear-gradient(90deg,#58CC02,#46a302);
+  background:linear-gradient(90deg,var(--primary),var(--primary-light));
   border-radius:20px;
-  transition:width .6s cubic-bezier(.34,1.56,.64,1);
+  transition:width var(--slow) var(--ease-spring);
   position:relative;
 }
-.exp-bar-fill::after{
+.exp-bar-compact .exp-bar-fill::after{
   content:'';position:absolute;top:0;left:0;right:0;bottom:0;
   background:linear-gradient(90deg,transparent,rgba(255,255,255,.3));
   border-radius:20px;
 }
-.exp-label{
+.exp-bar-compact .exp-label{
   display:flex;justify-content:space-between;
-  font-size:11px;color:#aaa;margin-top:4px;padding:0 2px;
+  font-size:10px;color:var(--text-tertiary);margin-top:var(--s1);
 }
 
-/* ===== STATS ROW (Duolingo card style) ===== */
-.stats-row{
-  display:flex;justify-content:center;gap:12px;
-  padding:14px 16px;
-  background:#fff;
-  border-radius:16px;
-  margin:0 4px 14px;
-  box-shadow:0 2px 12px rgba(0,0,0,.06);
-}
-.stat-item{text-align:center;min-width:56px}
-.stat-icon{font-size:32px;margin-bottom:4px;line-height:1}
-.stat-value{font-size:20px;font-weight:800;color:#3c3c3c;margin-bottom:2px}
-.stat-label{font-size:10px;color:#aaa}
 
-/* ===== TABS (Duolingo pill style - text only, no emoji) ===== */
+/* ===== TABS ===== */
 .tabs{
-  display:flex;gap:4px;margin-bottom:12px;
-  background:#e8e8e8;
-  border-radius:14px;padding:4px;
+  display:flex;gap:var(--s1);margin-bottom:var(--s3);
+  background:var(--n150);
+  border-radius:14px;padding:var(--s1);
 }
 .tab{
-  flex:1;padding:10px 4px;border:none;border-radius:11px;
+  flex:1;padding:var(--s3) var(--s1);border:none;border-radius:11px;
   font-size:13px;font-weight:700;cursor:pointer;
-  background:transparent;color:#888;
-  transition:all .25s;white-space:nowrap;
-  display:flex;align-items:center;justify-content:center;gap:4px;
+  background:transparent;color:var(--text-tertiary);
+  transition:all var(--std) var(--ease-smooth);
+  white-space:nowrap;
+  display:flex;align-items:center;justify-content:center;gap:var(--s1);
 }
-.tab:hover{color:#555}
+.tab:hover{color:var(--text-secondary)}
 .tab.active{
-  background:#fff;
-  color:#3c3c3c;
-  box-shadow:0 2px 8px rgba(0,0,0,.1);
+  background:var(--surface);
+  color:var(--text);
+  box-shadow:var(--shadow-sm);
 }
 .tab .badge{
-  background:#FF4B4B;color:#fff;font-size:10px;
-  padding:2px 6px;border-radius:8px;font-weight:700;
+  background:var(--red);color:#fff;font-size:10px;
+  padding:var(--s1) var(--s2);border-radius:8px;font-weight:700;
 }
 
-/* ===== TASK CARD (Duolingo white card style) ===== */
-.task-list{display:flex;flex-direction:column;gap:8px;padding-bottom:8px}
+/* ===== HABIT CARD (多邻国风格) ===== */
+.task-habit{justify-content:space-between;gap:var(--s2)}
+.task-habit .task-body{flex:0 1 auto}
+.habit-right{display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0}
+.habit-btn-big{
+  width:44px;height:44px;border-radius:var(--r-md);
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;font-weight:700;font-family:inherit;
+  background:var(--primary);color:#fff;
+  cursor:pointer;transition:all var(--fast) var(--ease-spring);
+  line-height:1;padding:0;
+  box-shadow:0 4px 0 var(--primary-dark),0 6px 12px var(--primary-shadow-lg);
+  border:none;
+  position:relative;
+  transform:translateY(-2px);
+}
+.habit-btn-big:active{
+  transform:translateY(2px);
+  box-shadow:0 1px 0 var(--primary-dark),0 3px 8px var(--primary-shadow-lg);
+}
+
+.habit-count{
+  font-size:11px;font-weight:700;color:var(--primary-dark);
+  white-space:nowrap;height:16px;line-height:16px;
+}
+.habit-count-empty{visibility:hidden}
+
+/* ===== REWARD CARD ===== */
+.reward-right{display:flex;flex-direction:column;align-items:center;gap:var(--s1);flex-shrink:0}
+.reward-price{font-size:15px;font-weight:800;color:var(--purple);display:flex;align-items:center;gap:var(--s1)}
+.reward-price-locked{color:var(--text-tertiary);opacity:.5}
+.reward-btn{
+  padding:var(--s2) var(--s3);border-radius:var(--r-md);font-size:12px;font-weight:700;
+  cursor:pointer;transition:all var(--fast) var(--ease-spring);white-space:nowrap;
+}
+.reward-btn-buy{background:var(--purple);color:#fff}
+.reward-btn-buy:active{transform:scale(.9)}
+.reward-btn-nogp{background:var(--n150);color:var(--text-tertiary);cursor:default}
+.reward-btn-owned{background:#f3e5f5;color:var(--purple);cursor:default}
+
+/* Long-press delete */
+.task-card.long-press{animation:cardShake .3s var(--ease-spring)}
+@keyframes cardShake{
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-6px)}
+  40%{transform:translateX(6px)}
+  60%{transform:translateX(-4px)}
+  80%{transform:translateX(4px)}
+}
+.task-card.deleting{opacity:.4;transform:scale(.95)}
+.delete-hint{position:absolute;bottom:4px;right:8px;font-size:10px;color:var(--red);font-weight:700;opacity:0;transition:opacity var(--fast)}
+.task-card.long-press .delete-hint{opacity:1}
+
+/* ===== TASK CARD ===== */
+.task-list{display:flex;flex-direction:column;gap:var(--s2);padding-bottom:var(--s2)}
 .task-list.hidden{display:none}
 
 .task-card{
-  background:#fff;
-  border-radius:14px;padding:14px 16px;
-  display:flex;align-items:center;gap:14px;
-  cursor:pointer;transition:all .2s;
+  background:var(--surface);
+  border-radius:14px;padding:var(--s4);
+  display:flex;align-items:center;gap:var(--s3);
+  cursor:pointer;transition:all var(--std) var(--ease-spring);
   border:2px solid transparent;
-  box-shadow:0 2px 8px rgba(0,0,0,.05);
+  box-shadow:var(--shadow-sm);
   position:relative;
+  overflow:hidden;
+  animation:cardSlide .35s var(--ease-spring) backwards;
 }
-.task-card:active{transform:scale(.98)}
+.task-card:nth-child(1){animation-delay:0ms}
+.task-card:nth-child(2){animation-delay:40ms}
+.task-card:nth-child(3){animation-delay:80ms}
+.task-card:nth-child(4){animation-delay:120ms}
+.task-card:nth-child(5){animation-delay:160ms}
+.task-card:nth-child(6){animation-delay:200ms}
+.task-card:active{}
 .task-card:hover{
-  box-shadow:0 4px 16px rgba(0,0,0,.1);
-  border-color:#58CC02;
+  box-shadow:var(--shadow-md);
+  border-color:var(--primary);
 }
 
-/* left color bar */
-.task-card::before{
-  content:'';position:absolute;top:0;left:0;width:4px;height:100%;
-  background:transparent;transition:background .3s;
-  border-radius:14px 0 0 14px;
+.task-card.completed{
+  opacity:.7;
 }
-.task-card[data-type="habit"]::before{background:#58CC02}
-.task-card[data-type="daily"]::before{background:#1cb0f6}
-.task-card[data-type="todo"]::before{background:#ff9600}
-.task-card[data-type="reward"]::before{background:#c054f7}
-
-.task-card.completed{opacity:.55}
-.task-card.completed .task-text{text-decoration:line-through;color:#aaa}
+.task-card.completed .task-text{text-decoration:line-through;color:var(--text-tertiary);font-weight:400}
 
 /* Check button */
 .task-check{
-  width:32px;height:32px;border-radius:50%;
-  border:2.5px solid #dcdcdc;
+  width:32px;height:32px;border-radius:var(--r-full);
+  border:2.5px solid var(--border-light);
   display:flex;align-items:center;justify-content:center;
   flex-shrink:0;font-size:14px;font-weight:700;
   background:transparent;color:transparent;
-  transition:all .25s;
+  transition:all var(--std) var(--ease-spring);
 }
 .task-card.completed .task-check{
-  background:#58CC02;border-color:#58CC02;color:#fff;
-  box-shadow:0 2px 8px rgba(88,204,2,.4);
+  background:var(--primary);border-color:var(--primary);color:#fff;
+  box-shadow:0 0 20px var(--primary-shadow);
+  transform:scale(1.1);
 }
-.task-card[data-type="reward"] .task-check{border-color:#c054f7}
-.task-card[data-type="reward"].completed .task-check{background:#c054f7;border-color:#c054f7;color:#fff}
+.task-card[data-type="reward"] .task-check{border-color:var(--purple)}
+.task-card[data-type="reward"].completed .task-check{background:var(--purple);border-color:var(--purple);color:#fff}
 
-/* Big emoji type icon on card */
+/* Task type icon */
 .task-type-icon{
   font-size:32px;line-height:1;flex-shrink:0;
   width:36px;text-align:center;
 }
 
 .task-body{flex:1;min-width:0}
-.task-text{font-size:15px;font-weight:700;line-height:1.3;color:#3c3c3c}
-.task-meta{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap;align-items:center}
+.task-text{font-size:15px;font-weight:700;line-height:1.4;color:var(--text)}
+.task-meta{display:flex;gap:var(--s1);margin-top:var(--s1);flex-wrap:wrap;align-items:center}
+/* Streak pill (right side of daily/todo cards) */
+.streak-pill{
+  display:flex;align-items:center;gap:2px;
+  font-size:12px;font-weight:700;color:#e65100;
+  background:#fff3e0;padding:var(--s1) var(--s2);border-radius:20px;
+  margin-left:auto;flex-shrink:0;white-space:nowrap;
+}
 
-/* Tags - BIG emoji version */
+/* Tags */
 .tag{
-  font-size:11px;padding:2px 7px;border-radius:6px;font-weight:700;
+  font-size:11px;padding:var(--s1) var(--s2);border-radius:var(--r-sm);font-weight:700;
 }
 .tag-easy{background:#e8f5e9;color:#4caf50}
-.tag-medium{background:#fff8e1;color:#f57f17}
-.tag-hard{background:#ffebee;color:#e53935}
-.tag-value{
-  font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;
-  background:#f5f5f5;color:#888;
-}
-.tag-icon{font-size:16px;padding:0;border-radius:4px}
+.tag-medium{background:#fff8e1;color:var(--orange)}
+.tag-hard{background:#ffebee;color:var(--red)}
 .streak-badge{
   background:#fff3e0;color:#e65100;
-  font-size:11px;padding:2px 7px;border-radius:6px;font-weight:700;
+  font-size:11px;padding:var(--s1) var(--s2);border-radius:var(--r-sm);font-weight:700;
 }
 .price-tag{
   background:#f3e5f5;color:#7b1fa2;
-  font-size:11px;padding:2px 7px;border-radius:6px;font-weight:700;
+  font-size:11px;padding:var(--s1) var(--s2);border-radius:var(--r-sm);font-weight:700;
 }
 
-/* Floating score */
+/* ===== FLOATING SCORE ===== */
 .float-score{
   position:absolute;right:-4px;top:4px;
   font-weight:800;font-size:12px;
   pointer-events:none;z-index:10;
-  animation:floatUp 1s ease forwards;
+  animation:floatUp 1s var(--ease-spring) forwards;
 }
-.float-score.exp{color:#58CC02}
-.float-score.gp{color:#ff9600}
+.float-score.exp{color:var(--primary)}
+.float-score.gp{color:var(--orange)}
 @keyframes floatUp{
   0%{opacity:1;transform:translateY(0) scale(1)}
-  100%{opacity:0;transform:translateY(-30px) scale(1.2)}
+  50%{opacity:1;transform:translateY(-16px) scale(1.3)}
+  100%{opacity:0;transform:translateY(-36px) scale(1)}
 }
 
-/* ===== Reward Shop ===== */
-.reward-detail{font-size:11px;color:#aaa;margin-top:3px}
+/* ===== CARD PULSE ANIMATION ===== */
+@keyframes cardPop{
+  0%{transform:scale(1)}
+  40%{transform:scale(1.02)}
+  100%{transform:scale(.98)}
+}
+.task-card.pop{
+  animation:cardPop .35s var(--ease-spring);
+}
 
-/* ===== ADD BUTTON (Duolingo FAB) ===== */
+/* ===== REWARD SHOP ===== */
+.reward-detail{font-size:11px;color:var(--text-tertiary);margin-top:var(--s1)}
+
+/* ===== ADD BUTTON (FAB) ===== */
 .add-btn-wrap{
-  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  position:fixed;bottom:var(--s6);left:50%;transform:translateX(-50%);
   z-index:100;
 }
 .btn-add{
-  width:58px;height:58px;border-radius:50%;
-  background:linear-gradient(135deg,#58CC02,#46a302);
+  width:58px;height:58px;border-radius:var(--r-full);
+  background:linear-gradient(135deg,var(--primary),var(--primary-light));
   color:#fff;font-size:28px;font-weight:400;
   cursor:pointer;
-  box-shadow:0 4px 20px rgba(88,204,2,.5),0 0 0 5px rgba(88,204,2,.15);
-  transition:all .25s;
+  box-shadow:var(--shadow-primary);
+  transition:all var(--std) var(--ease-spring);
   display:flex;align-items:center;justify-content:center;
 }
-.btn-add:hover{transform:scale(1.08);box-shadow:0 6px 28px rgba(88,204,2,.6),0 0 0 7px rgba(88,204,2,.2)}
-.btn-add:active{transform:scale(.95)}
+.btn-add:hover{transform:scale(1.08);box-shadow:0 6px 28px var(--primary-shadow-lg),0 0 0 7px var(--primary-ring)}
 
-/* ===== ADD SHEET (Duolingo white sheet) ===== */
+
+/* ===== ADD SHEET ===== */
 .add-overlay{
   position:fixed;top:0;left:0;right:0;bottom:0;
-  background:rgba(0,0,0,.4);
+  background:var(--overlay-light);
+  backdrop-filter:blur(2px);
   z-index:200;display:none;
   align-items:flex-end;justify-content:center;
 }
 .add-overlay.show{display:flex}
 .add-sheet{
-  background:#fff;
-  border-radius:24px 24px 0 0;
-  padding:28px 20px 40px;
+  background:var(--surface);
+  border-radius:var(--r-xl) var(--r-xl) 0 0;
+  padding:var(--s6) var(--s5) var(--s10);
   width:100%;max-width:480px;
-  animation:slideUp .3s ease;
+  animation:slideUp .3s var(--ease-spring);
 }
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .add-sheet h3{
-  font-size:18px;margin-bottom:16px;text-align:center;
-  color:#3c3c3c;font-weight:800;
+  font-size:18px;margin-bottom:var(--s4);text-align:center;
+  color:var(--text);font-weight:800;
 }
 .add-sheet input,.add-sheet select{
-  width:100%;padding:13px 14px;
-  background:#f7f7f7;
-  border:2px solid #e8e8e8;
-  border-radius:12px;font-size:15px;color:#3c3c3c;
-  outline:none;transition:border-color .2s;margin-bottom:10px;
+  width:100%;padding:var(--s3) var(--s4);
+  background:var(--n50);
+  border:2px solid var(--border);
+  border-radius:var(--r-md);font-size:15px;color:var(--text);
+  outline:none;transition:border-color var(--fast) var(--ease-smooth);margin-bottom:var(--s3);
   font-family:inherit;
 }
-.add-sheet input:focus{border-color:#58CC02}
-.add-sheet input::placeholder{color:#bbb}
-.add-sheet select option{background:#fff;color:#3c3c3c}
-.add-sheet .row{display:flex;gap:8px}
+.add-sheet input:focus{border-color:var(--border-focus)}
+.add-sheet input::placeholder{color:var(--text-muted)}
+.add-sheet select option{background:var(--surface);color:var(--text)}
+.add-sheet .row{display:flex;gap:var(--s2)}
 .add-sheet .row select{flex:1}
 .btn{
-  padding:14px 20px;border:none;border-radius:12px;
+  padding:var(--s3) var(--s5);border:none;border-radius:var(--r-md);
   font-size:15px;font-weight:700;cursor:pointer;
-  font-family:inherit;transition:all .2s;width:100%;margin-top:8px;
+  font-family:inherit;transition:all var(--fast) var(--ease-smooth);
+  width:100%;margin-top:var(--s2);
 }
 .btn-primary{
-  background:linear-gradient(135deg,#58CC02,#46a302);
+  background:linear-gradient(135deg,var(--primary),var(--primary-light));
   color:#fff;
-  box-shadow:0 4px 16px rgba(88,204,2,.35);
+  box-shadow:var(--shadow-primary);
 }
-.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(88,204,2,.45)}
-.btn-ghost{background:transparent;color:#aaa}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 24px var(--primary-ring)}
+.btn-ghost{background:transparent;color:var(--text-tertiary)}
 
-/* ===== LEVEL UP MODAL (Duolingo style) ===== */
+/* ===== LEVEL UP MODAL ===== */
 .modal-overlay{
   position:fixed;top:0;left:0;right:0;bottom:0;
-  background:rgba(0,0,0,.5);
+  background:var(--overlay);
   backdrop-filter:blur(4px);
   z-index:300;display:none;
   align-items:center;justify-content:center;
 }
 .modal-overlay.show{display:flex}
 .modal{
-  background:#fff;
-  border-radius:28px;padding:40px 28px;
+  background:var(--surface);
+  border-radius:var(--r-2xl);padding:var(--s10) var(--s6);
   max-width:340px;width:88%;
   text-align:center;
-  animation:popIn .4s cubic-bezier(.34,1.56,.64,1);
-  box-shadow:0 20px 60px rgba(0,0,0,.3);
+  animation:popIn .4s var(--ease-spring);
+  box-shadow:var(--shadow-xl);
 }
 @keyframes popIn{
   from{transform:scale(.3) translateY(60px);opacity:0}
   to{transform:scale(1) translateY(0);opacity:1}
 }
-.modal .big{font-size:72px;display:block;margin-bottom:12px}
-.modal h2{font-size:26px;margin-bottom:8px;color:#3c3c3c;font-weight:800}
-.modal p{color:#aaa;font-size:14px;margin-bottom:24px}
+.modal .big{font-size:72px;display:block;margin-bottom:var(--s3)}
+.modal h2{font-size:26px;margin-bottom:var(--s2);color:var(--text);font-weight:800}
+.modal p{color:var(--text-tertiary);font-size:14px;margin-bottom:var(--s6)}
 .btn-gold{
-  background:linear-gradient(135deg,#ff9600,#ff7800);
+  background:linear-gradient(135deg,var(--gold),var(--gold-dark));
   color:#fff;
   width:100%;
   box-shadow:0 4px 20px rgba(255,150,0,.4);
@@ -347,17 +482,17 @@ button:disabled{opacity:.4!important;pointer-events:none}
 
 /* ===== TOAST ===== */
 .toast-container{
-  position:fixed;top:16px;left:50%;transform:translateX(-50%);
-  z-index:400;display:flex;flex-direction:column;gap:6px;
+  position:fixed;top:var(--s4);left:50%;transform:translateX(-50%);
+  z-index:400;display:flex;flex-direction:column;gap:var(--s1);
   pointer-events:none;align-items:center;
 }
 .toast{
   background:rgba(60,60,60,.92);
-  color:#fff;padding:12px 22px;border-radius:14px;
+  color:#fff;padding:var(--s3) var(--s5);border-radius:14px;
   font-weight:700;font-size:14px;white-space:nowrap;
-  animation:toastIn .3s ease,toastOut .3s ease 2.2s forwards;
+  animation:toastIn var(--fast) var(--ease-smooth),toastOut var(--fast) var(--ease-smooth) 2.2s forwards;
   pointer-events:auto;
-  box-shadow:0 4px 20px rgba(0,0,0,.2);
+  box-shadow:var(--shadow-md);
 }
 @keyframes toastIn{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}
 @keyframes toastOut{from{opacity:1}to{opacity:0;transform:translateY(-10px)}}
@@ -373,30 +508,85 @@ button:disabled{opacity:.4!important;pointer-events:none}
   100%{transform:translateY(100vh) rotate(720deg);opacity:0}
 }
 
+/* ===== CARD ENTRANCE ANIMATION ===== */
+@keyframes cardSlide{
+  from{opacity:0;transform:translateY(12px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
 /* ===== EMPTY STATE ===== */
 .empty-state{
-  text-align:center;padding:36px 16px;
-  background:#fff;border-radius:16px;
-  box-shadow:0 2px 12px rgba(0,0,0,.05);
+  text-align:center;padding:var(--s10) var(--s4);
+  background:var(--surface);border-radius:var(--r-lg);
+  box-shadow:var(--shadow-sm);
 }
-.empty-state .icon{font-size:40px;margin-bottom:10px}
-.empty-state p{font-size:14px;color:#aaa}
+.empty-state .icon{margin-bottom:var(--s3)}
+.empty-state p{font-size:14px;color:var(--text-tertiary);line-height:1.5}
+
+/* ===== 习惯详情面板 ===== */
+.hdetail-sheet{
+  background:var(--surface);
+  border-radius:var(--r-xl) var(--r-xl) 0 0;
+  padding:var(--s3) var(--s5) var(--s10);
+  width:100%;max-width:480px;
+  animation:slideUp .3s var(--ease-spring);
+}
+.hdetail-handle{
+  width:36px;height:4px;border-radius:2px;
+  background:var(--n200);margin:0 auto var(--s4);
+}
+.hdetail-head{display:flex;align-items:center;gap:var(--s3);margin-bottom:var(--s2)}
+.hdetail-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center}
+.hdetail-icon i{width:32px;height:32px;color:var(--primary)}
+.hdetail-title{font-size:20px;font-weight:800;color:var(--text)}
+.hdetail-count{font-size:13px;color:var(--text-secondary);margin-bottom:var(--s4);margin-left:4px}
+.hdetail-section{
+  display:flex;align-items:flex-start;gap:var(--s3);
+  padding:var(--s3) 0;border-top:1px solid var(--n100);
+}
+.hdetail-label{
+  font-size:13px;font-weight:700;color:var(--text-tertiary);
+  width:70px;flex-shrink:0;padding-top:1px;
+}
+.hdetail-val{font-size:14px;font-weight:600;color:var(--text);line-height:1.5}
+.hdetail-tip{color:var(--primary-dark);font-weight:700}
 
 /* ===== RESPONSIVE ===== */
 @media(max-width:400px){
-  .character-box{width:76px;height:76px}
-  .character{width:76px;height:76px;font-size:38px}
-  .stats-row{gap:10px}
-  .stat-item{min-width:44px}
-  .task-card{padding:12px 14px}
+  .task-card{padding:var(--s3)}
 }
-@keyframes shake{
-  0%,100%{transform:translateX(0)}
-  20%{transform:translateX(-3px)}
-  40%{transform:translateX(3px)}
-  60%{transform:translateX(-2px)}
-  80%{transform:translateX(2px)}
+
+.toast.undo-toast{
+  display:flex;align-items:center;gap:var(--s2);
+  padding:var(--s3) var(--s4);cursor:default;
 }
+.toast.undo-toast .undo-btn{
+  color:var(--primary);font-weight:800;background:none;
+  border:none;cursor:pointer;font-size:13px;
+  font-family:inherit;padding:0;white-space:nowrap;
+}
+
+/* ===== ICON SYSTEM (Lucide overrides) ===== */
+.icon-heart{width:22px;height:22px}
+.heart-full{color:var(--red);fill:var(--red)}
+.heart-empty{color:var(--n200);fill:var(--n200)}
+.icon-gem{color:var(--primary);width:16px;height:16px}
+.icon-exp{color:var(--purple);width:16px;height:16px}
+.icon-check{color:var(--primary);width:16px;height:16px}
+.icon-flame{color:var(--orange);width:16px;height:16px}
+.icon-flame-sm{width:12px;height:12px;color:var(--orange);vertical-align:middle}
+.icon-coin-sm{width:12px;height:12px;color:var(--purple);vertical-align:middle}
+.icon-task-type{width:32px;height:32px;color:var(--text);stroke-width:1.5}
+.icon-empty{width:40px;height:40px;color:var(--text-tertiary);stroke-width:1.5}
+.prio-dot{display:inline-block;width:8px;height:8px;border-radius:50%;vertical-align:middle}
+.dot-easy{background:#4caf50}
+.dot-medium{background:var(--orange)}
+.dot-hard{background:var(--red)}
+.title-icon{display:inline-flex;align-items:center;vertical-align:middle}
+.title-icon svg{width:24px;height:24px;color:var(--primary)}
+.stat-pill svg{vertical-align:middle}
+.sound-btn{display:flex;align-items:center;justify-content:center}
+.sound-btn svg{width:20px;height:20px;color:var(--text-secondary)}
 </style>
 </head>
 <body>
@@ -404,58 +594,43 @@ button:disabled{opacity:.4!important;pointer-events:none}
 
   <!-- ===== TOP BAR ===== -->
   <div class="top-bar">
-    <span class="app-title"><span class="title-icon">🏰</span> 习惯大陆</span>
+    <span class="app-title">
+      朱古力豆
+    </span>
     <div class="top-center">
       <div class="hearts-display" id="heartsDisplay"></div>
-      <div class="stat-pill"><span class="gem">💎</span> <span id="statGp">0</span></div>
-      <div class="stat-pill"><span class="exp-icon">✨</span> <span id="statExp">0</span></div>
+      <div class="stat-pill"><span class="gem"><i data-lucide="gem" class="icon-gem"></i></span> <span id="statGp">0</span></div>
+      <div class="stat-pill"><span class="exp-icon"><i data-lucide="sparkles" class="icon-exp"></i></span> <span id="statExp">0</span></div>
     </div>
-    <button class="sound-btn" id="soundBtn">🔊</button>
+    <button class="sound-btn" id="soundBtn"><i data-lucide="volume-2"></i></button>
   </div>
 
-  <!-- ===== CHARACTER ===== -->
-  <div class="character-area">
-    <div class="character-box">
-      <div class="level-ring" id="levelRing"></div>
-      <div class="character" id="character" onclick="pokeCharacter()">🌱</div>
-      <div class="char-accessory char-hat" id="charHat"></div>
-      <div class="char-pet" id="charPet">⭐</div>
+  <!-- ===== 合并卡片：进度 + 猴子 ===== -->
+  <div class="merged-card" id="charCard" onclick="petMonkey()">
+    <div class="merged-avatar">
+      <img src="sprites/monkey_mascot_transparent.png" alt="小绿猴">
     </div>
-    <div class="char-name" id="charName">小勇士</div>
-    <div class="char-title" id="charTitle">🌱 萌芽新手</div>
-    <div class="char-lvl" id="charLvl">Lv.1</div>
-  </div>
-
-  <!-- ===== EXP BAR ===== -->
-  <div class="exp-section">
-    <div class="exp-bar-bg">
-      <div class="exp-bar-fill" id="expBarFill"></div>
+    <div class="merged-body">
+      <div class="merged-top">
+        <div class="lvl-badge"><i data-lucide="crown" style="width:14px;height:14px"></i> <span id="lvlBadge">Lv.1</span></div>
+      </div>
+      <div class="exp-bar-compact">
+        <div class="exp-bar-bg">
+          <div class="exp-bar-fill" id="expBarFill"></div>
+        </div>
+      </div>
     </div>
-    <div class="exp-label">
-      <span>经验值</span>
-      <span id="expLabel">0 / 25</span>
-    </div>
-  </div>
-
-  <!-- ===== STATS ROW ===== -->
-  <div class="stats-row">
-    <div class="stat-item"><div class="stat-icon">💎</div><div class="stat-value" id="statGp2">0</div><div class="stat-label">金币</div></div>
-    <div class="stat-item"><div class="stat-icon">🔥</div><div class="stat-value" id="statStreak">0</div><div class="stat-label">最高连击</div></div>
-    <div class="stat-item"><div class="stat-icon">✅</div><div class="stat-value" id="statDone">0</div><div class="stat-label">今日完成</div></div>
-    <div class="stat-item"><div class="stat-icon">🏆</div><div class="stat-value" id="statDay">1</div><div class="stat-label">天数</div></div>
   </div>
 
   <!-- ===== TABS ===== -->
   <div class="tabs">
-    <button class="tab active" data-tab="habits" onclick="switchTab('habits')">习惯</button>
-    <button class="tab" data-tab="dailies" onclick="switchTab('dailies')">每日 <span class="badge" id="dailyBadge">0</span></button>
+    <button class="tab active" data-tab="habits" onclick="switchTab('habits')">习惯 <span class="badge" id="dailyBadge">0</span></button>
     <button class="tab" data-tab="todos" onclick="switchTab('todos')">待办</button>
     <button class="tab" data-tab="rewards" onclick="switchTab('rewards')">商店</button>
   </div>
 
   <!-- ===== TASK LISTS ===== -->
   <div id="habitsList" class="task-list"></div>
-  <div id="dailiesList" class="task-list hidden"></div>
   <div id="todosList" class="task-list hidden"></div>
   <div id="rewardsList" class="task-list hidden"></div>
 
@@ -472,8 +647,7 @@ button:disabled{opacity:.4!important;pointer-events:none}
     <input type="text" id="newText" placeholder="任务名称…" maxlength="40" autocomplete="off">
     <div class="row">
       <select id="newType">
-        <option value="habit">习惯</option>
-        <option value="daily" selected>每日</option>
+        <option value="habit" selected>习惯</option>
         <option value="todo">待办</option>
         <option value="reward">奖励</option>
       </select>
@@ -491,10 +665,39 @@ button:disabled{opacity:.4!important;pointer-events:none}
   </div>
 </div>
 
+<!-- ===== 习惯详情面板 ===== -->
+<div class="add-overlay" id="habitDetail">
+  <div class="hdetail-sheet" onclick="event.stopPropagation()">
+    <div class="hdetail-handle"></div>
+    <div class="hdetail-head">
+      <span class="hdetail-icon" id="hDetailIcon"></span>
+      <span class="hdetail-title" id="hDetailTitle">习惯</span>
+    </div>
+    <div class="hdetail-count" id="hDetailCount">今天做了 0 次</div>
+    <div class="hdetail-section">
+      <div class="hdetail-label">建议次数</div>
+      <div class="hdetail-val" id="hDetailTimes"></div>
+    </div>
+    <div class="hdetail-section">
+      <div class="hdetail-label">最佳时间</div>
+      <div class="hdetail-val" id="hDetailWhen"></div>
+    </div>
+    <div class="hdetail-section">
+      <div class="hdetail-label">执行技巧</div>
+      <div class="hdetail-val hdetail-tip" id="hDetailTip"></div>
+    </div>
+    <div class="hdetail-section">
+      <div class="hdetail-label">进阶挑战</div>
+      <div class="hdetail-val" id="hDetailNext"></div>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('habitDetail').classList.remove('show')">知道了！</button>
+  </div>
+</div>
+
 <!-- ===== LEVEL UP MODAL ===== -->
 <div class="modal-overlay" id="lvlModal">
   <div class="modal">
-    <span class="big" id="lvlEmoji">🎉</span>
+    <div id="lvlEmoji" class="lvl-monkey"><img src="sprites/monkey_mascot_transparent.png" alt="猴子" style="width:100%;height:100%;object-fit:contain"></div>
     <h2 id="lvlTitle">升级了！</h2>
     <p id="lvlDesc">太棒了，继续加油！</p>
     <button class="btn btn-gold" onclick="closeLvlModal()">太好啦！</button>
@@ -518,22 +721,13 @@ const STREAK_BONUS = 0.01;
 const STREAK_MS = 7;
 
 const TITLES = [
-  { l: 1, t: '🌱 萌芽新手' }, { l: 5, t: '🌿 坚持学徒' },
-  { l: 10, t: '🌳 习惯小树' }, { l: 15, t: '⭐ 一星达人' },
-  { l: 21, t: '🔥 连击勇士' }, { l: 30, t: '🌟 二星达人' },
-  { l: 42, t: '⚡ 连击大师' }, { l: 50, t: '👑 习惯之王' },
+  { l: 1, t: '萌芽新手' }, { l: 5, t: '坚持学徒' },
+  { l: 10, t: '习惯小树' }, { l: 15, t: '一星达人' },
+  { l: 21, t: '连击勇士' }, { l: 30, t: '二星达人' },
+  { l: 42, t: '连击大师' }, { l: 50, t: '习惯之王' },
 ];
 
-const CHAR_EVOLVE = [
-  { min: 1, emoji: '🌱', hat: '', pet: '⭐', ring: '#58CC02' },
-  { min: 5, emoji: '🌿', hat: '🌻', pet: '🐣', ring: '#1cb0f6' },
-  { min: 10, emoji: '🌳', hat: '🎩', pet: '🐥', ring: '#ff9600' },
-  { min: 15, emoji: '⭐', hat: '👑', pet: '🐰', ring: '#c054f7' },
-  { min: 21, emoji: '🔥', hat: '🏮', pet: '🦊', ring: '#ff4b4b' },
-  { min: 30, emoji: '🌟', hat: '🌈', pet: '🦄', ring: '#A150F7' },
-  { min: 42, emoji: '⚡', hat: '⚡', pet: '🐉', ring: '#00cfff' },
-  { min: 50, emoji: '👑', hat: '👑', pet: '🦅', ring: '#ff9600' },
-];
+
 
 // --- 核心算法 ---
 function clampV(v) { return Math.max(MIN_TV, Math.min(MAX_TV, v)); }
@@ -599,6 +793,13 @@ function _sHabit(u, t, dir, times, cron, st) {
   const d = _chgVal(u, t, dir, times, cron);
   if (d > 0) { _addExp(st, t, d, dir); _addGP(st, t, d, dir); }
   if (dir === 'up') t.counterUp = (t.counterUp || 0) + times; else t.counterDown = (t.counterDown || 0) + times;
+  // 连击：每天至少做一次才计数
+  if (dir === 'up' && times > 0) {
+    const today = toDateStr(new Date());
+    const last = t.history && t.history.length > 0 ? toDateStr(new Date(t.history[t.history.length - 1].date)) : null;
+    if (last !== today) { t.streak = (t.streak || 0) + 1; }
+    if (streakMs(t.streak)) u._tmp.streakMs = t.streak;
+  }
   t.history = t.history || [];
   const l = t.history[t.history.length - 1];
   if (l && sameDay(l.date)) { l.value = t.value; l.scoredUp = (l.scoredUp || 0) + (dir === 'up' ? times : 0); l.scoredDown = (l.scoredDown || 0) + (dir === 'down' ? times : 0); }
@@ -650,32 +851,41 @@ function _upStats(user, st) {
 // APP STATE
 // ================================================================
 const state = {
-  user: { _id: 'hero', stats: { lvl: 1, exp: 0, gp: 0, title: '🌱 萌芽新手' }, _tmp: {} },
+  user: { _id: 'hero', stats: { lvl: 1, exp: 0, gp: 0, title: '萌芽新手' }, _tmp: {} },
   tasks: [],
   tab: 'habits',
   todayDone: 0,
-  lastPoke: 0,
+
   streak: 0,
   dayCount: 1,
   hearts: 5,
   lastHeartsCheck: null,
 };
 
-// --- 示例任务 ---
+// --- 示例任务（四年级适用） ---
 const SAMPLES = [
-  { type: 'habit', text: '走 5000 步', priority: 'easy' },
-  { type: 'habit', text: '喝 6 杯水', priority: 'easy' },
-  { type: 'habit', text: '少刷手机', priority: 'medium' },
-  { type: 'daily', text: '读 20 分钟书', priority: 'easy' },
-  { type: 'daily', text: '整理书桌', priority: 'easy' },
-  { type: 'daily', text: '写日记', priority: 'medium' },
-  { type: 'todo', text: '科学课手工作业', priority: 'hard' },
-  { type: 'todo', text: '画一幅画', priority: 'medium' },
-  { type: 'reward', text: '多玩 30 分钟', priority: 'easy', value: 50 },
-  { type: 'reward', text: '吃冰淇淋', priority: 'easy', value: 30 },
-  { type: 'reward', text: '看一集动画片', priority: 'easy', value: 20 },
+  // 习惯（可反复做）
+  { type: 'habit', text: '跳绳 50 个', priority: 'easy' },
+  { type: 'habit', text: '练字 5 分钟', priority: 'easy' },
+  { type: 'habit', text: '背一首古诗', priority: 'medium' },
+  { type: 'habit', text: '喝水一杯', priority: 'easy' },
+  { type: 'habit', text: '做口算一页', priority: 'medium' },
+  // 每日（每天一次）
+  { type: 'habit', text: '背 5 个英语单词', priority: 'medium' },
+  { type: 'habit', text: '收拾书包（睡前）', priority: 'easy' },
+  { type: 'habit', text: '阅读 15 分钟', priority: 'easy' },
+  { type: 'habit', text: '做一件家务', priority: 'easy' },
+  { type: 'habit', text: '写一句话日记', priority: 'medium' },
+  // 待办（一次性）
+  { type: 'todo', text: '单元复习', priority: 'hard' },
+  { type: 'todo', text: '整理房间', priority: 'medium' },
+  { type: 'todo', text: '给家人做一张贺卡', priority: 'easy' },
+  // 商店（用金币兑换）
+  { type: 'reward', text: '多看 20 分钟动画', priority: 'easy', value: 20 },
+  { type: 'reward', text: '选一个小零食', priority: 'easy', value: 15 },
+  { type: 'reward', text: '周末去游乐场', priority: 'easy', value: 80 },
+  { type: 'reward', text: '买一个新文具', priority: 'easy', value: 50 },
 ];
-SAMPLES.forEach(t => state.tasks.push(taskDef(t)));
 
 // ================================================================
 // AUDIO (Web Audio API)
@@ -725,7 +935,11 @@ function loadState() {
     const t = localStorage.getItem('mh_tasks');
     const m = localStorage.getItem('mh_meta');
     if (u) state.user = JSON.parse(u);
-    if (t) state.tasks = JSON.parse(t);
+    if (t) {
+      state.tasks = JSON.parse(t);
+      // 迁移：将旧的每日类型转为习惯
+      state.tasks.forEach(task => { if (task.type === 'daily') task.type = 'habit'; });
+    }
     if (m) {
       const meta = JSON.parse(m);
       state.todayDone = meta.todayDone ?? 0;
@@ -744,11 +958,14 @@ function loadState() {
 function renderHearts() {
   const el = document.getElementById('heartsDisplay');
   if (!el) return;
-  el.innerHTML = Array.from({ length: 5 }, (_, i) => i < state.hearts ? '❤️' : '🖤').join('');
+  el.innerHTML = Array.from({ length: 5 }, (_, i) =>
+    `<i data-lucide="${i < state.hearts ? 'heart' : 'heart'}" class="icon-heart ${i < state.hearts ? 'heart-full' : 'heart-empty'}"></i>`
+  ).join('');
+  if (window.lucide) lucide.createIcons();
 }
 function loseHeart() {
   if (state.hearts <= 0) {
-    showToast('💔 爱心耗尽！明天再来吧');
+    showToast('爱心耗尽！明天再来吧');
     playHeartLost();
     return false;
   }
@@ -757,7 +974,7 @@ function loseHeart() {
   renderHearts();
   saveState();
   if (state.hearts === 0) {
-    showModal('💔', '爱心耗尽！', '今天不能再操作了，明天重置～', '好吧 😢');
+    showModal('heart-off', '爱心耗尽！', '今天不能再操作了，明天重置～', '知道了');
   }
   return true;
 }
@@ -768,107 +985,186 @@ function gainHeart() {
 // ================================================================
 // UI RENDER
 // ================================================================
-function render() { renderChar(); renderExp(); renderStats(); renderTasks(); renderBadge(); renderHearts(); }
-function renderChar() {
-  const lv = state.user.stats.lvl;
-  let cfg = CHAR_EVOLVE[0];
-  for (const c of CHAR_EVOLVE) { if (lv >= c.min) cfg = c; else break; }
-  document.getElementById('character').textContent = cfg.emoji;
-  document.getElementById('charHat').textContent = cfg.hat;
-  document.getElementById('charPet').textContent = cfg.pet;
-  document.getElementById('levelRing').style.borderColor = cfg.ring;
-  document.getElementById('charLvl').textContent = `Lv.${lv}`;
-  document.getElementById('charTitle').textContent = state.user.stats.title || '无头衔';
-}
+function render() { renderExp(); renderStats(); renderTasks(); renderBadge(); renderHearts(); }
 function renderExp() {
   const lv = state.user.stats.lvl, exp = state.user.stats.exp, en = expToLv(lv);
   document.getElementById('expBarFill').style.width = Math.min(100, (exp / en) * 100) + '%';
-  document.getElementById('expLabel').textContent = `${Math.floor(exp)} / ${en}`;
+  const badge = document.getElementById('lvlBadge');
+  if (badge) badge.textContent = `Lv.${lv}`;
 }
 function renderStats() {
   const s = state.user.stats;
-  document.getElementById('statExp').textContent = Math.floor(s.exp);
-  document.getElementById('statExp2').textContent = Math.floor(s.exp);
   document.getElementById('statGp').textContent = Math.floor(s.gp);
-  document.getElementById('statGp2').textContent = Math.floor(s.gp);
-  const ms = state.tasks.filter(t => t.type === 'daily').reduce((m, t) => Math.max(m, t.streak || 0), 0);
-  document.getElementById('statStreak').textContent = state.streak || ms;
-  document.getElementById('statDone').textContent = state.todayDone;
-  document.getElementById('statDay').textContent = state.dayCount;
 }
 
 // task type icon map (BIG emoji on cards) — replaced by getTaskEmoji
-const PRIORITY_ICON = { easy: '🟢', medium: '🟡', hard: '🔴' };
+const PRIORITY_ICON = { easy: '<span class="prio-dot dot-easy"></span>', medium: '<span class="prio-dot dot-medium"></span>', hard: '<span class="prio-dot dot-hard"></span>' };
 
-// Keyword-based emoji for task cards
-function getTaskEmoji(text) {
+// Keyword-based icon for task cards (returns Lucide icon name)
+function getTaskIcon(text) {
   const t = text.toLowerCase();
-  if (/走|步|跑|跑步|走路/.test(t)) return '🚶';
-  if (/水|喝|杯/.test(t)) return '💧';
-  if (/书|阅读|读书/.test(t)) return '📖';
-  if (/整理|打扫|清洁|拖地|擦/.test(t)) return '🧹';
-  if (/日记|写/.test(t)) return '✏️';
-  if (/画|美术|画画/.test(t)) return '🎨';
-  if (/游戏|玩/.test(t)) return '🎮';
-  if (/冰淇淋|甜品|糖/.test(t)) return '🍦';
-  if (/电视|动画|看.+集|看.+片/.test(t)) return '📺';
-  if (/手机|刷/.test(t)) return '📱';
-  if (/科学|实验/.test(t)) return '🔬';
-  if (/作业|学习/.test(t)) return '📚';
-  if (/运动|健身/.test(t)) return '🏃';
-  if (/早餐|午餐|晚餐|吃饭/.test(t)) return '🍽️';
-  if (/睡觉|睡眠|早睡/.test(t)) return '😴';
-  if (/单词|英语|背/.test(t)) return '📝';
-  if (/冥想|放松/.test(t)) return '🧘';
-  if (/习惯/.test(t)) return '🔁';
-  // 默认
-  return '✨';
+  if (/引体/.test(t)) return 'armchair';
+  if (/健腹/.test(t)) return 'dumbbell';
+  if (/走|步|跑|跑步|走路/.test(t)) return 'person-standing';
+  if (/水|喝|杯/.test(t)) return 'droplet';
+  if (/书|阅读|读书/.test(t)) return 'book-open';
+  if (/整理|打扫|清洁|拖地|擦/.test(t)) return 'sparkles';
+  if (/日记|写/.test(t)) return 'pencil';
+  if (/画|美术|画画/.test(t)) return 'palette';
+  if (/游戏|玩/.test(t)) return 'gamepad-2';
+  if (/冰淇淋|甜品|糖/.test(t)) return 'cookie';
+  if (/电视|动画|看.+集|看.+片/.test(t)) return 'tv';
+  if (/手机|刷/.test(t)) return 'smartphone';
+  if (/科学|实验/.test(t)) return 'microscope';
+  if (/作业|学习/.test(t)) return 'books';
+  if (/运动|健身/.test(t)) return 'person-running';
+  if (/早餐|午餐|晚餐|吃饭/.test(t)) return 'utensils-crossed';
+  if (/睡觉|睡眠|早睡/.test(t)) return 'moon';
+  if (/单词|英语|背/.test(t)) return 'clipboard-pen';
+  if (/冥想|放松/.test(t)) return 'person-standing';
+  if (/习惯/.test(t)) return 'refresh-cw';
+  return 'sparkles';
 }
 
 function renderTasks() {
   const tab = state.tab;
-  const map = { habits: 'habitsList', dailies: 'dailiesList', todos: 'todosList', rewards: 'rewardsList' };
+  const map = { habits: 'habitsList', todos: 'todosList', rewards: 'rewardsList' };
   for (const [k, id] of Object.entries(map)) {
     const el = document.getElementById(id);
     const tasks = state.tasks.filter(t => {
-      if (k === 'habits') return t.type === 'habit';
-      if (k === 'dailies') return t.type === 'daily';
+      if (k === 'habits') return t.type === 'habit' || t.type === 'daily';
       if (k === 'todos') return t.type === 'todo';
       if (k === 'rewards') return t.type === 'reward';
       return false;
     });
     if (tasks.length === 0) {
-      const icons = { habits: '🔁', dailies: '📆', todos: '📋', rewards: '🎁' };
-      el.innerHTML = `<div class="empty-state"><div class="icon">${icons[k] || '✨'}</div><p>还没有任务，点 + 添加吧！</p></div>`;
+      const emptyIcons = { habits: 'refresh-cw', dailies: 'calendar', todos: 'clipboard-list', rewards: 'gift' };
+      el.innerHTML = `<div class="empty-state"><div class="icon"><i data-lucide="${emptyIcons[k] || 'sparkles'}" class="icon-empty"></i></div><p>还没有任务，点 + 添加吧！</p></div>`;
     } else {
       el.innerHTML = tasks.map(t => cardHTML(t, k === 'rewards')).join('');
     }
   }
+  // 长按删除（一次长按直接删除，undo toast 兜底）
+  document.querySelectorAll('.task-card').forEach(el => {
+    let timer = null;
+    const start = () => {
+      if (timer) return;
+      timer = setTimeout(() => {
+        el.classList.add('long-press');
+        const id = el.dataset.id;
+        if (id) { deleteTask(id); }
+        setTimeout(() => el.classList.remove('long-press'), 600);
+      }, 600);
+    };
+    const end = () => { if (timer) { clearTimeout(timer); timer = null; } };
+    el.addEventListener('mousedown', start);
+    el.addEventListener('mouseup', end);
+    el.addEventListener('mouseleave', end);
+    el.addEventListener('touchstart', start, { passive: true });
+    el.addEventListener('touchend', end);
+    el.addEventListener('touchmove', end);
+  });
+  if (window.lucide) lucide.createIcons();
 }
 function cardHTML(task, isReward) {
+  switch (task.type) {
+    case 'habit': return habitCardHTML(task);
+    case 'daily': return dailyCardHTML(task);
+    case 'todo': return todoCardHTML(task);
+    case 'reward': return rewardCardHTML(task);
+    default: return '';
+  }
+}
+// ===== 微习惯建议数据 =====
+const HABIT_TIPS = {
+  default: { times: '每天 1-2 次', when: '找到固定时间点', tip: '从 2 分钟开始，先做再优化', next: '坚持一周后逐渐增加' },
+  跳绳: { times: '每天 1 次', when: '放学后 / 运动时间', tip: '不要求数量，先跳 10 个就算成功', next: '连续跳 100 个不断' },
+  引体向上: { times: '每天 1-2 组', when: '运动时间', tip: '能拉一个算一个，挂上去就是胜利', next: '连续做 10 个' },
+  健腹轮: { times: '每天 3-5 个', when: '运动时间', tip: '跪姿做，腰不要塌，3 个就够', next: '站姿做 10 个' },
+  练字: { times: '每天 1 次', when: '写完作业后', tip: '只写 3 个字，写好为止', next: '每天写一页' },
+  古诗: { times: '每天 1-2 首', when: '早读 / 睡前', tip: '读一遍就算完成，不要求背下来', next: '每周完整背出 2 首' },
+  喝水: { times: '每天 4-6 杯', when: '每节课后', tip: '在桌上放一个水杯提醒自己', next: '每天喝满 8 杯' },
+  口算: { times: '每天 1 页', when: '做作业前热身', tip: '计时做，比昨天快 1 秒就是进步', next: '挑战 5 分钟做完' },
+  单词: { times: '每天 5 个', when: '吃完早饭后', tip: '抄一遍 + 读一遍就够了', next: '每天 10 个' },
+  书包: { times: '每天睡前', when: '刷完牙后', tip: '看课程表整理，只要 1 分钟', next: '提前准备好第二天的衣服' },
+  阅读: { times: '每天 15 分钟', when: '睡前', tip: '只看 2 页也行，翻开了就是胜利', next: '每天 30 分钟' },
+  家务: { times: '每天 1 件', when: '吃完饭后', tip: '摆碗筷 / 倒垃圾都算，选最简单的', next: '每周学做一道菜' },
+  日记: { times: '每天 1 句', when: '睡前', tip: '写一句话就够，不会写就抄一句喜欢的', next: '写满 3 句话' },
+};
+function getHabitTips(text) {
+  for (const [key, tips] of Object.entries(HABIT_TIPS)) {
+    if (key !== 'default' && text.includes(key)) return tips;
+  }
+  return HABIT_TIPS.default;
+}
+
+function showHabitDetail(id) {
+  const task = state.tasks.find(t => t._id === id);
+  if (!task) return;
+  const tips = getHabitTips(task.text);
+  const count = task.counterUp || 0;
+  document.getElementById('hDetailIcon').innerHTML = `<i data-lucide="${getTaskIcon(task.text)}" style="width:32px;height:32px"></i>`;
+  document.getElementById('hDetailTitle').textContent = task.text;
+  document.getElementById('hDetailTimes').textContent = tips.times;
+  document.getElementById('hDetailWhen').textContent = tips.when;
+  document.getElementById('hDetailTip').textContent = tips.tip;
+  document.getElementById('hDetailNext').textContent = tips.next;
+  document.getElementById('hDetailCount').textContent = `今天做了 ${count} 次`;
+  if (window.lucide) lucide.createIcons();
+  document.getElementById('habitDetail').classList.add('show');
+}
+
+function habitCardHTML(task) {
+  const icon = getTaskIcon(task.text);
+  const count = task.counterUp || 0;
+  return `<div class="task-card task-habit" data-id="${task._id}">
+    <span class="delete-hint">长按删除</span>
+    <div class="task-type-icon" onclick="event.stopPropagation();showHabitDetail('${task._id}')"><i data-lucide="${icon}" class="icon-task-type"></i></div>
+    <div class="task-body" onclick="event.stopPropagation();showHabitDetail('${task._id}')">
+      <div class="task-text">${esc(task.text)}</div>
+    </div>
+    <div class="habit-right">
+      <div class="habit-btn-big" onclick="event.stopPropagation();clickHabit('${task._id}','up')">+</div>
+      <div class="habit-count ${count > 0 ? '' : 'habit-count-empty'}">今天 ×${count}</div>
+    </div>
+  </div>`;
+}
+function dailyCardHTML(task) {
+  // 和习惯完全一样的卡片样式，没有"每日"的特殊逻辑
+  return habitCardHTML(task);
+}
+function todoCardHTML(task) { return taskCardHTML(task, 'todo'); }
+function taskCardHTML(task, type) {
+  const icon = getTaskIcon(task.text);
   const done = task.completed || false;
-  const v = rd(task.value, 2);
-  let vl = '−';
-  if (v > 1) vl = `+${v}`;
-  else if (v < -1) vl = v;
-  else vl = v.toFixed(1);
-
-  // BIG emoji type icon (keyword-based)
-  const typeIcon = getTaskEmoji(task.text);
-  const prioIcon = PRIORITY_ICON[task.priority] || '';
-
-  let meta = `<span class="tag tag-icon">${prioIcon}</span> <span class="tag tag-${task.priority}">${task.priority === 'hard' ? '超重要' : task.priority === 'medium' ? '重要' : '普通'}</span> <span class="tag-value">${vl}</span>`;
-  if (task.type === 'daily' && task.streak > 0) meta += ` <span class="streak-badge">🔥×${task.streak}</span>`;
-  if (isReward) meta += ` <span class="price-tag">🪙${task.value}</span>`;
-
-  const check = done ? '✓' : (isReward ? '🛒' : '');
-  return `<div class="task-card ${done ? 'completed' : ''}" data-type="${task.type}" data-id="${task._id}" onclick="clickTask('${task._id}')">
-    <div class="task-check">${check}</div>
-    <div class="task-type-icon">${typeIcon}</div>
+  const streak = task.streak || 0;
+  const streakHtml = streak > 0 ? `<span class="streak-pill"><i data-lucide="flame" class="icon-flame-sm"></i> ${streak}</span>` : '';
+  return `<div class="task-card ${done ? 'completed' : ''}" data-type="${type}" data-id="${task._id}" onclick="clickTask('${task._id}')">
+    <span class="delete-hint">长按删除</span>
+    <div class="task-check">${done ? '✓' : ''}</div>
+    <div class="task-type-icon"><i data-lucide="${icon}" class="icon-task-type"></i></div>
     <div class="task-body">
       <div class="task-text">${esc(task.text)}</div>
-      <div class="task-meta">${meta}</div>
-      ${isReward ? `<div class="reward-detail">做完任务赚金币来换奖励吧！</div>` : ''}
+    </div>
+    ${streakHtml}
+  </div>`;
+}
+function rewardCardHTML(task) {
+  const icon = getTaskIcon(task.text);
+  const done = task.completed || false;
+  const price = task.value || 10;
+  const canBuy = state.user.stats.gp >= price;
+  return `<div class="task-card ${done ? 'completed' : ''}" data-type="reward" data-id="${task._id}" ${!done ? `onclick="clickTask('${task._id}')"` : ''}>
+    <span class="delete-hint">长按删除</span>
+    <div class="task-type-icon"><i data-lucide="${icon}" class="icon-task-type"></i></div>
+    <div class="task-body">
+      <div class="task-text">${esc(task.text)}</div>
+    </div>
+    <div class="reward-right">
+      <div class="reward-price ${!canBuy ? 'reward-price-locked' : ''}"><i data-lucide="coins" class="icon-coin-sm"></i> ${price}</div>
+      <div class="reward-btn ${done ? 'reward-btn-owned' : canBuy ? 'reward-btn-buy' : 'reward-btn-nogp'}" onclick="event.stopPropagation();${!done && canBuy ? `clickTask('${task._id}')` : ''}">
+        ${done ? '已拥有' : canBuy ? '购买' : '金币不足'}
+      </div>
     </div>
   </div>`;
 }
@@ -885,8 +1181,14 @@ function esc(s) { const d = document.createElement('div'); d.textContent = s; re
 function switchTab(tab) {
   state.tab = tab;
   document.querySelectorAll('.tab').forEach(el => el.classList.toggle('active', el.dataset.tab === tab));
-  ['habitsList', 'dailiesList', 'todosList', 'rewardsList'].forEach(id => document.getElementById(id).classList.toggle('hidden', id.replace('List', '') !== tab));
+  ['habitsList', 'todosList', 'rewardsList'].forEach(id => document.getElementById(id).classList.toggle('hidden', id.replace('List', '') !== tab));
   renderTasks();
+  // 更新 URL hash
+  if (history.replaceState) {
+    history.replaceState(null, '', '#' + tab);
+  } else {
+    location.hash = '#' + tab;
+  }
 }
 
 function clickTask(id) {
@@ -899,33 +1201,59 @@ function clickTask(id) {
       scoreTask(state.user, task, 'up');
       render();
       spawnFloat(task, 'gp', before);
-      showToast(`🎉 兑换了「${task.text}」！`);
-      happyChar();
+      showToast(`已兑换「${task.text}」！`);
     } catch (e) {
-      showToast(`😅 金币不够，多做任务攒钱吧！`);
+      showToast(`金币不够，多做任务攒钱吧！`);
       playNoGP();
-      shakeChar();
     }
     return;
   }
 
   if (task.type === 'todo' && task.completed) { scoreTask(state.user, task, 'down'); render(); return; }
-  if (task.type === 'todo' && !task.completed) { _doComplete(task); return; }
+  if (task.type === 'todo' && !task.completed) { _doComplete(task); render(); checkUp(); return; }
+  if (task.type === 'habit') { clickHabit(task._id, 'up'); return; }
   if (task.type === 'daily') { if (task.completed) { scoreTask(state.user, task, 'down'); render(); } else { _doComplete(task); } render(); checkUp(); return; }
-  if (task.type === 'habit') { _doComplete(task); render(); checkUp(); }
+
+}
+
+function clickHabit(id, dir) {
+  const task = state.tasks.find(t => t._id === id);
+  if (!task) return;
+  if (state.hearts <= 0) { showToast('爱心耗尽！先恢复再说吧'); return; }
+  const beforeGP = state.user.stats.gp;
+  const beforeExp = state.user.stats.exp;
+  scoreTask(state.user, task, dir);
+  if (dir === 'up') {
+    state.todayDone++;
+    const gpGain = rd(state.user.stats.gp - beforeGP);
+    const expGain = rd(state.user.stats.exp - beforeExp);
+    if (expGain > 0) spawnFloat(task, 'exp', beforeExp);
+    if (gpGain > 0) spawnFloat(task, 'gp', beforeGP);
+    playTask();
+  }
+  render();
+  _popCard(task._id);
+  checkUp();
+}
+
+function _popCard(id) {
+  setTimeout(() => {
+    const card = document.querySelector(`.task-card[data-id="${id}"]`);
+    if (card) card.classList.add('pop');
+  }, 10);
 }
 
 function _doComplete(task) {
   const beforeGP = state.user.stats.gp;
   const beforeExp = state.user.stats.exp;
-  if (state.hearts <= 0) { showToast('💔 爱心耗尽！先恢复再说吧'); return; }
+  if (state.hearts <= 0) { showToast('爱心耗尽！先恢复再说吧'); return; }
   scoreTask(state.user, task, 'up');
   state.todayDone++;
   const gpGain = rd(state.user.stats.gp - beforeGP);
   const expGain = rd(state.user.stats.exp - beforeExp);
   if (expGain > 0) spawnFloat(task, 'exp', beforeExp);
   if (gpGain > 0) spawnFloat(task, 'gp', beforeGP);
-  happyChar();
+  monkeyHappy(); // 完成任务猴子开心
   playTask();
   // Streak tracking
   if (task.type === 'daily') {
@@ -940,7 +1268,7 @@ function _doComplete(task) {
     state.dayCount++;
     if (streakMs(state.streak)) {
       playStreak();
-      showModal('🔥🔥🔥', `连续 ${state.streak} 天！`, `超级奖励！+50💎 +1❤️ +50XP`, '太厉害了！');
+      showModal('flame', `连续 ${state.streak} 天！`, `超级奖励！+50 金币 +1 爱心 +50经验`, '太厉害了！');
       state.user.stats.gp += 50;
       gainHeart();
       state.user.stats.exp += 50;
@@ -959,7 +1287,7 @@ function _checkHeartsPenalty() {
     const yesterday = toDateStr(new Date(Date.now() - 86400000));
     if (state.lastHeartsCheck !== today) {
       if (loseHeart()) {
-        showToast('💔 昨日有未完成的每日任务，扣了1颗爱心');
+        showToast('昨日有未完成的每日任务，扣了1颗爱心');
       }
     }
   }
@@ -981,40 +1309,54 @@ function checkUp() {
   const info = state.user._tmp?.leveledUp;
   if (info && info.length > 0) {
     const last = info[info.length - 1];
-    document.getElementById('lvlEmoji').textContent = '🎉';
+    // lvlEmoji is already the monkey SVG, just animate it
+    const lvlEmoji = document.getElementById('lvlEmoji');
+    lvlEmoji.style.animation = 'none';
+    void lvlEmoji.offsetHeight; // reflow
+    lvlEmoji.style.animation = 'lvlMonkeyPop .6s var(--ease-spring)';
     document.getElementById('lvlTitle').textContent = `Lv.${last.nl}！${last.title || ''}`;
     document.getElementById('lvlDesc').textContent = `太棒了！你已经养成了好习惯，继续加油！`;
     document.getElementById('lvlModal').classList.add('show');
+    monkeyHappy(); // 顶部猴子也兴奋一下
     confetti();
     playUpgrade();
     if (state.user._tmp.streakMs) {
-      setTimeout(() => showToast(`🔥🔥🔥 连击 ${state.user._tmp.streakMs} 天！太厉害了！`), 600);
+      setTimeout(() => showToast(`连击 ${state.user._tmp.streakMs} 天！太厉害了！`), 600);
     }
   }
 }
-function closeLvlModal() { document.getElementById('lvlModal').classList.remove('show'); }
+let _deletedTask = null;
+let _deleteTimer = null;
+function deleteTask(id) {
+  const idx = state.tasks.findIndex(t => t._id === id);
+  if (idx === -1) return;
+  _deletedTask = state.tasks.splice(idx, 1)[0];
+  clearTimeout(_deleteTimer);
+  saveState();
+  render();
+  const toast = document.createElement('div');
+  toast.className = 'toast undo-toast';
+  toast.innerHTML = `已删除「${esc(_deletedTask.text)}」<button class="undo-btn" onclick="undoDelete()">撤销</button>`;
+  document.getElementById('toastContainer').appendChild(toast);
+  _deleteTimer = setTimeout(() => { _deletedTask = null; toast.remove(); }, 5000);
+}
+function undoDelete() {
+  if (!_deletedTask) return;
+  state.tasks.push(_deletedTask);
+  _deletedTask = null;
+  clearTimeout(_deleteTimer);
+  render();
+  showToast('↩️ 已恢复');
+}
 
-function pokeCharacter() {
-  const now = Date.now();
-  if (now - state.lastPoke < 2000) return;
-  state.lastPoke = now;
-  const emojis = ['😊', '😄', '😆', '🥰', '😎', '🤗', '🌟', '✨'];
-  const e = emojis[Math.floor(Math.random() * emojis.length)];
-  const ch = document.getElementById('character');
-  ch.textContent = e;
-  ch.classList.remove('happy'); void ch.offsetWidth; ch.classList.add('happy');
-  setTimeout(() => renderChar(), 1200);
-  showToast('😄 摸摸头～继续加油！');
-}
-function happyChar() {
-  const ch = document.getElementById('character');
-  ch.classList.remove('happy'); void ch.offsetWidth; ch.classList.add('happy');
-}
-function shakeChar() {
-  const ch = document.getElementById('character');
-  ch.style.animation = 'shake 0.4s ease';
-  setTimeout(() => ch.style.animation = '', 500);
-}
+// ===== MONKEY INTERACTION =====
+
+
+function monkeyHappy() {}
+function monkeyGreet() {}
+function petMonkey() { showToast('🐒 嘻嘻～'); playTask(); }
+
+function closeLvlModal() { document.getElementById('lvlModal').classList.remove('show'); }
 
 // ===== ADD SHEET =====
 function showAddSheet() {
@@ -1035,7 +1377,7 @@ function addTask() {
   hideAddSheet();
   const tabMap = { habit: 'habits', daily: 'dailies', todo: 'todos', reward: 'rewards' };
   switchTab(tabMap[type]);
-  showToast(`✅ 添加了「${text}」`);
+  showToast(`已添加「${text}」`);
   render();
 }
 document.getElementById('newType').addEventListener('change', function () {
@@ -1075,11 +1417,17 @@ function confetti() {
 }
 
 // ===== MODAL =====
-function showModal(emoji, title, desc, btn) {
-  document.getElementById('lvlEmoji').textContent = emoji;
+function showModal(iconName, title, desc, btnText) {
+  const el = document.getElementById('lvlEmoji');
+  if (iconName.startsWith('<')) {
+    el.innerHTML = iconName;
+  } else {
+    el.innerHTML = `<i data-lucide="${iconName}" style="width:72px;height:72px;color:var(--primary)"></i>`;
+  }
   document.getElementById('lvlTitle').textContent = title;
   document.getElementById('lvlDesc').textContent = desc;
-  document.querySelector('.btn-gold').textContent = btn + '🎉';
+  document.querySelector('.btn-gold').textContent = btnText;
+  if (window.lucide) lucide.createIcons();
   document.getElementById('lvlModal').classList.add('show');
   confetti();
 }
@@ -1087,7 +1435,9 @@ function showModal(emoji, title, desc, btn) {
 // ===== SOUND TOGGLE =====
 document.getElementById('soundBtn').addEventListener('click', () => {
   soundEnabled = !soundEnabled;
-  document.getElementById('soundBtn').textContent = soundEnabled ? '🔊' : '🔇';
+  const btn = document.getElementById('soundBtn');
+  btn.innerHTML = `<i data-lucide="${soundEnabled ? 'volume-2' : 'volume-x'}"></i>`;
+  if (window.lucide) lucide.createIcons();
   if (soundEnabled) playTask();
   saveState();
 });
@@ -1099,12 +1449,38 @@ document.getElementById('lvlModal').addEventListener('click', (e) => {
 
 // ===== INIT =====
 loadState();
+// 首次使用：加载示例任务
+if (state.tasks.length === 0) {
+  SAMPLES.forEach(t => state.tasks.push(taskDef(t)));
+} else {
+  // 检查并补充缺少的示例任务（避免旧数据没有新示例）
+  const existingTexts = new Set(state.tasks.map(t => t.text));
+  SAMPLES.forEach(t => {
+    if (!existingTexts.has(t.text)) {
+      state.tasks.push(taskDef(t));
+    }
+  });
+}
 soundEnabled = localStorage.getItem('mh_sound') !== 'off';
-document.getElementById('soundBtn').textContent = soundEnabled ? '🔊' : '🔇';
+document.getElementById('soundBtn').innerHTML = '<i data-lucide="' + (soundEnabled ? 'volume-2' : 'volume-x') + '"></i>';
 document.getElementById('expBarFill').style.width = '0%';
 render();
+if (window.lucide) lucide.createIcons();
 saveState();
-console.log('🏰 习惯大陆 · 多邻国风格 UI (大 emoji 图标)');
+
+console.log('朱古力豆 · Lucide 图标系统');
+
+// ===== URL 路由（hash-based） =====
+window.addEventListener('hashchange', () => {
+  const tab = location.hash.replace('#', '') || 'habits';
+  if (['habits','todos','rewards'].includes(tab)) switchTab(tab);
+});
+
+// 初始加载时读取 hash
+const initTab = location.hash.replace('#', '') || 'habits';
+if (['habits','todos','rewards'].includes(initTab) && initTab !== state.tab) {
+  switchTab(initTab);
+}
 </script>
 </body>
 </html>
