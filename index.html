@@ -1707,7 +1707,7 @@ function showReport(type) {
   const weekDays = ['日','一','二','三','四','五','六'];
 
   // 计算数据
-  let todayTotal = 0, todayDone = 0, weekStreak = 0, maxStreak = 0;
+  let todayTotal = 0, todayDone = 0, weekStreak = 0, maxStreak = 0, _maxCount = 0;
   const habitRecords = [];
   state.tasks.forEach(t => {
     const history = t.history || [];
@@ -1715,8 +1715,8 @@ function showReport(type) {
     if (tCount > 0) {
       todayTotal += tCount;
       todayDone++;
-      const target = t.type === 'habit' ? 3 : 1;
-      habitRecords.push({ text: t.text, done: tCount, target: Math.max(tCount, target), pct: Math.min(100, tCount / target * 100) });
+      if (tCount > _maxCount) _maxCount = tCount;
+      habitRecords.push({ text: t.text, done: tCount });
     }
   });
   const doneTodos = state.tasks.filter(t => t.type === 'todo' && t.completed && toDateStr(new Date(t.dateCompleted)) === today).length;
@@ -1751,14 +1751,15 @@ function showReport(type) {
   }
 
   const iconColors = ['#e8f5e0','#fff8e1','#e3f2fd','#fce4ec','#f3e5f5'];
+  const maxCount = Math.max(_maxCount, 1);
   const recordsHtml = habitRecords.slice(0, 5).map((r, idx) => {
-    const pct = r.pct;
+    const pct = Math.round((r.done / maxCount) * 100);
     const badge = r.badge ? `<span class="r-badge">${r.badge}</span>` : '';
     const firstChar = r.text.replace(/[0-9-]/g,'').trim()[0] || '·';
     return `<div class="r-record">
       <div class="r-rec-icon" style="background:${iconColors[idx%5]}">${firstChar}</div>
       <div class="r-rec-body">
-        <div class="r-rec-top"><span class="r-rec-text">${r.text}</span><span class="r-rec-num">${Math.min(r.done, r.target)}/${r.target}</span></div>
+        <div class="r-rec-top"><span class="r-rec-text">${r.text}</span><span class="r-rec-num">${r.done} 次</span></div>
         <div class="r-rec-bar-bg"><div class="r-rec-bar-fill" style="width:${pct}%"></div></div>
       </div>
       ${badge}
