@@ -154,11 +154,10 @@ button:disabled{opacity:.4!important;pointer-events:none}
   display:flex;align-items:center;gap:var(--s3);
   padding:var(--s2) 0;
   margin:var(--s2) var(--s1) 0;
-  cursor:pointer;
 }
-.merged-card:active{transform:scale(.97)}
+
 .merged-avatar{flex-shrink:0;width:108px;height:108px;display:flex;align-items:center;justify-content:center}
-.merged-avatar img{width:100%;height:100%;display:block;object-fit:contain}
+.merged-avatar img{width:100%;height:100%;display:block;object-fit:contain;cursor:pointer}
 .merged-body{flex:1;min-width:0}
 .merged-top{display:flex;align-items:center;margin-bottom:var(--s1)}
 .merged-stats{display:flex;gap:var(--s1);margin-top:var(--s1)}
@@ -641,9 +640,9 @@ button:disabled{opacity:.4!important;pointer-events:none}
   </div>
 
   <!-- ===== 合并卡片：进度 + 猴子 ===== -->
-  <div class="merged-card" id="charCard" onclick="petMonkey()">
+  <div class="merged-card">
     <div class="merged-avatar">
-      <img id="monkeyMascot" src="sprites/houzi01.png" alt="小绿猴">
+      <img id="monkeyMascot" src="sprites/houzi01.png" alt="小绿猴" onclick="petMonkey()">
     </div>
     <div class="merged-body">
 
