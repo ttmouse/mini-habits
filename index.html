@@ -274,6 +274,14 @@ button:disabled{opacity:.4!important;pointer-events:none}
 .todo-footer-btn{font-size:12px;color:var(--text-tertiary);cursor:pointer;padding:var(--s1) var(--s3);border-radius:var(--r-md);transition:all var(--fast)}
 .todo-footer-btn:hover{color:var(--primary);background:#f0f8e8}
 .todo-time{font-size:11px;color:var(--text-tertiary);margin-top:2px;display:block}
+.history-item{display:flex;align-items:center;gap:var(--s2);padding:var(--s2) var(--s1);border-bottom:1px solid var(--n100);font-size:14px}
+.history-item:last-child{border-bottom:none}
+.history-body{flex:1;min-width:0;display:flex;flex-direction:column}
+.history-text{font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.history-time{font-size:11px;color:var(--text-tertiary);margin-top:1px}
+.history-label{font-size:12px;color:var(--text-secondary);flex-shrink:0}
+.history-del{font-size:16px;color:var(--n250);cursor:pointer;padding:var(--s1);border-radius:var(--r-full);line-height:1;transition:all var(--fast);flex-shrink:0}
+.history-del:hover{color:var(--red);background:rgba(255,75,75,.08)}
 
 
 /* ===== TASK CARD ===== */
@@ -658,7 +666,7 @@ button:disabled{opacity:.4!important;pointer-events:none}
         </div>
       </div>
       <div class="card-footer">
-        <span class="card-history" onclick="event.stopPropagation();showToast('📊 记录功能开发中')"><i data-lucide="calendar" style="width:12px;height:12px"></i> 记录</span>
+        <span class="card-history" onclick="event.stopPropagation();showHistory()"><i data-lucide="calendar" style="width:12px;height:12px"></i> 记录</span>
       </div>
     </div>
   </div>
@@ -770,6 +778,17 @@ button:disabled{opacity:.4!important;pointer-events:none}
       <button class="btn btn-ghost" onclick="document.getElementById('settingsOverlay').classList.remove('show')">关闭</button>
       <button class="btn btn-primary" id="settingsTestBtn" onclick="testAIKey()">测试连接</button>
       <button class="btn btn-primary" onclick="saveAIKey()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 历史记录面板 ===== -->
+<div class="add-overlay" id="historyOverlay" onclick="document.getElementById('historyOverlay').classList.remove('show')">
+  <div class="add-sheet" onclick="event.stopPropagation()" style="max-height:80vh;overflow-y:auto">
+    <h3>完成记录</h3>
+    <div id="historyList" style="padding:var(--s2) 0"></div>
+    <div class="add-sheet-actions" style="margin-top:var(--s2)">
+      <button class="btn btn-ghost" onclick="document.getElementById('historyOverlay').classList.remove('show')">关闭</button>
     </div>
   </div>
 </div>
@@ -1586,6 +1605,85 @@ function monkeyGreet() {}
 function petMonkey() {
   showToast('🐒 嘻嘻～');
   playCorrect();
+}
+function showHistory() {
+  const list = document.getElementById('historyList');
+  const today = toDateStr(new Date());
+  const yesterday = toDateStr(new Date(Date.now() - 86400000));
+  let html = '';
+  let hasData = false;
+
+  // 收集所有完成记录
+  const records = [];
+  state.tasks.forEach(task => {
+    // 习惯/每日的历史
+    (task.history || []).forEach(h => {
+      const date = toDateStr(new Date(h.date));
+      const time = fmtTime(h.date);
+      const count = h.scoredUp || 0;
+      if (count > 0) {
+        hasData = true;
+        records.push({ date, time, text: task.text, id: task._id + '_' + h.date, taskId: task._id, ts: h.date, label: count + ' 次' });
+      }
+    });
+    // 待办完成
+    if (task.type === 'todo' && task.completed && task.dateCompleted) {
+      hasData = true;
+      records.push({ date: toDateStr(new Date(task.dateCompleted)), time: fmtTime(task.dateCompleted), text: task.text, id: task._id + '_todo', taskId: task._id, ts: new Date(task.dateCompleted).getTime(), label: '✓ 完成' });
+    }
+    // 奖励购买
+    if (task.type === 'reward' && task.completed && task.dateCompleted) {
+      hasData = true;
+      records.push({ date: toDateStr(new Date(task.dateCompleted)), time: fmtTime(task.dateCompleted), text: task.text + ' 🪙', id: task._id + '_reward', taskId: task._id, ts: new Date(task.dateCompleted).getTime(), label: '已购买' });
+    }
+  });
+
+  if (!hasData) {
+    list.innerHTML = '<div style="text-align:center;padding:var(--s8);color:var(--text-tertiary);font-size:14px">还没有完成记录<br><span style="font-size:12px">完成习惯后就会显示在这里</span></div>';
+    document.getElementById('historyOverlay').classList.add('show');
+    return;
+  }
+
+  // 按日期分组，从新到旧
+  records.sort((a, b) => b.ts - a.ts);
+  const groups = {};
+  records.forEach(r => {
+    if (!groups[r.date]) groups[r.date] = [];
+    groups[r.date].push(r);
+  });
+
+  Object.keys(groups).sort().reverse().forEach(date => {
+    const label = date === today ? '今天' : date === yesterday ? '昨天' : date;
+    html += `<div style="font-size:12px;font-weight:700;color:var(--text-tertiary);padding:var(--s2) 0 var(--s1);margin-top:var(--s1)">${label}</div>`;
+    groups[date].forEach(r => {
+      html += `<div class="history-item" data-id="${r.id}" data-taskid="${r.taskId}" data-ts="${r.ts}">
+        <div class="history-body">
+          <span class="history-text">${esc(r.text)}</span>
+          <span class="history-time">${r.time}</span>
+        </div>
+        <span class="history-label">${r.label}</span>
+        <span class="history-del" onclick="event.stopPropagation();deleteHistoryRecord('${r.id}','${r.taskId}',${r.ts})">×</span>
+      </div>`;
+    });
+  });
+
+  list.innerHTML = html;
+  document.getElementById('historyOverlay').classList.add('show');
+}
+function deleteHistoryRecord(recId, taskId, ts) {
+  if (!confirm('删除这条记录？')) return;
+  const task = state.tasks.find(t => t._id === taskId);
+  if (!task) return;
+  if (task.history) {
+    task.history = task.history.filter(h => h.date !== ts);
+  }
+  if (task.type === 'todo' || task.type === 'reward') {
+    task.completed = false;
+    task.dateCompleted = null;
+  }
+  saveState();
+  showHistory(); // 刷新列表
+  showToast('已删除');
 }
 function toggleDoneTodos() { playTap(); _showDoneTodos = !_showDoneTodos; renderTasks(); }
 function updateTodoFooter() {
