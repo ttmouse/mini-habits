@@ -1796,9 +1796,9 @@ function showReport(type) {
 
       <div class="r-section-title">今日亮点</div>
       <div class="r-highlights">
-        <div class="r-highlight"><div class="r-hl-icon" style="background:#e8f5e9">✓</div><div class="r-hl-text"><strong>完成任务</strong>${todayDone} 项</div></div>
-        <div class="r-highlight"><div class="r-hl-icon" style="background:#fff8e1">★</div><div class="r-hl-text"><strong>最佳习惯</strong>${best}</div></div>
-        <div class="r-highlight"><div class="r-hl-icon" style="background:#e3f2fd">⌂</div><div class="r-hl-text"><strong>完成高峰</strong>${now.getHours()}:00</div></div>
+        <div class="r-highlight"><div class="r-hl-icon" style="background:#e8f5e9"><i data-lucide="check-check" style="width:14px;height:14px;color:#4caf50"></i></div><div class="r-hl-text"><strong>完成任务</strong>${todayDone} 项</div></div>
+        <div class="r-highlight"><div class="r-hl-icon" style="background:#fff8e1"><i data-lucide="award" style="width:14px;height:14px;color:#ff9800"></i></div><div class="r-hl-text"><strong>最佳习惯</strong>${best}</div></div>
+        <div class="r-highlight"><div class="r-hl-icon" style="background:#e3f2fd"><i data-lucide="clock" style="width:14px;height:14px;color:#2196f3"></i></div><div class="r-hl-text"><strong>完成高峰</strong>${now.getHours()}:00</div></div>
       </div>
 
       <div class="r-section-title">习惯完成情况</div>
@@ -1816,6 +1816,7 @@ function showReport(type) {
   div.innerHTML = html;
   document.body.appendChild(div);
   document.body.style.overflow = 'hidden';
+  if (typeof lucide !== 'undefined' && lucide.createIcons) { setTimeout(() => lucide.createIcons(), 0); }
 }
 function closeReport() {
   document.querySelectorAll('.report-overlay').forEach(el => el.remove());
