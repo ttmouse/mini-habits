@@ -1116,6 +1116,43 @@ function cardHTML(task, isReward) {
   }
 }
 // ===== 微习惯建议数据 =====
+// ===== AI 配置 =====
+const AI_CONFIG = {
+  base_url: 'https://api.minimax.io/anthropic',
+  api_key: 'sk-cp-J6U3MURJsqkCzbhXb5e93hxXoUPrUfiiCxTVzvWMezu4dZD94xESVhPUyn2XcbXfZcDZcAkHPtbJMPHP7j7aCr-gdNVLjSY6QykFqfFPI0UoVhbD8xs1dw8',
+  model: 'MiniMax-M2.7-highspeed',
+};
+
+function generateAITips(text) {
+  return new Promise((resolve) => {
+    const cached = localStorage.getItem('ai_tips_' + text);
+    if (cached) { try { return resolve(JSON.parse(cached)); } catch(e) {} }
+
+    fetch(AI_CONFIG.base_url + '/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': AI_CONFIG.api_key, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({
+        model: AI_CONFIG.model,
+        max_tokens: 300,
+        system: '你是一个儿童微习惯教练。用户输入一个习惯名称，你需要返回 JSON，包含 times（建议频次）、prompt（具体触发时机，绑定日常生活动作）、action（微小到无法拒绝的动作）、next（进阶目标）。用中文。只输出 JSON，不要其他文字。',
+        messages: [{ role: 'user', content: text }]
+      })
+    })
+    .then(r => r.json())
+    .then(data => {
+      try {
+        const content = data.content?.[0]?.text || data.content?.text || '';
+        const json = JSON.parse(content.match(/\{[\s\S]*\}/)?.[0] || '{}');
+        if (json.times && json.prompt) {
+          localStorage.setItem('ai_tips_' + text, JSON.stringify(json));
+          resolve(json);
+        } else { resolve(null); }
+      } catch(e) { resolve(null); }
+    })
+    .catch(() => resolve(null));
+  });
+}
+
 const HABIT_TIPS = {
   default: { times: '每天 1-2 次', prompt: '建议选一个日常动作：放学回家后 / 洗完澡后 / 吃完饭站起来时 / 坐到书桌前 / 刷完牙后', action: '只做 2 分钟，做完就算成功，不要贪多', next: '坚持一周后逐渐增加' },
   跳绳: { times: '每天 1 次', prompt: '放学换好家居服后', action: '拿出绳子跳 10 个，跳完就去玩', next: '连续跳 100 个不断' },
@@ -1132,11 +1169,63 @@ const HABIT_TIPS = {
   日记: { times: '每天 1 句', prompt: '关灯躺好、闭上眼睛之前', action: '摸到床头的本子写一句话', next: '每天写满 3 句话' },
   垃圾: { times: '每次离开房间', prompt: '站起来要去做别的事、走到门口时', action: '回头扫一眼地面，看到垃圾就捡起来带走', next: '每天主动检查房间垃圾' },
 };
-function getHabitTips(text) {
+function getHabitTips(text, task) {
+  // 优先使用已缓存的 AI 建议
+  if (task && task._aiTips) return task._aiTips;
+  // 先查预定义建议
   for (const [key, tips] of Object.entries(HABIT_TIPS)) {
     if (key !== 'default' && text.includes(key)) return tips;
   }
-  return HABIT_TIPS.default;
+  // 自动生成：根据习惯名字推断结构化建议
+  return generateHabitTips(text);
+}
+function generateHabitTips(text) {
+  const t = text.toLowerCase();
+  // 检测类别
+  const isExercise = /跳|跑|运动|健身|引体|俯卧|深蹲|跳绳|仰卧|拉伸/.test(t);
+  const isStudy = /背|读|书|单词|英语|语文|数学|学习|作业|练字|口算|古诗/.test(t);
+  const isHealth = /水|喝|睡|早起|刷牙|洗脸|护|眼|维生素/.test(t);
+  const isChore = /整理|打扫|拖|擦|洗|垃圾|叠|收|摆/.test(t);
+  const isMind = /日记|冥想|写|画|练/.test(t);
+
+  // 触发时机
+  let prompt;
+  if (isExercise) prompt = '换好运动装备／站起来活动时';
+  else if (isStudy) prompt = '坐到书桌前／合上作业本后';
+  else if (isHealth) prompt = '早上起床后／临睡前';
+  else if (isChore) prompt = '吃完饭站起来时／看到需要整理时';
+  else if (isMind) prompt = '关灯躺好／安静下来时';
+  else prompt = '做完某件固定事后（如刷牙后／放学回家后）';
+
+  // 微小动作 + 建议次数 + 进阶
+  let times, action, next;
+  if (isExercise) {
+    times = '每天 1 次';
+    action = `先做 3 个${text.replace(/[0-9]+/g,'').trim()}，做完就算成功`;
+    next = '逐渐增加数量';
+  } else if (isStudy) {
+    times = '每天 1 次';
+    action = `只做 2 分钟，时间到了就停`;
+    next = '延长到 5 分钟';
+  } else if (isHealth) {
+    times = '每天 1-2 次';
+    action = `做完就停下，不要求标准`;
+    next = '坚持两周后增加频率';
+  } else if (isChore) {
+    times = '每天 1 件';
+    action = `只做 1 分钟，选最简单的开始`;
+    next = '扩大到整个区域';
+  } else if (isMind) {
+    times = '每天 1 次';
+    action = `做 1 分钟就好，多了不贪`;
+    next = '延长到 5 分钟';
+  } else {
+    times = '每天 1-2 次';
+    action = `先做 2 分钟，做完就算成功`;
+    next = '坚持一周后增加时长';
+  }
+
+  return { times, prompt, action, next };
 }
 
 let _hDetailId = null;
@@ -1144,7 +1233,20 @@ function showHabitDetail(id) {
   _hDetailId = id;
   const task = state.tasks.find(t => t._id === id);
   if (!task) return;
-  const tips = getHabitTips(task.text);
+  // 先用已有建议填充
+  let tips = getHabitTips(task.text, task);
+  renderHabitDetail(task, tips);
+  // 异步调用 AI 生成更精确的建议，成功后更新界面
+  generateAITips(task.text).then(aiTips => {
+    if (aiTips && aiTips.times && aiTips.prompt) {
+      tips = aiTips;
+      renderHabitDetail(task, tips);
+      task._aiTips = aiTips;
+      saveState();
+    }
+  });
+}
+function renderHabitDetail(task, tips) {
   document.getElementById('hDetailIcon').innerHTML = `<i data-lucide="${getTaskIcon(task.text)}" style="width:32px;height:32px"></i>`;
   document.getElementById('hDetailTitle').textContent = task.text;
   document.getElementById('hDetailTimes').textContent = tips.times;
