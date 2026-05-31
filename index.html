@@ -447,6 +447,10 @@ button:disabled{opacity:.4!important;pointer-events:none}
 .add-sheet-actions .btn{width:auto;margin-top:0}
 .add-sheet-actions .btn-primary{flex:1}
 .add-sheet-actions .btn-ghost{flex:0 0 auto;padding:var(--s3) var(--s5);border-radius:var(--r-md)}
+.add-sheet-actions-col{flex-direction:column}
+.add-sheet-actions-col .btn{width:100%;margin-top:0}
+.btn-primary-outline{background:transparent;color:var(--primary);border:2px solid var(--primary);padding:var(--s3) var(--s5);border-radius:var(--r-md);font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:all var(--fast)}
+.btn-primary-outline:active{transform:scale(.97)}
 .settings-section{padding:var(--s4) 0}
 .settings-label{font-size:13px;font-weight:700;color:var(--text-secondary);margin-bottom:var(--s2)}
 .settings-status{font-size:12px;color:var(--text-tertiary);margin-top:var(--s1)}
@@ -691,9 +695,10 @@ button:disabled{opacity:.4!important;pointer-events:none}
         <input type="number" id="newPrice" placeholder="金币价格" min="1" value="20">
       </div>
       <div class="ai-loading" id="aiLoading" style="display:none">AI 生成中<span class="ai-dots">...</span></div>
-      <div class="add-sheet-actions">
+      <div class="add-sheet-actions add-sheet-actions-col">
         <button class="btn btn-ghost" onclick="hideAddSheet()">取消</button>
-        <button class="btn btn-primary" id="btnGenerate" onclick="generateAdd()">AI 生成</button>
+        <button class="btn btn-primary-outline" id="btnDirect" onclick="addTask()">直接添加</button>
+        <button class="btn btn-primary" id="btnGenerate" onclick="generateAdd()">AI 生成建议</button>
       </div>
     </div>
     <!-- 步骤2：AI 预览 -->
@@ -1783,7 +1788,8 @@ function showAddSheet() {
   document.getElementById('addSheetTitle').textContent = tabLabels[state.tab] || '新习惯';
   document.getElementById('rewardPriceRow').style.display = isReward ? 'flex' : 'none';
   document.getElementById('newPrice').value = 20;
-  document.getElementById('btnGenerate').textContent = isReward ? '添加' : 'AI 生成';
+  document.getElementById('btnGenerate').style.display = isReward ? 'none' : '';
+  document.getElementById('btnDirect').textContent = isReward ? '添加' : '直接添加';
   document.getElementById('newText').placeholder = isReward ? '奖励名称…' : '输入习惯名称…';
   document.getElementById('addOverlay').classList.add('show');
   document.getElementById('newText').focus();
