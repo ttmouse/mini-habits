@@ -468,22 +468,20 @@ button:disabled{opacity:.4!important;pointer-events:none}
 .hdetail-actions{display:flex;flex-direction:column;gap:var(--s1);margin-top:var(--s3)}
 /* ===== 今日报告 ===== */
 .report-overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:999;background:#faf8f5;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.report-scroll{max-width:420px;margin:0 auto;padding:12px 16px 24px;position:relative}
-.report-close{position:fixed;top:8px;right:12px;width:28px;height:28px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.08);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--text-secondary);cursor:pointer;z-index:10}
-.r-top{text-align:center;padding:8px 0 10px}
+.report-scroll{max-width:420px;margin:0 auto;padding:16px 20px 32px;position:relative}
+.report-close{position:fixed;top:12px;right:16px;width:30px;height:30px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.08);display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--text-secondary);cursor:pointer;z-index:10}
+.r-top{text-align:center;padding:10px 0 12px}
 .r-title{font-size:20px;font-weight:800;color:#1a1a18}
-.r-sub{font-size:11px;color:#8a8680;margin-top:2px}
-.r-score-tag{display:inline-block;background:linear-gradient(135deg,#58CC02,#46a302);color:#fff;font-size:11px;font-weight:700;padding:2px 10px;border-radius:12px;margin-top:4px}
-.r-card{background:#fff;border-radius:12px;padding:10px 12px;box-shadow:0 1px 8px rgba(0,0,0,.05);margin-bottom:8px}
+.r-sub{font-size:12px;color:#8a8680;margin-top:4px}
+.r-score-tag{display:inline-block;background:linear-gradient(135deg,#58CC02,#46a302);color:#fff;font-size:12px;font-weight:700;padding:3px 12px;border-radius:14px;margin-top:6px}
+.r-card{background:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 1px 8px rgba(0,0,0,.05);margin-bottom:10px}
 .r-summary{display:flex;align-items:center;gap:8px}
 .r-summary-left{flex-shrink:0}
 .r-mascot-img{width:48px;height:48px;border-radius:50%;object-fit:cover;background:linear-gradient(135deg,#e8f5e0,#c8e6c9)}
-.r-summary-right{flex:1;min-width:0;position:relative;padding-right:56px}
+.r-summary-right{flex:1;min-width:0}
 .r-summary-label{font-size:11px;color:#8a8680}
 .r-summary-pct{font-size:24px;font-weight:800;color:#1a1a18;line-height:1.2}
 .r-summary-detail{font-size:11px;color:#6d6964}
-.r-ring{position:absolute;right:0;top:50%;transform:translateY(-50%)}
-.r-ring svg{width:48px;height:48px}
 .r-capsules{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
 .r-cap{background:#fff;border-radius:14px;padding:4px 10px;font-size:11px;font-weight:600;color:#3c3c3c;box-shadow:0 1px 4px rgba(0,0,0,.05)}
 .r-section-title{font-size:13px;font-weight:700;color:#1a1a18;margin-bottom:6px}
@@ -494,7 +492,8 @@ button:disabled{opacity:.4!important;pointer-events:none}
 .r-hl-text strong{display:block;font-size:12px;color:#1a1a18}
 .r-record{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f2f0eb}
 .r-record:last-child{border-bottom:none}
-.r-rec-icon{width:24px;height:24px;border-radius:8px;background:#f7f6f3;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.r-rec-icon{width:28px;height:28px;border-radius:8px;background:#f7f6f3;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.r-rec-icon svg{width:16px;height:16px;color:var(--text-secondary)}
 .r-rec-body{flex:1;min-width:0}
 .r-rec-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
 .r-rec-text{font-size:12px;font-weight:600;color:#1a1a18}
@@ -1781,14 +1780,14 @@ function showReport(type) {
     if (c > 0) streak++; else break;
   }
 
-  const iconColors = ['#e8f5e0','#fff8e1','#e3f2fd','#fce4ec','#f3e5f5'];
   const maxCount = Math.max(_maxCount, 1);
   const recordsHtml = habitRecords.slice(0, 5).map((r, idx) => {
     const pct = Math.round((r.done / maxCount) * 100);
     const badge = r.badge ? `<span class="r-badge">${r.badge}</span>` : '';
-    const firstChar = r.text.replace(/[0-9-]/g,'').trim()[0] || '·';
+    const lucideName = getTaskIcon(r.text);
+    r._icon = lucideName;
     return `<div class="r-record">
-      <div class="r-rec-icon" style="background:${iconColors[idx%5]}">${firstChar}</div>
+      <div class="r-rec-icon"><i data-lucide="${lucideName}" style="width:14px;height:14px"></i></div>
       <div class="r-rec-body">
         <div class="r-rec-top"><span class="r-rec-text">${r.text}</span><span class="r-rec-num">${r.done} 次</span></div>
         <div class="r-rec-bar-bg"><div class="r-rec-bar-fill" style="width:${pct}%"></div></div>
@@ -1820,7 +1819,6 @@ function showReport(type) {
           <div class="r-summary-label">今日完成率</div>
           <div class="r-summary-pct">${rate}%</div>
           <div class="r-summary-detail">完成 ${todayDone} / ${Math.max(todayDone, 10)} 项</div>
-          <div class="r-ring"><svg viewBox="0 0 80 80" width="64" height="64"><circle cx="40" cy="40" r="34" fill="none" stroke="var(--n150)" stroke-width="6"/><circle cx="40" cy="40" r="34" fill="none" stroke="var(--primary)" stroke-width="6" stroke-dasharray="${2*Math.PI*34}" stroke-dashoffset="${2*Math.PI*34*(1-rate/100)}" transform="rotate(-90 40 40)" stroke-linecap="round"/><text x="40" y="42" text-anchor="middle" font-size="16" font-weight="700" fill="var(--primary)">★</text></svg></div>
         </div>
       </div>
 
