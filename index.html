@@ -161,9 +161,7 @@ button:disabled{opacity:.4!important;pointer-events:none}
 .merged-avatar img{width:100%;height:100%;display:block;object-fit:contain}
 .merged-body{flex:1;min-width:0}
 .merged-top{display:flex;align-items:center;margin-bottom:var(--s1)}
-.card-footer{display:flex;justify-content:flex-end;margin-top:var(--s1)}
-.card-history{font-size:11px;color:var(--text-tertiary);display:flex;align-items:center;gap:3px;cursor:pointer;padding:2px 6px;border-radius:6px;transition:all var(--fast)}
-.card-history:hover{color:var(--primary);background:#f0f8e8}
+
 
 .lvl-badge{
   font-size:12px;font-weight:700;color:var(--text-secondary);
@@ -274,14 +272,14 @@ button:disabled{opacity:.4!important;pointer-events:none}
 .todo-footer-btn{font-size:12px;color:var(--text-tertiary);cursor:pointer;padding:var(--s1) var(--s3);border-radius:var(--r-md);transition:all var(--fast)}
 .todo-footer-btn:hover{color:var(--primary);background:#f0f8e8}
 .todo-time{font-size:11px;color:var(--text-tertiary);margin-top:2px;display:block}
-.history-item{display:flex;align-items:center;gap:var(--s2);padding:var(--s2) var(--s1);border-bottom:1px solid var(--n100);font-size:14px}
-.history-item:last-child{border-bottom:none}
+.history-item{padding:var(--s3) var(--s4);display:flex;align-items:center;gap:var(--s2)}
 .history-body{flex:1;min-width:0;display:flex;flex-direction:column}
 .history-text{font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .history-time{font-size:11px;color:var(--text-tertiary);margin-top:1px}
 .history-label{font-size:12px;color:var(--text-secondary);flex-shrink:0}
 .history-del{font-size:16px;color:var(--n250);cursor:pointer;padding:var(--s1);border-radius:var(--r-full);line-height:1;transition:all var(--fast);flex-shrink:0}
 .history-del:hover{color:var(--red);background:rgba(255,75,75,.08)}
+.history-date-label{padding:var(--s2) var(--s1) var(--s1);font-size:12px;font-weight:700;color:var(--text-tertiary)}
 
 
 /* ===== TASK CARD ===== */
@@ -666,9 +664,7 @@ button:disabled{opacity:.4!important;pointer-events:none}
           <div class="exp-bar-fill" id="expBarFill"></div>
         </div>
       </div>
-      <div class="card-footer">
-        <span class="card-history" onclick="event.stopPropagation();showHistory()"><i data-lucide="calendar" style="width:12px;height:12px"></i> 记录</span>
-      </div>
+
     </div>
   </div>
 
@@ -676,12 +672,14 @@ button:disabled{opacity:.4!important;pointer-events:none}
   <div class="tabs">
     <button class="tab active" data-tab="habits" onclick="switchTab('habits')">习惯 <span class="badge" id="dailyBadge">0</span></button>
     <button class="tab" data-tab="todos" onclick="switchTab('todos')">待办</button>
+    <button class="tab" data-tab="history" onclick="switchTab('history');showHistory()">记录</button>
     <button class="tab" data-tab="rewards" onclick="switchTab('rewards')">商店</button>
   </div>
 
   <!-- ===== TASK LISTS ===== -->
   <div id="habitsList" class="task-list"></div>
   <div id="todosList" class="task-list hidden"></div>
+  <div id="historyListTab" class="task-list hidden"></div>
   <div id="rewardsList" class="task-list hidden"></div>
 
   <!-- ===== ADD BUTTON ===== -->
@@ -783,16 +781,7 @@ button:disabled{opacity:.4!important;pointer-events:none}
   </div>
 </div>
 
-<!-- ===== 历史记录面板 ===== -->
-<div class="add-overlay" id="historyOverlay" onclick="document.body.style.overflow='';document.getElementById('historyOverlay').classList.remove('show')">
-  <div class="add-sheet" onclick="event.stopPropagation()" style="max-height:80vh;overflow-y:auto">
-    <h3>完成记录</h3>
-    <div id="historyList" style="padding:var(--s2) 0"></div>
-    <div class="add-sheet-actions" style="margin-top:var(--s2)">
-      <button class="btn btn-ghost" onclick="document.body.style.overflow='';document.getElementById('historyOverlay').classList.remove('show')">关闭</button>
-    </div>
-  </div>
-</div>
+
 
 <!-- ===== 删除确认弹窗 ===== -->
 <div class="modal-overlay" id="delConfirmOverlay">
@@ -1151,12 +1140,13 @@ function getTaskIcon(text) {
 
 function renderTasks() {
   const tab = state.tab;
-  const map = { habits: 'habitsList', todos: 'todosList', rewards: 'rewardsList' };
+  const map = { habits: 'habitsList', todos: 'todosList', history: 'historyListTab', rewards: 'rewardsList' };
   for (const [k, id] of Object.entries(map)) {
     const el = document.getElementById(id);
     const tasks = state.tasks.filter(t => {
       if (k === 'habits') return t.type === 'habit' || t.type === 'daily';
       if (k === 'todos') return t.type === 'todo';
+      if (k === 'history') return false; /* 记录 tab 不走常规渲染 */
       if (k === 'rewards') return t.type === 'reward';
       return false;
     });
@@ -1405,7 +1395,7 @@ function switchTab(tab) {
   playTap();
   state.tab = tab;
   document.querySelectorAll('.tab').forEach(el => el.classList.toggle('active', el.dataset.tab === tab));
-  ['habitsList', 'todosList', 'rewardsList'].forEach(id => document.getElementById(id).classList.toggle('hidden', id.replace('List', '') !== tab));
+  ['habitsList', 'todosList', 'historyListTab', 'rewardsList'].forEach(id => document.getElementById(id).classList.toggle('hidden', id.replace('List', '') !== tab));
   renderTasks();
   // 更新 URL hash
   if (history.replaceState) {
@@ -1624,7 +1614,8 @@ function petMonkey() {
   playCorrect();
 }
 function showHistory() {
-  const list = document.getElementById('historyList');
+  const list = document.getElementById('historyListTab');
+  list.classList.remove('hidden');
   const today = toDateStr(new Date());
   const yesterday = toDateStr(new Date(Date.now() - 86400000));
   let html = '';
@@ -1657,8 +1648,6 @@ function showHistory() {
 
   if (!hasData) {
     list.innerHTML = '<div style="text-align:center;padding:var(--s8);color:var(--text-tertiary);font-size:14px">还没有完成记录<br><span style="font-size:12px">完成习惯后就会显示在这里</span></div>';
-    document.body.style.overflow = 'hidden';
-    document.getElementById('historyOverlay').classList.add('show');
     return;
   }
 
@@ -1672,9 +1661,9 @@ function showHistory() {
 
   Object.keys(groups).sort().reverse().forEach(date => {
     const label = date === today ? '今天' : date === yesterday ? '昨天' : date;
-    html += `<div style="font-size:12px;font-weight:700;color:var(--text-tertiary);padding:var(--s2) 0 var(--s1);margin-top:var(--s1)">${label}</div>`;
+    html += `<div class="history-date-label">${label}</div>`;
     groups[date].forEach(r => {
-      html += `<div class="history-item" data-id="${r.id}" data-taskid="${r.taskId}" data-ts="${r.ts}">
+      html += `<div class="task-card history-item" data-id="${r.id}" data-taskid="${r.taskId}" data-ts="${r.ts}">
         <div class="history-body">
           <span class="history-text">${esc(r.text)}</span>
           <span class="history-time">${new Date(r.ts).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}</span>
@@ -1686,8 +1675,6 @@ function showHistory() {
   });
 
   list.innerHTML = html;
-  document.body.style.overflow = 'hidden';
-  document.getElementById('historyOverlay').classList.add('show');
 }
 function deleteHistoryRecord(recId, taskId, ts) {
   if (!confirm('删除这条记录？')) return;
@@ -1943,13 +1930,14 @@ console.log('朱古力豆 · Lucide 图标系统');
 // ===== URL 路由（hash-based） =====
 window.addEventListener('hashchange', () => {
   const tab = location.hash.replace('#', '') || 'habits';
-  if (['habits','todos','rewards'].includes(tab)) switchTab(tab);
+  if (['habits','todos','history','rewards'].includes(tab)) { switchTab(tab); if (tab === 'history') showHistory(); }
 });
 
 // 初始加载时读取 hash
 const initTab = location.hash.replace('#', '') || 'habits';
-if (['habits','todos','rewards'].includes(initTab) && initTab !== state.tab) {
+if (['habits','todos','history','rewards'].includes(initTab) && initTab !== state.tab) {
   switchTab(initTab);
+  if (initTab === 'history') showHistory();
 }
 </script>
 </body>
