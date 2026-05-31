@@ -1650,14 +1650,14 @@ const MONKEY_LIST = [
 let _monkeyIdx = 0;
 function monkeyTalk() {
   const name = loadNickname();
-  const tag = name ? name + '！' : '';
+  const prefix = name ? name + ' ' : '';
   const msgs = [
-    '🐒 嘻嘻～', `🐒 ${tag}加油！`, '🐒 继续努力！', `🐒 ${tag}好棒！`,
-    '🐒 今天也很精神呢！', '🐒 坚持就是胜利！', '🐒 不错不错！',
-    '🐒 再做一个吧！', '🐒 习惯养成中～', '🐒 又进步了！',
-    '🐒 好习惯越来越多了！', `🐒 ${tag}今天也要加油哦！`,
+    `${prefix}嘻嘻～`, `${prefix}加油！`, `${prefix}继续努力！`, `${prefix}好棒！`,
+    `${prefix}今天也很精神呢！`, `${prefix}坚持就是胜利！`, `${prefix}不错不错！`,
+    `${prefix}再做一个吧！`, `${prefix}习惯养成中～`, `${prefix}又进步了！`,
+    `${prefix}好习惯越来越多了！`, `${prefix}今天也要加油哦！`,
   ];
-  return msgs[Math.floor(Math.random() * msgs.length)];
+  return '🐒 ' + msgs[Math.floor(Math.random() * msgs.length)];
 }
 function showMilestoneTip() {
   const today = toDateStr(new Date());
