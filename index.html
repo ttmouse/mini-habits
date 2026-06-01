@@ -145,7 +145,9 @@ button:disabled{opacity:.4!important;pointer-events:none}
 }
 
 /* ===== App Container ===== */
-.app{max-width:480px;margin:0 auto;padding:0 var(--s4) 100px}
+.app{max-width:480px;margin:0 auto;padding:0 var(--s4);display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+.task-lists-scroll{flex:1;overflow-y:auto;padding-bottom:100px;-webkit-overflow-scrolling:touch}
+.task-lists-scroll .task-list{padding-bottom:0}
 
 
 
@@ -264,6 +266,7 @@ button:disabled{opacity:.4!important;pointer-events:none}
 .history-text{font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .history-time{font-size:11px;color:var(--text-tertiary);margin-top:1px}
 .history-label{font-size:12px;color:var(--text-secondary);flex-shrink:0}
+.history-icon{width:24px;height:24px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text-tertiary)}
 .history-del{font-size:16px;color:var(--n250);cursor:pointer;padding:var(--s1);border-radius:var(--r-full);line-height:1;transition:all var(--fast);flex-shrink:0}
 .history-del:hover{color:var(--red);background:rgba(255,75,75,.08)}
 .history-date-label{padding:var(--s2) var(--s1) var(--s1);font-size:12px;font-weight:700;color:var(--text-tertiary)}
@@ -320,9 +323,13 @@ button:disabled{opacity:.4!important;pointer-events:none}
 
 /* Task type icon */
 .task-type-icon{
-  font-size:28px;line-height:1;flex-shrink:0;
-  width:32px;text-align:center;
+  width:52px;height:52px;display:flex;
+  align-items:center;justify-content:center;
+  flex-shrink:0;
+  background:var(--n100);border-radius:var(--r-md);
+  color:var(--text-secondary);
 }
+.icon-task-type{width:26px;height:26px}
 
 .task-body{flex:1;min-width:0}
 .task-text{font-size:16px;font-weight:700;line-height:1.3;color:var(--text)}
@@ -374,6 +381,120 @@ button:disabled{opacity:.4!important;pointer-events:none}
 }
 .task-card.pop{
   animation:cardPop .35s var(--ease-spring);
+}
+
+/* ===== TODO TIMER ===== */
+.task-timer{
+  display:flex;align-items:center;gap:var(--s1);
+  margin-left:auto;flex-shrink:0;
+}
+.task-timer-btn{
+  display:flex;align-items:center;gap:4px;
+  padding:4px 10px;border-radius:20px;
+  font-size:12px;font-weight:700;
+  border:none;cursor:pointer;
+  transition:all var(--fast) var(--ease-spring);
+  white-space:nowrap;
+}
+.task-timer-btn-start{
+  background:#e8f5e9;color:var(--primary);
+}
+.task-timer-btn-start:hover{
+  background:var(--primary);color:#fff;
+  box-shadow:0 2px 8px var(--primary-shadow);
+}
+.task-timer-btn-stop{
+  background:#fff3e0;color:var(--orange-dark);
+}
+.task-timer-btn-stop:hover{
+  background:var(--orange-dark);color:#fff;
+  box-shadow:0 2px 8px rgba(255,150,0,.4);
+}
+.task-timer-elapsed{
+  font-size:12px;font-weight:700;
+  color:var(--orange-dark);
+  font-variant-numeric:tabular-nums;
+  min-width:48px;text-align:center;
+}
+.task-timer-summary{
+  font-size:11px;color:var(--text-tertiary);
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+}
+/* Running card glow */
+.task-card.running{
+  border-color:var(--orange);
+  box-shadow:0 0 0 1px rgba(255,150,0,.15), 0 4px 12px rgba(255,150,0,.08);
+  animation:runningPulse 2s ease-in-out infinite;
+}
+@keyframes runningPulse{
+  0%,100%{box-shadow:0 0 0 1px rgba(255,150,0,.15),0 4px 12px rgba(255,150,0,.08)}
+  50%{box-shadow:0 0 0 3px rgba(255,150,0,.08),0 4px 16px rgba(255,150,0,.18)}
+}
+
+/* ===== FOCUS OVERLAY ===== */
+.focus-overlay{
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  z-index:400;display:none;
+  align-items:center;justify-content:center;
+  background:var(--overlay-light);
+  backdrop-filter:blur(8px);
+}
+.focus-overlay.show{display:flex}
+.focus-content{
+  text-align:center;padding:var(--s10) var(--s8);
+  max-width:380px;width:88%;
+  background:var(--surface);
+  border-radius:var(--r-2xl);
+  box-shadow:var(--shadow-xl);
+  animation:focusPop .4s var(--ease-spring);
+}
+@keyframes focusPop{
+  from{opacity:0;transform:scale(.85) translateY(20px)}
+  to{opacity:1;transform:scale(1) translateY(0)}
+}
+.focus-mascot{margin-bottom:var(--s4)}
+.focus-mascot img{
+  width:80px;height:80px;object-fit:contain;
+  animation:focusBounce 3s ease-in-out infinite;
+}
+@keyframes focusBounce{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-8px)}
+}
+.focus-task-label{
+  font-size:12px;font-weight:700;color:var(--text-tertiary);
+  letter-spacing:1px;margin-bottom:var(--s1);
+}
+.focus-task-name{
+  font-size:24px;font-weight:800;color:var(--text);
+  margin-bottom:var(--s6);line-height:1.3;
+}
+.focus-timer{
+  font-size:64px;font-weight:800;color:var(--primary);
+  font-variant-numeric:tabular-nums;
+  letter-spacing:1px;
+  margin-bottom:var(--s8);
+}
+.focus-stop-btn{
+  display:inline-flex;align-items:center;gap:var(--s2);
+  padding:var(--s3) var(--s8);border-radius:50px;
+  font-size:16px;font-weight:700;
+  background:var(--orange);color:#fff;
+  border:none;cursor:pointer;
+  transition:all var(--std) var(--ease-spring);
+  box-shadow:var(--shadow-md);
+}
+.focus-stop-btn:hover{
+  transform:scale(1.05);
+  box-shadow:var(--shadow-lg);
+}
+.focus-stop-btn:active{
+  transform:scale(.95);
+}
+.focus-hint{
+  margin-top:var(--s6);
+  font-size:12px;color:var(--text-tertiary);
 }
 
 /* ===== REWARD SHOP ===== */
@@ -467,7 +588,9 @@ button:disabled{opacity:.4!important;pointer-events:none}
 .ai-preview-row{display:flex;gap:var(--s2);padding:var(--s2) 0;border-bottom:1px solid var(--n100)}
 .ai-preview-label{font-size:12px;font-weight:700;color:var(--text-tertiary);width:64px;flex-shrink:0}
 .ai-preview-row:last-child{border-bottom:none}
-.hdetail-actions{display:flex;flex-direction:column;gap:var(--s1);margin-top:var(--s3)}
+.hdetail-actions{display:flex;flex-direction:column;align-items:center;gap:var(--s1);margin-top:var(--s3)}
+.hdetail-del-link{font-size:12px;color:var(--text-tertiary);cursor:pointer;padding:var(--s2);transition:color var(--fast)}
+.hdetail-del-link:hover{color:var(--red)}
 /* ===== 今日报告 ===== */
 .report-overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:999;background:#faf8f5;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .report-scroll{max-width:420px;margin:0 auto;padding:32px 20px 32px;position:relative}
@@ -536,7 +659,7 @@ button:disabled{opacity:.4!important;pointer-events:none}
   position:fixed;top:0;left:0;right:0;bottom:0;
   background:var(--overlay);
   backdrop-filter:blur(4px);
-  z-index:300;display:none;
+  z-index:500;display:none;
   align-items:center;justify-content:center;
 }
 .modal-overlay.show{display:flex}
@@ -606,6 +729,58 @@ button:disabled{opacity:.4!important;pointer-events:none}
 .empty-state p{font-size:14px;color:var(--text-tertiary);line-height:1.5}
 
 /* ===== 习惯详情面板 ===== */
+/* 7-day history bar */
+.hweek-bar{display:flex;gap:4px;justify-content:center;padding:var(--s2) 0}
+.hweek-item{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:var(--s2) 0;border-radius:var(--r-md);
+  flex:1;cursor:default;transition:all var(--fast) var(--ease-spring);
+  background:transparent;
+}
+.hweek-item.hweek-active{
+  background:var(--primary);box-shadow:0 2px 8px var(--primary-shadow);
+}
+.hweek-item.hweek-active .hweek-day{color:rgba(255,255,255,.7)}
+.hweek-item.hweek-active .hweek-num{color:#fff}
+.hweek-item.hweek-clickable{cursor:pointer}
+.hweek-item.hweek-clickable:not(.hweek-active):hover{background:var(--n100)}
+.hweek-day{font-size:10px;font-weight:600;color:var(--text-tertiary);line-height:1}
+.hweek-num{font-size:18px;font-weight:800;color:var(--text);line-height:1.2;transition:transform var(--fast)}
+.hweek-zero{color:var(--n250)}
+
+/* Day detail panel */
+.hday-detail{
+  padding:var(--s2) 0 0;
+  animation:fadeSlideIn .2s ease-out;
+}
+@keyframes fadeSlideIn{
+  from{opacity:0;transform:translateY(-6px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.hday-detail-header{
+  font-size:11px;font-weight:700;color:var(--text-tertiary);
+  padding:var(--s1) var(--s2);margin-bottom:0;
+  background:var(--n100);border-radius:var(--r-sm) var(--r-sm) 0 0;
+}
+.hday-record{
+  display:flex;align-items:center;gap:var(--s2);
+  padding:var(--s2) var(--s3);font-size:13px;
+  margin:0 0 2px 0;
+  background:var(--surface);
+  border-radius:var(--r-sm);
+  box-shadow:0 1px 2px rgba(0,0,0,.04);
+}
+.hday-rec-time{font-size:12px;color:var(--text-secondary);min-width:52px}
+.hday-rec-label{
+  font-size:12px;font-weight:700;color:var(--primary-dark);
+  margin-left:auto;
+}
+.hday-rec-del{
+  font-size:15px;color:var(--n250);cursor:pointer;
+  padding:2px 6px;line-height:1;border-radius:var(--r-full);
+  transition:all var(--fast);margin-left:auto;
+}
+.hday-rec-del:hover{color:var(--red);background:rgba(255,75,75,.08)}
 .hdetail-sheet{
   background:var(--surface);
   border-radius:var(--r-xl) var(--r-xl) 0 0;
@@ -620,6 +795,8 @@ button:disabled{opacity:.4!important;pointer-events:none}
 .hdetail-head{display:flex;align-items:center;gap:var(--s3);margin-bottom:var(--s2)}
 .hdetail-del{margin-left:auto;color:var(--n250);cursor:pointer;padding:var(--s1);border-radius:var(--r-full);transition:all var(--fast);display:flex;align-items:center}
 .hdetail-del:hover{color:var(--red);background:rgba(255,75,75,.08)}
+.hdetail-close{margin-left:auto;color:var(--n250);cursor:pointer;padding:var(--s1);border-radius:var(--r-full);transition:all var(--fast);display:flex;align-items:center}
+.hdetail-close:hover{color:var(--text-secondary);background:var(--n100)}
 .hdetail-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center}
 .hdetail-icon i{width:32px;height:32px;color:var(--primary)}
 .hdetail-title{font-size:20px;font-weight:800;color:var(--text)}
@@ -628,11 +805,7 @@ button:disabled{opacity:.4!important;pointer-events:none}
 .hdetail-stat-num{font-size:18px;font-weight:800;color:var(--text);margin-right:2px}
 .hdetail-stat-dot{width:3px;height:3px;border-radius:50%;background:var(--n200)}
 .hdetail-history{margin-bottom:var(--s2)}
-.hweek-row{display:flex;justify-content:space-around;padding:var(--s2) 0}
-.hweek-item{display:flex;flex-direction:column;align-items:center;gap:2px}
-.hweek-day{font-size:11px;color:var(--text-tertiary)}
-.hweek-num{font-size:16px;font-weight:800;color:var(--text)}
-.hweek-zero{color:var(--n250)}
+.hweek-row{display:flex;gap:4px;justify-content:center;padding:var(--s2) 0}
 
 .hdetail-count{font-size:13px;color:var(--text-secondary);margin-bottom:var(--s4);margin-left:4px}
 .hdetail-section{
@@ -647,6 +820,27 @@ button:disabled{opacity:.4!important;pointer-events:none}
 .hdetail-tip{color:var(--primary-dark);font-weight:600;line-height:1.7;font-size:13px}
 .hdetail-prompt{font-size:15px;font-weight:700;color:var(--primary-dark)}
 .hdetail-action{font-size:14px;font-weight:600;color:var(--text);line-height:1.5}
+
+/* Todo detail title input */
+.td-title-input{
+  font-size:20px;font-weight:800;color:var(--text);
+  background:transparent;border:none;outline:none;
+  flex:1;min-width:0;font-family:inherit;
+  border-bottom:2px solid transparent;
+  transition:border-color var(--fast);
+  padding:var(--s1) 0;
+}
+.td-title-input:focus{border-color:var(--primary)}
+
+/* Todo detail extras */
+.td-sessions{width:100%}
+.td-session-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:var(--s1) 0;border-bottom:1px solid var(--n100);
+  font-size:13px;
+}
+.td-session-time{color:var(--text-tertiary)}
+.td-session-dur{font-weight:700;color:var(--orange-dark)}
 
 /* ===== RESPONSIVE ===== */
 @media(max-width:400px){
@@ -734,10 +928,12 @@ button:disabled{opacity:.4!important;pointer-events:none}
   </div>
 
   <!-- ===== TASK LISTS ===== -->
-  <div id="habitsList" class="task-list"></div>
-  <div id="todosList" class="task-list hidden"></div>
-  <div id="historyListTab" class="task-list hidden"></div>
-  <div id="rewardsList" class="task-list hidden"></div>
+  <div class="task-lists-scroll">
+    <div id="habitsList" class="task-list"></div>
+    <div id="todosList" class="task-list hidden"></div>
+    <div id="historyListTab" class="task-list hidden"></div>
+    <div id="rewardsList" class="task-list hidden"></div>
+  </div>
 
   <!-- ===== ADD BUTTON ===== -->
   <div class="add-btn-wrap">
@@ -785,7 +981,7 @@ button:disabled{opacity:.4!important;pointer-events:none}
     <div class="hdetail-head">
       <span class="hdetail-icon" id="hDetailIcon"></span>
       <span class="hdetail-title" id="hDetailTitle">习惯</span>
-      <span class="hdetail-del" id="hDetailDel" onclick="event.stopPropagation();confirmDeleteDetail()"><i data-lucide="trash-2" style="width:16px;height:16px"></i></span>
+      <span class="hdetail-close" onclick="event.stopPropagation();document.getElementById('habitDetail').classList.remove('show')"><i data-lucide="x" style="width:18px;height:18px"></i></span>
     </div>
     <div class="hdetail-stats" id="hDetailStats"></div>
     <div class="hdetail-history" id="hDetailHistory"></div>
@@ -806,7 +1002,29 @@ button:disabled{opacity:.4!important;pointer-events:none}
       <div class="hdetail-val" id="hDetailNext"></div>
     </div>
     <div class="hdetail-actions">
-      <button class="btn btn-primary" onclick="document.getElementById('habitDetail').classList.remove('show')">知道了！</button>
+      <span class="hdetail-del-link" onclick="event.stopPropagation();confirmDeleteDetail()">删除习惯</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TODO 详情面板 ===== -->
+<div class="add-overlay" id="todoDetail" onclick="document.getElementById('todoDetail').classList.remove('show')">
+  <div class="hdetail-sheet" onclick="event.stopPropagation()">
+    <div class="hdetail-handle"></div>
+    <div class="hdetail-head">
+      <span class="hdetail-icon" id="tdIcon"></span>
+      <input class="td-title-input" id="tdTitle" value="待办" oninput="saveTodoTitle()">
+      <span class="hdetail-close" onclick="event.stopPropagation();document.getElementById('todoDetail').classList.remove('show')"><i data-lucide="x" style="width:18px;height:18px"></i></span>
+    </div>
+    <div class="hdetail-stats" id="tdStats"></div>
+    <div class="hdetail-section" style="flex-direction:column;gap:var(--s2);padding-bottom:0">
+      <div class="hdetail-label" style="width:auto">今日计时记录</div>
+      <div class="td-sessions" id="tdSessions">
+        <span style="color:var(--text-tertiary);font-size:13px">暂无记录</span>
+      </div>
+    </div>
+    <div class="hdetail-actions">
+      <span class="hdetail-del-link" onclick="event.stopPropagation();confirmTodoDelete()">删除待办</span>
     </div>
   </div>
 </div>
@@ -848,10 +1066,37 @@ button:disabled{opacity:.4!important;pointer-events:none}
 <div class="modal-overlay" id="delConfirmOverlay">
   <div class="modal del-confirm-modal">
     <span class="del-confirm-icon"><i data-lucide="alert-triangle" style="width:48px;height:48px;color:var(--red)"></i></span>
-    <h2 style="font-size:18px;margin-bottom:var(--s1)">删除这个习惯？</h2>
-    <p style="font-size:13px;color:var(--text-tertiary);margin-bottom:var(--s5)">删除后数据将丢失，无法恢复</p>
+    <h2 id="delConfirmTitle" style="font-size:18px;margin-bottom:var(--s1)">删除这个习惯？</h2>
+    <p id="delConfirmDesc" style="font-size:13px;color:var(--text-tertiary);margin-bottom:var(--s5)">删除后数据将丢失，无法恢复</p>
     <button class="btn btn-gold del-confirm-btn" onclick="doConfirmDelete()" style="background:var(--red);box-shadow:0 4px 20px rgba(255,75,75,.4)">确定删除</button>
     <button class="btn btn-ghost" onclick="cancelDeleteDetail()" style="margin-top:var(--s1)">取消</button>
+  </div>
+</div>
+
+<!-- ===== 计时完成确认弹窗 ===== -->
+<div class="modal-overlay" id="timerConfirmOverlay">
+  <div class="modal del-confirm-modal">
+    <span class="del-confirm-icon"><i data-lucide="clock" style="width:48px;height:48px;color:var(--orange)"></i></span>
+    <h2 style="font-size:18px;margin-bottom:var(--s1)" id="timerConfirmTitle">暂停计时</h2>
+    <p style="font-size:13px;color:var(--text-tertiary);margin-bottom:var(--s5)" id="timerConfirmDesc">做完了吗？</p>
+    <button class="btn btn-gold del-confirm-btn" onclick="confirmTimerDone()" style="background:var(--primary);box-shadow:0 4px 20px var(--primary-shadow)">做完了 ✓</button>
+    <button class="btn btn-ghost" onclick="cancelTimerDone()" style="margin-top:var(--s1)">还没做完</button>
+  </div>
+</div>
+
+<!-- ===== FOCUS OVERLAY ===== -->
+<div class="focus-overlay" id="focusOverlay">
+  <div class="focus-content">
+    <div class="focus-mascot">
+      <img src="sprites/houzi02.png" alt="猴子">
+    </div>
+    <div class="focus-task-label"><i data-lucide="sparkles" style="width:12px;height:12px"></i> 当前专注</div>
+    <div class="focus-task-name" id="focusTaskName">—</div>
+    <div class="focus-timer" id="focusTimer">0:00:00</div>
+    <button class="focus-stop-btn" id="focusStopBtn" onclick="focusStop()">
+      <i data-lucide="square" style="width:18px;height:18px"></i> 结束专注
+    </button>
+    <div class="focus-hint">保持专注，一次只做一件事</div>
   </div>
 </div>
 
@@ -903,7 +1148,7 @@ function taskDef(b) {
   const t = { _id: gid(), type: b.type || 'habit', text: b.text || '新任务', notes: '', value: b.value ?? 0, priority: b.priority || 'easy', createdAt: new Date() };
   if (t.type === 'habit') { t.up = true; t.down = true; t.counterUp = 0; t.counterDown = 0; t.history = []; }
   if (t.type === 'daily') { t.completed = false; t.streak = 0; t.frequency = 'weekly'; t.repeat = { m: true, t: true, w: true, th: true, f: true, s: true, su: true }; t.startDate = new Date(); t.history = []; }
-  if (t.type === 'todo') { t.completed = false; t.dateCompleted = null; t.checklist = []; }
+  if (t.type === 'todo') { t.completed = false; t.dateCompleted = null; t.checklist = []; t.timeTracking = { sessions: [], runningSession: null }; }
   if (t.type === 'reward') { t.value = b.value ?? 20; }
   return t;
 }
@@ -1108,6 +1353,12 @@ function loadState() {
       state.tasks = JSON.parse(t);
       // 迁移：将旧的每日类型转为习惯
       state.tasks.forEach(task => { if (task.type === 'daily') task.type = 'habit'; });
+      // 迁移：为旧 todo 补充 timeTracking 字段
+      state.tasks.forEach(task => {
+        if (task.type === 'todo' && !task.timeTracking) {
+          task.timeTracking = { sessions: [], runningSession: null };
+        }
+      });
     }
     if (m) {
       const meta = JSON.parse(m);
@@ -1261,6 +1512,7 @@ function renderTasks() {
       if (k === 'rewards') return t.type === 'reward';
       return false;
     });
+    if (k === 'history') continue; /* 记录 tab 由 showHistory() 单独渲染 */
     if (tasks.length === 0) {
       const emptyIcons = { habits: 'refresh-cw', dailies: 'calendar', todos: 'clipboard-list', rewards: 'gift' };
       el.innerHTML = `<div class="empty-state"><div class="icon"><i data-lucide="${emptyIcons[k] || 'sparkles'}" class="icon-empty"></i></div><p>还没有任务，点 + 添加吧！</p></div>`;
@@ -1430,19 +1682,164 @@ function renderHabitDetail(task, tips) {
     <span class="hdetail-stat-dot"></span>
     <span class="hdetail-stat"><span class="hdetail-stat-num">${totalCount}</span> 累计</span>
   `;
-  // 近 7 天历史（始终显示，无数据时全为 0）
+  // 近 7 天历史（可点击查看详情并删除）
   const dayNames = ['日','一','二','三','四','五','六'];
+  const todayStr = toDateStr(new Date());
   const parts = [];
   for (let i = 6; i >= 0; i--) {
     const d = new Date(Date.now() - i * 86400000);
     const ds = toDateStr(d);
     const dayCount = history.filter(h => toDateStr(new Date(h.date)) === ds).reduce((s, h) => s + (h.scoredUp || 0), 0);
-    parts.push(`<span class="hweek-item"><span class="hweek-day">${dayNames[d.getDay()]}</span><span class="hweek-num ${dayCount > 0 ? '' : 'hweek-zero'}">${dayCount}</span></span>`);
+    const isToday = ds === todayStr;
+    const hasData = dayCount > 0;
+    parts.push(`<span class="hweek-item ${isToday ? 'hweek-active' : ''} ${hasData ? 'hweek-clickable' : ''}" onclick="${hasData ? `showDayRecords('${task._id}','${ds}')` : ''}">
+      <span class="hweek-day">${dayNames[d.getDay()]}</span>
+      <span class="hweek-num ${hasData ? '' : 'hweek-zero'}">${dayCount}</span>
+    </span>`);
   }
-  document.getElementById('hDetailHistory').innerHTML = `<div class="hweek-row">${parts.join('')}</div>`;
+  const detailId = `hDayDetail-${task._id.replace(/[^a-zA-Z0-9]/g,'')}`;
+  document.getElementById('hDetailHistory').innerHTML = `<div class="hweek-row">${parts.join('')}</div><div id="${detailId}" class="hday-detail"></div>`;
   if(typeof lucide!=="undefined"&&lucide.createIcons)lucide.createIcons();
   document.getElementById('habitDetail').classList.add('show');
   playPop();
+  // 默认展开今天
+  if (todayCount > 0) setTimeout(() => showDayRecords(task._id, todayStr), 150);
+}
+
+let _activeDayDetail = null;
+
+function showDayRecords(taskId, dateStr) {
+  const task = state.tasks.find(t => t._id === taskId);
+  if (!task) return;
+  const detailId = `hDayDetail-${taskId.replace(/[^a-zA-Z0-9]/g,'')}`;
+  const el = document.getElementById(detailId);
+  if (!el) return;
+
+  // 切换高亮
+  if (_activeDayDetail === dateStr && el.innerHTML) {
+    el.innerHTML = '';
+    _activeDayDetail = null;
+    // 取消高亮
+    document.querySelectorAll('#habitDetail .hweek-item.hweek-active').forEach(e => e.classList.remove('hweek-active'));
+    // 恢复今天高亮
+    const items = document.querySelectorAll('#habitDetail .hweek-item');
+    items[6]?.classList.add('hweek-active'); // last item = today
+    return;
+  }
+  _activeDayDetail = dateStr;
+  // 高亮选中日
+  const items = document.querySelectorAll('#habitDetail .hweek-item');
+  items.forEach(e => e.classList.remove('hweek-active'));
+  const todayStr = toDateStr(new Date());
+  const dayIndex = 6 - Math.round((new Date(todayStr) - new Date(dateStr)) / 86400000);
+  if (dayIndex >= 0 && dayIndex < 7) items[dayIndex]?.classList.add('hweek-active');
+
+  const records = (task.history || []).filter(h => toDateStr(new Date(h.date)) === dateStr && (h.scoredUp || 0) > 0);
+  if (!records.length) { el.innerHTML = '<span style="font-size:12px;color:var(--text-tertiary);padding:var(--s2)">暂无记录</span>'; return; }
+  const todayLabel = toDateStr(new Date());
+  const dateLabel = dateStr === todayLabel ? '今天' : dateStr;
+  el.innerHTML = `<div class="hday-detail-header">${dateLabel}</div>
+    ${records.map((h, idx) => {
+      const time = new Date(h.date).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+      return `<div class="hday-record">
+        <span class="hday-rec-time">${time}</span>
+        <span class="hday-rec-del" onclick="event.stopPropagation();deleteDayRecord('${taskId}','${h.date}')">×</span>
+      </div>`;
+    }).join('')}`;
+}
+function deleteDayRecord(taskId, ts) {
+  _pendingDayRecordDelete = { taskId, ts };
+  document.getElementById('delConfirmTitle').textContent = '删除这条记录？';
+  document.getElementById('delConfirmDesc').textContent = '这条记录将被删除，无法恢复';
+  document.getElementById('delConfirmOverlay').classList.add('show');
+}
+function confirmDayRecordDelete() {
+  if (!_pendingDayRecordDelete) return;
+  const { taskId, ts } = _pendingDayRecordDelete;
+  _pendingDayRecordDelete = null;
+  document.getElementById('delConfirmOverlay').classList.remove('show');
+  const task = state.tasks.find(t => t._id === taskId);
+  if (!task) return;
+  task.history = (task.history || []).filter(h => h.date !== ts);
+  saveState();
+  renderHabitDetail(task, getHabitTips(task.text, task));
+  showToast('已删除');
+}
+
+// ===== TODO DETAIL =====
+let _todoDetailId = null;
+
+function showTodoDetail(id) {
+  _todoDetailId = id;
+  const task = state.tasks.find(t => t._id === id);
+  if (!task) return;
+  renderTodoDetail(task);
+}
+
+function renderTodoDetail(task) {
+  document.getElementById('tdIcon').innerHTML = `<i data-lucide="${getTaskIcon(task.text)}" style="width:32px;height:32px"></i>`;
+  document.getElementById('tdTitle').value = task.text;
+
+  // 统计：今日专注时长
+  const total = getTodayTotal(task);
+  const statsParts = [];
+  if (total) statsParts.push(`<span class="hdetail-stat"><span class="hdetail-stat-num">${formatElapsed(total)}</span> 今日专注</span>`);
+  if (task.completed) statsParts.push(`<span class="hdetail-stat"><span class="hdetail-stat-num">✓</span> 已完成</span>`);
+  document.getElementById('tdStats').innerHTML = statsParts.join('<span class="hdetail-stat-dot"></span>');
+
+  // 今日计时 session
+  const today = toDateStr(new Date());
+  const sessions = (task.timeTracking?.sessions || []).filter(s => {
+    if (!s.end) return false;
+    return toDateStr(new Date(s.start)) === today;
+  });
+  const sessionsEl = document.getElementById('tdSessions');
+  if (!sessions.length) {
+    sessionsEl.innerHTML = '<span style="color:var(--text-tertiary);font-size:13px">暂无记录</span>';
+  } else {
+    sessionsEl.innerHTML = sessions.map(s => {
+      const start = new Date(s.start);
+      const end = new Date(s.end);
+      const dur = end - start;
+      return `<div class="td-session-row">
+        <span class="td-session-time">${fmtTime(s.start)} — ${fmtTime(s.end)}</span>
+        <span class="td-session-dur">${formatDurationShort(dur)}</span>
+      </div>`;
+    }).join('');
+  }
+
+  if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
+  document.getElementById('todoDetail').classList.add('show');
+  playPop();
+}
+
+function saveTodoTitle() {
+  if (!_todoDetailId) return;
+  const task = state.tasks.find(t => t._id === _todoDetailId);
+  if (!task) return;
+  const val = document.getElementById('tdTitle').value.trim();
+  if (!val) return;
+  task.text = val;
+  saveState();
+  // 刷新卡片上的文字和图标
+  document.querySelectorAll(`.task-card[data-id="${task._id}"]`).forEach(card => {
+    const textEl = card.querySelector('.task-text');
+    if (textEl) textEl.textContent = val;
+    const iconEl = card.querySelector('.task-type-icon i');
+    if (iconEl) {
+      const newIcon = getTaskIcon(val);
+      iconEl.setAttribute('data-lucide', newIcon);
+    }
+  });
+  if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
+}
+
+function confirmTodoDelete() {
+  if (!_todoDetailId) return;
+  const task = state.tasks.find(t => t._id === _todoDetailId);
+  document.getElementById('delConfirmTitle').textContent = task ? `删除「${task.text}」？` : '删除这个待办？';
+  document.getElementById('delConfirmDesc').textContent = '删除后数据将丢失，无法恢复';
+  document.getElementById('delConfirmOverlay').classList.add('show');
 }
 
 function habitCardHTML(task) {
@@ -1469,14 +1866,40 @@ function todoCardHTML(task) { return taskCardHTML(task, 'todo'); }
 function taskCardHTML(task, type) {
   const icon = getTaskIcon(task.text);
   const done = task.completed || false;
+  const running = type === 'todo' && !done && task.timeTracking?.runningSession ? ' running' : '';
   const timeHtml = task.dateCompleted ? `<span class="todo-time">${fmtTime(task.dateCompleted)} 完成</span>` : '';
-  return `<div class="task-card ${done ? 'completed' : ''}" data-type="${type}" data-id="${task._id}" onclick="clickTask('${task._id}')">
-    <div class="task-check">${done ? '✓' : ''}</div>
+  return `<div class="task-card ${done ? 'completed' : ''}${running}" data-type="${type}" data-id="${task._id}" onclick="showTodoDetail('${task._id}')">
+    <div class="task-check" onclick="event.stopPropagation();clickTask('${task._id}')">${done ? '✓' : ''}</div>
     <div class="task-type-icon"><i data-lucide="${icon}" class="icon-task-type"></i></div>
     <div class="task-body">
       <div class="task-text">${esc(task.text)}</div>
       ${timeHtml}
     </div>
+    ${type === 'todo' ? timerHTML(task) : ''}
+  </div>`;
+}
+
+function timerHTML(task) {
+  if (task.completed) {
+    const total = getTodayTotal(task);
+    return total ? `<div class="task-timer"><span class="task-timer-summary">今日 ${formatElapsed(total)}</span></div>` : '';
+  }
+  const tt = task.timeTracking;
+  if (tt?.runningSession) {
+    return `<div class="task-timer">
+      <span class="task-timer-elapsed" id="timer-${task._id}">${formatElapsed(Date.now() - new Date(tt.runningSession).getTime())}</span>
+      <button class="task-timer-btn task-timer-btn-stop" onclick="event.stopPropagation();stopTaskTimer('${task._id}')">
+        <i data-lucide="square" style="width:12px;height:12px"></i> 停止
+      </button>
+    </div>`;
+  }
+  const total = getTodayTotal(task);
+  const totalHtml = total ? `<span class="task-timer-summary">今日 ${formatElapsed(total)}</span>` : '';
+  return `<div class="task-timer">
+    ${totalHtml}
+    <button class="task-timer-btn task-timer-btn-start" onclick="event.stopPropagation();startTaskTimer('${task._id}')">
+      <i data-lucide="play" style="width:12px;height:12px"></i> 开始
+    </button>
   </div>`;
 }
 function rewardCardHTML(task) {
@@ -1551,13 +1974,21 @@ function clickTask(id) {
 
   if (task.type === 'todo') {
     const wasComplete = task.completed;
-    if (wasComplete) { scoreTask(state.user, task, 'down'); } else { _doComplete(task); }
+    if (wasComplete) {
+      scoreTask(state.user, task, 'down');
+    } else {
+      // 如果正在计时，先停止
+      if (task.timeTracking?.runningSession) stopTaskTimer(task._id, true);
+      _doComplete(task);
+    }
     // 只更新当前卡片，不重新渲染整个列表
     document.querySelectorAll(`.task-card[data-id="${id}"]`).forEach(card => {
       card.classList.toggle('completed', !!task.completed);
       card.querySelector('.task-check').textContent = task.completed ? '✓' : '';
       card.style.display = task.completed && !_showDoneTodos ? 'none' : '';
     });
+    // 刷新计时区域
+    updateTimerCard(task);
     document.getElementById('statGp').textContent = Math.floor(state.user.stats.gp);
     renderMergedStats();
     updateTodoFooter();
@@ -1602,6 +2033,196 @@ function clickHabit(id, dir) {
 
 function _popCard(id) {}
 
+// ===== TODO TIMER =====
+let _timerInterval = null;
+
+function startTaskTimer(id) {
+  const task = state.tasks.find(t => t._id === id);
+  if (!task || task.completed || task.timeTracking?.runningSession) return;
+  if (!task.timeTracking) task.timeTracking = { sessions: [], runningSession: null };
+  const now = new Date();
+  task.timeTracking.runningSession = now;
+  task.timeTracking.sessions.push({ start: now, end: null });
+  updateTimerCard(task);
+  saveState();
+  ensureTimerTick();
+  showFocusOverlay(task);
+}
+
+function showFocusOverlay(task) {
+  document.getElementById('focusTaskName').textContent = task.text;
+  document.getElementById('focusTimer').textContent = formatElapsed(Date.now() - new Date(task.timeTracking.runningSession).getTime());
+  document.getElementById('focusOverlay').classList.add('show');
+  if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
+}
+function hideFocusOverlay() {
+  document.getElementById('focusOverlay').classList.remove('show');
+}
+function focusStop() {
+  const running = state.tasks.find(t => t.type === 'todo' && !t.completed && t.timeTracking?.runningSession);
+  if (running) stopTaskTimer(running._id, false);
+}
+
+// ===== TIMER CONFIRM MODAL =====
+let _pendingTimerConfirm = null;
+
+function confirmTimerDone() {
+  document.getElementById('timerConfirmOverlay').classList.remove('show');
+  playTap();
+  const fn = _pendingTimerConfirm;
+  _pendingTimerConfirm = null;
+  if (fn) fn(true);
+}
+function cancelTimerDone() {
+  document.getElementById('timerConfirmOverlay').classList.remove('show');
+  playTap();
+  const fn = _pendingTimerConfirm;
+  _pendingTimerConfirm = null;
+  if (fn) fn(false);
+}
+
+function stopTaskTimer(id, silent) {
+  const task = state.tasks.find(t => t._id === id);
+  if (!task || !task.timeTracking?.runningSession) return;
+  const now = new Date();
+  const session = task.timeTracking.sessions.find(s => !s.end);
+  if (session) session.end = now;
+  task.timeTracking.runningSession = null;
+
+  if (!silent) {
+    // 异步弹窗询问，不阻塞
+    _pendingTimerConfirm = (completed) => {
+      _finishStopTimer(task, session, now, completed);
+    };
+    document.getElementById('timerConfirmTitle').textContent = `「${task.text}」做完了吗？`;
+    if (session) {
+      const elapsed = now - new Date(session.start);
+      document.getElementById('timerConfirmDesc').textContent = `专注了 ${formatElapsed(elapsed)}，做完了吗？`;
+    } else {
+      document.getElementById('timerConfirmDesc').textContent = '做完了吗？';
+    }
+    document.getElementById('timerConfirmOverlay').classList.add('show');
+    return; // 等待弹窗回调
+  }
+
+  // 静默停止（完成时自动触发）
+  _finishStopTimer(task, session, now, false);
+}
+
+function _finishStopTimer(task, session, now, completed) {
+  hideFocusOverlay();
+
+  if (completed) {
+    if (state.hearts <= 0) {
+      showToast('爱心耗尽！先恢复再说吧');
+      task.timeTracking.runningSession = now; // 恢复计时
+      if (session) session.end = null;
+      updateTimerCard(task);
+      saveState();
+      return;
+    }
+    _doComplete(task);
+  }
+
+  // 同步统计数据
+  document.getElementById('statGp').textContent = Math.floor(state.user.stats.gp);
+  renderMergedStats();
+  updateTodoFooter();
+  checkUp();
+
+  updateTimerCard(task);
+  saveState();
+  if (session) {
+    const elapsed = now - new Date(session.start);
+    const minutes = Math.floor(elapsed / 60000);
+    const seconds = Math.floor((elapsed % 60000) / 1000);
+    const timeStr = minutes > 0 ? `${minutes}分${seconds}秒` : `${seconds}秒`;
+    showToast(completed
+      ? `✅ ${task.text} — 专注 ${timeStr}，任务完成！`
+      : `⏹ ${task.text} — 专注 ${timeStr}`);
+  }
+}
+
+function updateTimerCard(task) {
+  const cards = document.querySelectorAll(`.task-card[data-id="${task._id}"]`);
+  if (!cards.length) return;
+  const html = timerHTML(task);
+  cards.forEach(card => {
+    const old = card.querySelector('.task-timer');
+    if (old) {
+      if (html) old.outerHTML = html;
+      else old.remove();
+    } else if (html) {
+      card.insertAdjacentHTML('beforeend', html);
+    }
+    card.classList.toggle('running', !task.completed && !!task.timeTracking?.runningSession);
+    // 同步完成状态：class + 勾选 + 隐藏
+    card.classList.toggle('completed', !!task.completed);
+    const check = card.querySelector('.task-check');
+    if (check) check.textContent = task.completed ? '✓' : '';
+    if (task.completed && !_showDoneTodos) {
+      card.style.display = 'none';
+    } else {
+      card.style.display = '';
+    }
+  });
+  if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
+}
+
+function getTodayTotal(task) {
+  const tt = task.timeTracking;
+  if (!tt || !tt.sessions || !tt.sessions.length) return 0;
+  const today = toDateStr(new Date());
+  let total = 0;
+  for (const s of tt.sessions) {
+    if (toDateStr(new Date(s.start)) !== today) continue;
+    const end = s.end ? new Date(s.end) : new Date();
+    total += end - new Date(s.start);
+  }
+  return total;
+}
+
+function formatElapsed(ms) {
+  const totalSec = Math.floor(Math.max(0, ms) / 1000);
+  const h = Math.floor(totalSec / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
+  return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+function formatDurationShort(ms) {
+  const totalSec = Math.floor(Math.max(0, ms) / 1000);
+  const m = Math.floor(totalSec / 60);
+  const s = totalSec % 60;
+  if (m >= 60) {
+    const h = Math.floor(m / 60);
+    return `${h}小时${m % 60}分`;
+  }
+  if (m > 0) return `${m}分${s}秒`;
+  return `${s}秒`;
+}
+
+function ensureTimerTick() {
+  if (_timerInterval) return;
+  _timerInterval = setInterval(() => {
+    const runningTasks = state.tasks.filter(t =>
+      t.type === 'todo' && !t.completed && t.timeTracking?.runningSession
+    );
+    if (!runningTasks.length) {
+      clearInterval(_timerInterval);
+      _timerInterval = null;
+      return;
+    }
+    runningTasks.forEach(task => {
+      const elapsed = formatElapsed(Date.now() - new Date(task.timeTracking.runningSession).getTime());
+      const el = document.getElementById('timer-' + task._id);
+      if (el) el.textContent = elapsed;
+      const focusEl = document.getElementById('focusTimer');
+      if (focusEl) focusEl.textContent = elapsed;
+    });
+  }, 1000);
+}
+
+// ===== COMPLETE =====
 function _doComplete(task) {
   const beforeGP = state.user.stats.gp;
   const beforeExp = state.user.stats.exp;
@@ -1770,7 +2391,31 @@ function showReport(type) {
   // 计算数据
   let todayTotal = 0, todayDone = 0, weekStreak = 0, maxStreak = 0, _maxCount = 0;
   const habitRecords = [];
+  const todoRecords = [];
   state.tasks.forEach(t => {
+    if (t.type === 'todo') {
+      // todo：检查完成状态 + 累计耗时
+      let todoDone = 0;
+      let totalMs = 0;
+      if (t.completed && t.dateCompleted && dateFilter(t.dateCompleted)) {
+        todoDone = 1;
+        todayDone++;
+      }
+      // 计时 session
+      if (t.timeTracking?.sessions) {
+        t.timeTracking.sessions.forEach(s => {
+          if (!s.end) return;
+          if (!dateFilter(s.start)) return;
+          totalMs += new Date(s.end) - new Date(s.start);
+          todoDone = 1;
+        });
+      }
+      if (todoDone > 0) {
+        todoRecords.push({ text: t.text, done: 1, icon: getTaskIcon(t.text), time: totalMs });
+      }
+      return;
+    }
+    // 习惯/每日
     const history = t.history || [];
     const tCount = history.filter(h => dateFilter(h.date)).reduce((s, h) => s + (h.scoredUp || 0), 0);
     if (tCount > 0) {
@@ -1780,19 +2425,14 @@ function showReport(type) {
       habitRecords.push({ text: t.text, done: tCount });
     }
   });
-  const doneTodos = state.tasks.filter(t => t.type === 'todo' && t.completed && toDateStr(new Date(t.dateCompleted)) === today).length;
-  if (doneTodos > 0) {
-    todayDone += doneTodos;
-    habitRecords.push({ text: '作业任务', done: doneTodos, target: doneTodos, pct: 100, badge: '已完成' });
-  }
 
   const totalItems = Math.max(todayDone, 1);
   const rate = Math.round((todayDone / Math.max(totalItems, 1)) * 100);
   const score = rate >= 80 ? '表现很棒' : rate >= 50 ? '继续加油' : '明天会更好';
 
   // 找最佳习惯
-  habitRecords.sort((a, b) => b.pct - a.pct);
-  const best = habitRecords.length > 0 ? habitRecords[0].text : '—';
+  const bestHabit = habitRecords.length > 0 ? habitRecords.reduce((a, b) => a.done > b.done ? a : b).text : '—';
+  const best = todoRecords.length > 0 && habitRecords.length === 0 ? todoRecords[0].text : bestHabit;
 
   // 高峰分析
   let peakLabel = '';
@@ -1809,7 +2449,7 @@ function showReport(type) {
     peakLabel = bestDay ? bestDay[0].slice(5) : '—';
   }
 
-  // 总完成次数
+  // 总完成次数（仅习惯）
   const totalCount = state.tasks.reduce((s, t) => s + (t.history || []).filter(h => dateFilter(h.date)).reduce((s2, h) => s2 + (h.scoredUp || 0), 0), 0);
 
   // 连续天数
@@ -1824,7 +2464,6 @@ function showReport(type) {
   const maxCount = Math.max(_maxCount, 1);
   const recordsHtml = habitRecords.slice(0, 5).map((r, idx) => {
     const pct = Math.round((r.done / maxCount) * 100);
-    const badge = r.badge ? `<span class="r-badge">${r.badge}</span>` : '';
     const lucideName = getTaskIcon(r.text);
     r._icon = lucideName;
     return `<div class="r-record">
@@ -1833,7 +2472,19 @@ function showReport(type) {
         <div class="r-rec-top"><span class="r-rec-text">${r.text}</span><span class="r-rec-num">${r.done} 次</span></div>
         <div class="r-rec-bar-bg"><div class="r-rec-bar-fill" style="width:${pct}%"></div></div>
       </div>
-      ${badge}
+    </div>`;
+  }).join('');
+
+  const todoMaxTime = Math.max(1, ...todoRecords.map(r => r.time || 0));
+  const todoHtml = todoRecords.map(r => {
+    const timeLabel = r.time ? formatElapsed(r.time) : '✓ 完成';
+    const pct = r.time ? Math.round((r.time / todoMaxTime) * 100) : 100;
+    return `<div class="r-record">
+      <div class="r-rec-icon"><i data-lucide="${r.icon}" style="width:14px;height:14px"></i></div>
+      <div class="r-rec-body">
+        <div class="r-rec-top"><span class="r-rec-text">${r.text}</span><span class="r-rec-num">${timeLabel}</span></div>
+        <div class="r-rec-bar-bg"><div class="r-rec-bar-fill" style="width:${pct}%"></div></div>
+      </div>
     </div>`;
   }).join('');
 
@@ -1874,7 +2525,12 @@ function showReport(type) {
       </div>
 
       <div class="r-section-title">习惯完成情况</div>
-      <div class="r-card r-records">${recordsHtml}</div>
+      <div class="r-card r-records">${recordsHtml || '<div style="text-align:center;padding:var(--s4);color:var(--text-tertiary);font-size:13px">暂无习惯记录</div>'}</div>
+
+      ${todoHtml ? `
+      <div class="r-section-title" style="margin-top:var(--s4)">任务完成情况</div>
+      <div class="r-card r-records">${todoHtml}</div>
+      ` : ''}
 
       <div class="r-card r-summary-ai">
         <div class="r-ai-text">${label}执行最稳定的是「${best}」。继续坚持，把好习惯融入每天的生活中。</div>
@@ -1931,10 +2587,14 @@ function closeMilestoneTip() {
   document.querySelectorAll('.ms-overlay').forEach(el => el.remove());
 }
 function petMonkey() {
+  // 猴子换图 + 刷新 UI
   _monkeyIdx = (_monkeyIdx + 1) % MONKEY_LIST.length;
   document.getElementById('monkeyMascot').src = MONKEY_LIST[_monkeyIdx];
-  showToast(monkeyTalk(null));
+  render();
+  // 如果在记录页，单独刷新历史列表
+  if (state.tab === 'history') showHistory();
   playCorrect();
+  showToast(monkeyTalk(null));
 }
 function showHistory() {
   const list = document.getElementById('historyListTab');
@@ -1947,6 +2607,7 @@ function showHistory() {
   // 收集所有完成记录
   const records = [];
   state.tasks.forEach(task => {
+    const icon = getTaskIcon(task.text);
     // 习惯/每日的历史
     (task.history || []).forEach(h => {
       const date = toDateStr(new Date(h.date));
@@ -1954,18 +2615,40 @@ function showHistory() {
       const count = h.scoredUp || 0;
       if (count > 0) {
         hasData = true;
-        records.push({ date, time, text: task.text, id: task._id + '_' + h.date, taskId: task._id, ts: h.date, label: count + ' 次' });
+        records.push({ date, time, text: task.text, id: task._id + '_' + h.date, taskId: task._id, ts: h.date, label: count + ' 次', icon, category: 'habit' });
       }
     });
     // 待办完成
     if (task.type === 'todo' && task.completed && task.dateCompleted) {
       hasData = true;
-      records.push({ date: toDateStr(new Date(task.dateCompleted)), time: fmtTime(task.dateCompleted), text: task.text, id: task._id + '_todo', taskId: task._id, ts: new Date(task.dateCompleted).getTime(), label: '✓ 完成' });
+      records.push({ date: toDateStr(new Date(task.dateCompleted)), time: fmtTime(task.dateCompleted), text: task.text, id: task._id + '_todo', taskId: task._id, ts: new Date(task.dateCompleted).getTime(), label: '✓ 完成', icon, category: 'todo' });
+    }
+    // 待办计时记录
+    if (task.type === 'todo' && task.timeTracking?.sessions) {
+      task.timeTracking.sessions.forEach((s, idx) => {
+        if (!s.end) return; // 只显示已结束的 session
+        const start = new Date(s.start);
+        const end = new Date(s.end);
+        const dur = end - start;
+        if (dur < 1000) return; // 太短的忽略
+        hasData = true;
+        records.push({
+          date: toDateStr(start),
+          time: fmtTime(s.start),
+          text: task.text,
+          id: task._id + '_timer_' + start.getTime(),
+          taskId: task._id,
+          ts: start.getTime(),
+          label: '专注 ' + formatDurationShort(dur),
+          icon,
+          category: 'todo',
+        });
+      });
     }
     // 奖励购买
     if (task.type === 'reward' && task.completed && task.dateCompleted) {
       hasData = true;
-      records.push({ date: toDateStr(new Date(task.dateCompleted)), time: fmtTime(task.dateCompleted), text: task.text + ' 🪙', id: task._id + '_reward', taskId: task._id, ts: new Date(task.dateCompleted).getTime(), label: '已购买' });
+      records.push({ date: toDateStr(new Date(task.dateCompleted)), time: fmtTime(task.dateCompleted), text: task.text, id: task._id + '_reward', taskId: task._id, ts: new Date(task.dateCompleted).getTime(), label: '已购买', icon: 'gift', category: 'reward' });
     }
   });
 
@@ -1986,7 +2669,9 @@ function showHistory() {
     const label = date === today ? '今天' : date === yesterday ? '昨天' : date;
     html += `<div class="history-date-label">${label}</div>`;
     groups[date].forEach(r => {
+      const rIcon = r.icon || 'sparkles';
       html += `<div class="task-card history-item" data-id="${r.id}" data-taskid="${r.taskId}" data-ts="${r.ts}">
+        <span class="history-icon"><i data-lucide="${rIcon}" style="width:24px;height:24px"></i></span>
         <div class="history-body">
           <span class="history-text">${esc(r.text)}</span>
           <span class="history-time">${new Date(r.ts).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}</span>
@@ -1998,19 +2683,39 @@ function showHistory() {
   });
 
   list.innerHTML = html;
+  if(typeof lucide!=="undefined"&&lucide.createIcons)lucide.createIcons();
 }
 let _pendingHistoryDelete = null;
+let _pendingDayRecordDelete = null;
 function deleteHistoryRecord(recId, taskId, ts) {
   _pendingHistoryDelete = { recId, taskId, ts };
+  document.getElementById('delConfirmTitle').textContent = '删除这条记录？';
+  document.getElementById('delConfirmDesc').textContent = '这条记录将被删除，无法恢复';
   document.getElementById('delConfirmOverlay').classList.add('show');
 }
 function confirmHistoryDelete() {
   if (!_pendingHistoryDelete) return;
-  const { taskId, ts } = _pendingHistoryDelete;
+  const { recId, taskId, ts } = _pendingHistoryDelete;
   _pendingHistoryDelete = null;
   document.getElementById('delConfirmOverlay').classList.remove('show');
   const task = state.tasks.find(t => t._id === taskId);
   if (!task) return;
+
+  // 计时记录删除：移除对应的 session
+  if (recId && recId.includes('_timer_')) {
+    const startTs = parseInt(recId.split('_timer_')[1], 10);
+    if (task.timeTracking?.sessions) {
+      task.timeTracking.sessions = task.timeTracking.sessions.filter(s => {
+        const sStart = new Date(s.start).getTime();
+        return sStart !== startTs;
+      });
+    }
+    saveState();
+    showHistory();
+    showToast('已删除');
+    return;
+  }
+
   if (task.history) {
     task.history = task.history.filter(h => h.date !== ts);
   }
@@ -2051,22 +2756,30 @@ function updateTodoFooter() {
 }
 function confirmDeleteDetail() {
   if (!_hDetailId) return;
+  const task = state.tasks.find(t => t._id === _hDetailId);
+  document.getElementById('delConfirmTitle').textContent = task ? `删除「${task.text}」？` : '删除这个习惯？';
+  document.getElementById('delConfirmDesc').textContent = '删除后数据将丢失，无法恢复';
   document.getElementById('delConfirmOverlay').classList.add('show');
 }
 function doDeleteDetail() {
-  if (!_hDetailId) return;
+  const id = _hDetailId || _todoDetailId;
+  if (!id) return;
   playTap();
-  deleteTask(_hDetailId);
+  deleteTask(id);
   document.getElementById('habitDetail').classList.remove('show');
+  document.getElementById('todoDetail').classList.remove('show');
   document.getElementById('delConfirmOverlay').classList.remove('show');
   _hDetailId = null;
+  _todoDetailId = null;
 }
 function doConfirmDelete() {
-  if (_pendingHistoryDelete) { confirmHistoryDelete(); }
+  if (_pendingDayRecordDelete) { confirmDayRecordDelete(); }
+  else if (_pendingHistoryDelete) { confirmHistoryDelete(); }
   else { doDeleteDetail(); }
 }
 function cancelDeleteDetail() {
   _pendingHistoryDelete = null;
+  _pendingDayRecordDelete = null;
   playTap();
   document.getElementById('delConfirmOverlay').classList.remove('show');
 }
@@ -2233,13 +2946,24 @@ document.getElementById('settingsBtn').addEventListener('click', () => {
 document.getElementById('lvlModal').addEventListener('click', (e) => {
   if (e.target === e.currentTarget) document.getElementById('lvlModal').classList.remove('show');
 });
+document.getElementById('timerConfirmOverlay').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) cancelTimerDone();
+});
 
 // ===== INIT =====
 loadState();
 // 每日重置待办
 const todayStr = toDateStr(new Date());
 if (state._todoDate !== todayStr) {
-  state.tasks.filter(t => t.type === 'todo').forEach(t => { t.completed = false; t.dateCompleted = null; });
+  state.tasks.filter(t => t.type === 'todo').forEach(t => {
+    // 如果跨天时有正在计时的 session，关闭它
+    if (t.timeTracking?.runningSession) {
+      const session = t.timeTracking.sessions.find(s => !s.end);
+      if (session) session.end = new Date(new Date(t.timeTracking.runningSession).setHours(23,59,59,999));
+      t.timeTracking.runningSession = null;
+    }
+    t.completed = false; t.dateCompleted = null;
+  });
   state._todoDate = todayStr;
 }
 // 首次使用：加载示例任务
@@ -2249,13 +2973,8 @@ if (state.tasks.length === 0) {
   // 迁移：移除旧名称的重复习惯（已被改名）
   const oldNames = ['背 5 个英语单词','跳绳 50 个','练字 5 分钟','做口算一页','阅读 15 分钟'];
   state.tasks = state.tasks.filter(t => !oldNames.includes(t.text));
-  // 检查并补充缺少的示例任务
-  const existingTexts = new Set(state.tasks.map(t => t.text));
-  SAMPLES.forEach(t => {
-    if (!existingTexts.has(t.text)) {
-      state.tasks.push(taskDef(t));
-    }
-  });
+  // 注意：不再自动补充被删除的示例任务
+  // 用户删除=不想要，刷新后不该再出现
 }
 soundEnabled = localStorage.getItem('mh_sound') !== 'off';
 _monkeyIdx = Math.floor(Math.random() * MONKEY_LIST.length);
@@ -2264,6 +2983,9 @@ document.getElementById('monkeyMascot').src = MONKEY_LIST[_monkeyIdx];
 saveState();
 render();
 if(typeof lucide!=="undefined"&&lucide.createIcons)lucide.createIcons();
+// 启动计时器（如果有正在计时的任务）
+const hasRunning = state.tasks.some(t => t.type === 'todo' && !t.completed && t.timeTracking?.runningSession);
+if (hasRunning) ensureTimerTick();
 saveState();
 
 console.log('朱古力豆 · Lucide 图标系统');
