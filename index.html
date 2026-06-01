@@ -691,20 +691,30 @@ button:disabled{opacity:.4!important;pointer-events:none}
 
 /* ===== TOAST ===== */
 .toast-container{
-  position:fixed;top:var(--s4);left:50%;transform:translateX(-50%);
-  z-index:400;display:flex;flex-direction:column;gap:var(--s1);
-  pointer-events:none;align-items:center;
+  position:fixed;top:0;left:0;right:0;z-index:400;
+  display:flex;flex-direction:column;gap:0;
+  pointer-events:none;padding:0;
 }
 .toast{
-  background:rgba(60,60,60,.92);
-  color:#fff;padding:var(--s3) var(--s5);border-radius:14px;
-  font-weight:700;font-size:14px;white-space:pre-line;text-align:left;
+  background:var(--blue);color:#fff;
+  padding:var(--s4) var(--s5);width:100%;
+  font-weight:700;font-size:14px;white-space:pre-line;text-align:center;
   animation:toastIn var(--fast) var(--ease-smooth),toastOut var(--fast) var(--ease-smooth) 2.2s forwards;
   pointer-events:auto;
-  box-shadow:var(--shadow-md);
+  border-radius:0 0 var(--r-md) var(--r-md);
 }
-@keyframes toastIn{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}
-@keyframes toastOut{from{opacity:1}to{opacity:0;transform:translateY(-10px)}}
+.toast.undo-toast{
+  display:flex;align-items:center;justify-content:center;gap:var(--s2);
+  cursor:default;
+}
+.toast.undo-toast .undo-btn{
+  color:rgba(255,255,255,.9);font-weight:800;background:none;
+  border:none;cursor:pointer;font-size:13px;
+  font-family:inherit;padding:0;white-space:nowrap;
+  text-decoration:underline;
+}
+@keyframes toastIn{from{opacity:0;transform:translateY(-100%)}to{opacity:1;transform:translateY(0)}}
+@keyframes toastOut{from{opacity:1}to{opacity:0;transform:translateY(-100%)}}
 
 /* ===== CONFETTI ===== */
 .confetti-container{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:500;overflow:hidden}
@@ -851,15 +861,7 @@ button:disabled{opacity:.4!important;pointer-events:none}
   .task-card{padding:var(--s3)}
 }
 
-.toast.undo-toast{
-  display:flex;align-items:center;gap:var(--s2);
-  padding:var(--s3) var(--s4);cursor:default;
-}
-.toast.undo-toast .undo-btn{
-  color:var(--primary);font-weight:800;background:none;
-  border:none;cursor:pointer;font-size:13px;
-  font-family:inherit;padding:0;white-space:nowrap;
-}
+
 
 /* ===== ICON SYSTEM (Lucide overrides) ===== */
 .icon-heart{width:22px;height:22px}
