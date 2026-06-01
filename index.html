@@ -121,6 +121,7 @@ button:disabled{opacity:.4!important;pointer-events:none}
   border-radius:0 0 var(--r-xl) var(--r-xl);
   box-shadow:var(--shadow-md);
   position:sticky;top:0;z-index:100;
+  margin:0 calc(-1 * var(--s4));
 }
 .app-title{font-size:18px;font-weight:800;color:var(--text);flex-shrink:0}
 
@@ -158,8 +159,8 @@ button:disabled{opacity:.4!important;pointer-events:none}
 /* ===== 合并卡片：进度 + 猴子 ===== */
 .merged-card{
   display:flex;align-items:flex-start;gap:var(--s1);
-  padding:var(--s5) 0 var(--s6);
-  margin:var(--s2) var(--s1) 0;
+  padding:var(--s5) var(--s4) var(--s6);
+  margin:var(--s2) calc(-1 * var(--s4)) 0;
   overflow:visible;
 }
 
@@ -188,9 +189,9 @@ button:disabled{opacity:.4!important;pointer-events:none}
 
 /* ===== TABS ===== */
 .tabs{
-  display:flex;gap:var(--s1);margin-bottom:var(--s3);
+  display:flex;gap:var(--s1);margin:0 calc(-1 * var(--s4)) var(--s3);
   background:var(--n150);
-  border-radius:14px;padding:var(--s1);
+  border-radius:0;padding:var(--s1) var(--s4);
 }
 .tab{
   flex:1;padding:var(--s3) var(--s1);border:none;border-radius:11px;
