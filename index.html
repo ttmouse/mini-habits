@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <link rel="icon" type="image/svg+xml" href="sprites/favicon.svg">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="朱古力豆">
+<meta name="theme-color" content="#58CC02">
 <title>朱古力豆 · 养成好习惯</title>
 <script src="lucide.js"></script>
 <style>
@@ -2987,6 +2991,13 @@ if(typeof lucide!=="undefined"&&lucide.createIcons)lucide.createIcons();
 const hasRunning = state.tasks.some(t => t.type === 'todo' && !t.completed && t.timeTracking?.runningSession);
 if (hasRunning) ensureTimerTick();
 saveState();
+
+// 注册 Service Worker（PWA）
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js').then(() => {
+    console.log('SW 已注册');
+  }).catch(() => {});
+}
 
 console.log('朱古力豆 · Lucide 图标系统');
 

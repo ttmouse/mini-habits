@@ -1,0 +1,23 @@
+{
+  "name": "朱古力豆 · 养成好习惯",
+  "short_name": "朱古力豆",
+  "description": "儿童友好型习惯养成工具，游戏化任务管理",
+  "start_url": "/mini-habits/",
+  "display": "standalone",
+  "background_color": "#f2f0eb",
+  "theme_color": "#58CC02",
+  "icons": [
+    {
+      "src": "sprites/pwa-icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "sprites/houzi01.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
