@@ -2089,21 +2089,7 @@ function showAddSheet() {
   document.getElementById('btnDirect').textContent = isReward ? '添加' : '直接添加';
   document.getElementById('newText').placeholder = isReward ? '奖励名称…' : '输入习惯名称…';
   document.getElementById('addOverlay').classList.add('show');
-  document.getElementById('newText').focus();
-  // 键盘弹出时调整浮层位置
-  if (window.visualViewport) {
-    window._vkHandler = () => {
-      const vh = window.visualViewport.height;
-      document.getElementById('addOverlay').style.height = vh + 'px';
-      document.getElementById('addOverlay').style.top = '0px';
-    };
-    window.visualViewport.addEventListener('resize', window._vkHandler);
-    // 立即执行一次
-    window._vkHandler();
-  }
-  setTimeout(() => {
-    document.getElementById('newText').scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, 300);
+  // 不自动拉起键盘，用户点击输入框时再弹出
 }
 function generateAdd() {
   const text = document.getElementById('newText').value.trim();
@@ -2169,12 +2155,6 @@ function hideAddSheet(e) {
   if (e && e.target !== e.currentTarget) return;
   playTap();
   document.getElementById('addOverlay').classList.remove('show');
-  document.getElementById('addOverlay').style.height = '';
-  document.getElementById('addOverlay').style.top = '';
-  if (window._vkHandler && window.visualViewport) {
-    window.visualViewport.removeEventListener('resize', window._vkHandler);
-    window._vkHandler = null;
-  }
 }
 function addTask() {
   const text = document.getElementById('newText').value.trim();
