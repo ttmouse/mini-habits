@@ -1,0 +1,67 @@
+#!/bin/bash
+# ── 全局敏感信息检查钩子 ──
+# 安装方式: git config --global core.hooksPath ~/.git-hooks
+# 最后会回退到项目本地钩子（如果有）
+
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+FAILED=0
+
+PATTERNS=(
+  "PASS(WORD|WD)?[=:]['\"]"
+  "API[_]?KEY[=:]['\"]"
+  "(TOKEN|SECRET|CREDENTIAL)[=:]['\"]"
+)
+SSH_KEY_PATTERN='BEGIN (RSA|OPENSSH|EC) PRIVATE KEY'
+
+FILES=$(git diff --cached --name-only --diff-filter=ACM)
+
+if [ -n "$FILES" ]; then
+  for file in $FILES; do
+    [ -f "$file" ] || continue
+    case "$file" in
+      *.png|*.jpg|*.jpeg|*.gif|*.ico|*.svg|*.woff|*.woff2|*.eot|*.ttf) continue ;;
+    esac
+
+    ADDED_LINES=$(git diff --cached "$file" | grep '^+[^+]')
+    [ -z "$ADDED_LINES" ] && continue
+
+    for pattern in "${PATTERNS[@]}"; do
+      while IFS= read -r line; do
+        if echo "$line" | grep -qE "$pattern"; then
+          echo -e "${RED}[敏感信息] $file${NC}"
+          echo "    $line"
+          FAILED=1
+        fi
+      done <<< "$ADDED_LINES"
+    done
+
+    while IFS= read -r line; do
+      if echo "$line" | grep -qE "$SSH_KEY_PATTERN"; then
+        echo -e "${RED}[SSH 私钥] $file${NC}"
+        echo "    $line"
+        FAILED=1
+      fi
+    done <<< "$ADDED_LINES"
+  done
+fi
+
+if [ $FAILED -eq 1 ]; then
+  echo ""
+  echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+  echo -e "${YELLOW}  commit 被阻止：暂存区包含疑似敏感信息${NC}"
+  echo -e "${YELLOW}  请改用环境变量或 .env 文件${NC}"
+  echo -e "${YELLOW}  如需强制提交: git commit --no-verify${NC}"
+  echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+  exit 1
+fi
+
+# ── 回退到项目本地钩子 ──
+# 如果项目有自己的 .git/hooks/pre-commit，调用它
+PROJECT_HOOK=$(git rev-parse --git-dir 2>/dev/null)/hooks/pre-commit
+if [ -x "$PROJECT_HOOK" ] && [ "$PROJECT_HOOK" != "$0" ]; then
+  exec "$PROJECT_HOOK" "$@"
+fi
+
+exit 0

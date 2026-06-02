@@ -1,4 +1,4 @@
-const CACHE = 'zhugulidou-v1';
+const CACHE = 'zhugulidou-v2';
 const STATIC = [
   '/mini-habits/',
   '/mini-habits/index.html',
@@ -16,11 +16,22 @@ const STATIC = [
   '/mini-habits/sprites/monkey-idle.svg',
 ];
 
-// 安装：缓存静态资源
+// 安装：缓存静态资源（单个文件失败不阻塞整体安装）
 self.addEventListener('install', (e) => {
   e.waitUntil(
-    caches.open(CACHE).then((c) => c.addAll(STATIC)).then(() => self.skipWaiting())
+    caches.open(CACHE).then((c) => {
+      return Promise.allSettled(STATIC.map(url =>
+        c.add(url).catch(err => console.warn('SW 缓存失败(不影响运行):', url, err))
+      ));
+    }).then(() => self.skipWaiting())
   );
+});
+
+// 接收来自页面的指令（如 SKIP_WAITING）
+self.addEventListener('message', (e) => {
+  if (e.data && e.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 // 激活：清理旧缓存 + 接管页面
