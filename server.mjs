@@ -119,11 +119,17 @@ app.post('/api/sync/push', (req, res) => {
 // 拉取最新数据
 app.get('/api/sync/pull', (req, res) => {
   const playerId = req.query.playerId;
-  if (!playerId) return res.status(400).json({ error: 'playerId required' });
+  const deviceToken = req.query.deviceToken;
+  if (!playerId || !deviceToken) return res.status(400).json({ error: 'playerId and deviceToken required' });
 
   const store = readStore();
   const player = store.players[playerId];
   if (!player) return res.status(404).json({ error: '玩家不存在' });
+
+  // 验证 deviceToken（与 push 一致）
+  if (!player.deviceTokens.includes(deviceToken)) {
+    return res.status(403).json({ error: '设备未授权' });
+  }
 
   res.json({
     data: player.data,

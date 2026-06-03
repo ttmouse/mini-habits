@@ -1387,7 +1387,7 @@ function saveState() {
     _lastMilestone: state._lastMilestone,
     soundEnabled: soundEnabled,
   }));
-  syncPush();
+  syncPushDebounced();
 }
 function loadState() {
   try {
@@ -1460,6 +1460,7 @@ function syncBaseUrl() {
 }
 
 let _syncInterval = null;
+let _pushTimer = null;
 function startSyncPolling() {
   if (_syncInterval) return;
   _syncInterval = setInterval(() => syncPull(), 8000);
@@ -1468,23 +1469,37 @@ function stopSyncPolling() {
   if (_syncInterval) { clearInterval(_syncInterval); _syncInterval = null; }
 }
 
+// 防抖：1 秒内多次 saveState 只触发一次推送
+function syncPushDebounced() {
+  if (!localStorage.getItem('mh_player_id') || !localStorage.getItem('mh_device_token')) return;
+  if (_pushTimer) clearTimeout(_pushTimer);
+  _pushTimer = setTimeout(() => { _pushTimer = null; syncPush(); }, 1000);
+}
+
+function _syncSnapshot() {
+  // 全量快照：包含关键字段变化即可检测
+  const tasks = state.tasks.map(t => ({
+    text: t.text, type: t.type, completed: t.completed,
+    counterUp: t.counterUp, counterDown: t.counterDown,
+    historyLen: (t.history || []).length,
+    sessionsLen: (t.timeTracking?.sessions || []).length,
+  }));
+  return JSON.stringify({
+    tasks, lvl: state.user.stats.lvl, exp: state.user.stats.exp,
+    gp: Math.floor(state.user.stats.gp), todayDone: state.todayDone,
+    streak: state.streak, dayCount: state.dayCount, hearts: state.hearts,
+    lastHeartsCheck: state.lastHeartsCheck, soundEnabled,
+  });
+}
+
 async function syncPush() {
   const pid = localStorage.getItem('mh_player_id');
   const tok = localStorage.getItem('mh_device_token');
   if (!pid || !tok) return;
-  // 数据没变就不推（避免 merge 触发的 saveState 造成循环推送）
+  // 快照对比：数据没变就不推（循环推送阻断）
   const prevSnapshot = localStorage.getItem('mh_snapshot') || '';
-  const curSnapshot = JSON.stringify({
-    tl: state.tasks.length,
-    lv: state.user.stats.lvl,
-    ex: state.user.stats.exp,
-    gp: Math.floor(state.user.stats.gp),
-    td: state.todayDone,
-    st: state.streak,
-    ts: state.tasks.map(t => t.counterUp + '|' + (t.counterDown || 0) + '|' + (t.completed ? 1 : 0)),
-  });
+  const curSnapshot = _syncSnapshot();
   if (curSnapshot === prevSnapshot) return;
-  localStorage.setItem('mh_snapshot', curSnapshot);
   try {
     const data = {
       user: state.user,
@@ -1505,45 +1520,107 @@ async function syncPush() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ playerId: pid, deviceToken: tok, data }),
     });
-    if (!r.ok) return;
+    if (!r.ok) { console.warn('[sync] push 失败:', r.status); return; }
     const j = await r.json();
     if (j.ok) {
+      // ★ 快照在推送成功后才保存
+      localStorage.setItem('mh_snapshot', curSnapshot);
       localStorage.setItem('mh_last_sync', String(j.updatedAt));
+      _updateSyncStatus(true);
     }
-    // 推送后启动轮询拉取
-    startSyncPolling();
-  } catch (e) {}
+    // 推送后启动轮询拉取（先检查是否仍在线）
+    if (localStorage.getItem('mh_player_id')) startSyncPolling();
+  } catch (e) {
+    console.warn('[sync] push 异常:', e);
+    _updateSyncStatus(false);
+  }
+}
+
+function _mergeSyncData(data) {
+  // 合并 tasks：按 _id 去重，同名同类型也去重
+  const existMap = {};
+  const nameMap = {};
+  state.tasks.forEach(t => {
+    existMap[t._id] = t;
+    nameMap[t.type + '|' + t.text] = t;
+  });
+  (data.tasks || []).forEach(t => {
+    let local = existMap[t._id] || nameMap[t.type + '|' + t.text];
+    if (local) {
+      // 已存在 → 合并 history 和 sessions
+      if (t.history && local.history) {
+        const localDates = new Set(local.history.map(h => h.date));
+        t.history.forEach(h => { if (!localDates.has(h.date)) local.history.push(h); });
+      }
+      if (t.timeTracking?.sessions && local.timeTracking?.sessions) {
+        const localStarts = new Set(local.timeTracking.sessions.map(s => s.start));
+        t.timeTracking.sessions.forEach(s => { if (!localStarts.has(s.start)) local.timeTracking.sessions.push(s); });
+      }
+      // 同步 counter 等状态（取远程的，因为远程可能是其他设备刚打的卡）
+      local.counterUp = t.counterUp ?? local.counterUp;
+      local.counterDown = t.counterDown ?? local.counterDown;
+      local.completed = t.completed ?? local.completed;
+    } else {
+      state.tasks.push(JSON.parse(JSON.stringify(t)));
+    }
+  });
+  // 合并 user stats（取较大的值）
+  if (data.user?.stats) {
+    if (data.user.stats.gp > (state.user.stats.gp || 0)) state.user.stats.gp = data.user.stats.gp;
+    if (data.user.stats.exp > (state.user.stats.exp || 0)) state.user.stats.exp = data.user.stats.exp;
+    if (data.user.stats.lvl > state.user.stats.lvl) state.user.stats.lvl = data.user.stats.lvl;
+  }
+  // 合并 meta
+  if (data.meta) {
+    if (data.meta.todayDone > state.todayDone) state.todayDone = data.meta.todayDone;
+    if (data.meta.streak > state.streak) state.streak = data.meta.streak;
+    if (data.meta.dayCount > state.dayCount) state.dayCount = data.meta.dayCount;
+    if (data.meta.hearts > state.hearts) state.hearts = data.meta.hearts;
+    state.lastHeartsCheck = data.meta.lastHeartsCheck ?? state.lastHeartsCheck;
+    state._todoDate = data.meta._todoDate ?? state._todoDate;
+    state._lastMilestone = data.meta._lastMilestone ?? state._lastMilestone;
+    soundEnabled = data.meta.soundEnabled ?? soundEnabled;
+  }
 }
 
 async function syncPull() {
   const pid = localStorage.getItem('mh_player_id');
-  if (!pid) return;
+  const tok = localStorage.getItem('mh_device_token');
+  if (!pid || !tok) return;
   try {
-    const r = await fetch(syncBaseUrl() + '/api/sync/pull?playerId=' + encodeURIComponent(pid));
-    if (!r.ok) return;
+    const r = await fetch(syncBaseUrl() + '/api/sync/pull?playerId=' + encodeURIComponent(pid) + '&deviceToken=' + encodeURIComponent(tok));
+    if (!r.ok) { console.warn('[sync] pull 失败:', r.status); return; }
     const j = await r.json();
     if (!j.data) return;
-    // 存上次 pull 的时间戳，避免重复拉同样的数据
     const lastPull = parseInt(localStorage.getItem('mh_last_pull')) || 0;
     if (j.updatedAt <= lastPull) return;
-    // 全量替换（删除、新增、修改都同步过来）
-    if (j.data.user) state.user = JSON.parse(JSON.stringify(j.data.user));
-    if (j.data.tasks) state.tasks = JSON.parse(JSON.stringify(j.data.tasks));
-    if (j.data.meta) {
-      const m = j.data.meta;
-      state.todayDone = m.todayDone ?? state.todayDone;
-      state.streak = m.streak ?? state.streak;
-      state.dayCount = m.dayCount ?? state.dayCount;
-      state.hearts = m.hearts ?? state.hearts;
-      state.lastHeartsCheck = m.lastHeartsCheck ?? state.lastHeartsCheck;
-      state._todoDate = m._todoDate ?? state._todoDate;
-      state._lastMilestone = m._lastMilestone ?? state._lastMilestone;
-      soundEnabled = m.soundEnabled ?? soundEnabled;
-    }
+    // ★ 合并而非全量覆盖
+    _mergeSyncData(j.data);
     saveState();
     render();
     localStorage.setItem('mh_last_pull', String(j.updatedAt));
-  } catch (e) {}
+    _updateSyncStatus(true);
+  } catch (e) {
+    console.warn('[sync] pull 异常:', e);
+    _updateSyncStatus(false);
+  }
+}
+
+// 同步状态 UI 指示
+let _syncStatusTimeout = null;
+function _updateSyncStatus(ok) {
+  const el = document.querySelector('#syncSection .sync-status');
+  if (!el) return;
+  el.textContent = ok ? '已同步' : '同步失败';
+  el.style.color = ok ? 'var(--primary)' : 'var(--red)';
+  if (_syncStatusTimeout) clearTimeout(_syncStatusTimeout);
+  // 3 秒后恢复默认
+  if (ok) {
+    _syncStatusTimeout = setTimeout(() => {
+      const e = document.querySelector('#syncSection .sync-status');
+      if (e) { e.textContent = '已同步'; e.style.color = 'var(--primary)'; }
+    }, 3000);
+  }
 }
 
 function clearAppCache() {
@@ -1581,7 +1658,7 @@ function syncRenderUnpaired() {
 function syncRenderPaired() {
   const code = localStorage.getItem('mh_family_code') || '';
   return '<div style="display:flex;align-items:center;gap:var(--s2);margin-top:var(--s1)">'
-    + '<span style="font-size:12px;color:var(--primary);font-weight:600">● 已同步</span>'
+    + '<span class="sync-status" style="font-size:12px;color:var(--primary);font-weight:600">已同步</span>'
     + '<span style="font-size:11px;color:var(--text-tertiary);flex:1">码 ' + code + '</span>'
     + '<button class="btn btn-ghost" onclick="syncDisconnect()" style="font-size:11px;padding:var(--s1) var(--s3);white-space:nowrap;color:var(--red);width:auto;flex-shrink:0">断开</button>'
     + '</div>';
